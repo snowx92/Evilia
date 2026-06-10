@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeftRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -40,8 +40,8 @@ export function ReassignParentDialog({ userId }: { userId: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          {t('hierarchy.reassign')}
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('hierarchy.reassign')}>
+          <ArrowLeftRight className="h-3.5 w-3.5" />
         </Button>
       </DialogTrigger>
       <DialogContent>
