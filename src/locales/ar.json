@@ -1,0 +1,268 @@
+{
+  "app": {
+    "title": "إيفيليا — لوحة الإدارة",
+    "shortName": "إيفيليا"
+  },
+  "common": {
+    "search": "بحث",
+    "filter": "تصفية",
+    "filters": "المرشحات",
+    "actions": "الإجراءات",
+    "all": "الكل",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "create": "إنشاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "view": "عرض",
+    "loading": "جارٍ التحميل…",
+    "loadMore": "تحميل المزيد",
+    "noResults": "لا توجد نتائج",
+    "none": "لا شيء",
+    "tryAgain": "حاول مرة أخرى",
+    "error": "حدث خطأ",
+    "required": "هذا الحقل مطلوب",
+    "page": "صفحة",
+    "of": "من",
+    "rowsPerPage": "صفوف لكل صفحة",
+    "next": "التالي",
+    "prev": "السابق",
+    "yes": "نعم",
+    "no": "لا",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "language": "اللغة",
+    "submit": "إرسال",
+    "back": "رجوع",
+    "details": "التفاصيل",
+    "amount": "المبلغ",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "role": "الدور",
+    "description": "الوصف",
+    "notes": "ملاحظات",
+    "title": "العنوان",
+    "from": "من",
+    "to": "إلى",
+    "reason": "السبب",
+    "approve": "الموافقة",
+    "reject": "الرفض",
+    "markPaid": "وضع علامة كمدفوع",
+    "suspend": "تعليق",
+    "activate": "تفعيل"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "users": "المستخدمون",
+    "sales": "المبيعات",
+    "commissions": "العمولات",
+    "wallets": "المحافظ",
+    "withdrawals": "السحوبات",
+    "targets": "الأهداف",
+    "expenses": "المصروفات",
+    "analytics": "التحليلات",
+    "hierarchy": "الهيكل التنظيمي",
+    "access": "إدارة الصلاحيات"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "loginSubtitle": "أدخل بيانات الاعتماد للوصول إلى لوحة الإدارة",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "name@evilia.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "••••••••",
+    "submit": "تسجيل الدخول",
+    "submitting": "جارٍ تسجيل الدخول…",
+    "invalidEmail": "البريد الإلكتروني غير صالح",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordMin": "الحد الأدنى ٦ أحرف",
+    "loginFailed": "تعذر تسجيل الدخول. تحقق من بياناتك.",
+    "welcomeBack": "أهلًا بعودتك"
+  },
+  "dashboard": {
+    "title": "نظرة عامة",
+    "totalSales": "إجمالي المبيعات",
+    "totalCommissions": "إجمالي العمولات",
+    "activeUsers": "المستخدمون النشطون",
+    "today": "اليوم"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "create": "إضافة مستخدم",
+    "createSubAdmin": "إضافة مشرف فرعي",
+    "filterByRole": "تصفية حسب الدور",
+    "filterByStatus": "تصفية حسب الحالة",
+    "fields": {
+      "displayName": "الاسم الظاهر",
+      "sellerCode": "رمز البائع",
+      "commissionPercentage": "نسبة العمولة",
+      "parentId": "المشرف الأعلى",
+      "selectParent": "اختر مشرفًا (اختياري)",
+      "isSuperAdmin": "مشرف عام",
+      "permissions": "الصلاحيات",
+      "createdAt": "تاريخ الإنشاء"
+    },
+    "actions": {
+      "suspend": "تعليق المستخدم",
+      "activate": "تفعيل المستخدم",
+      "viewWallet": "عرض المحفظة",
+      "editPermissions": "تحرير الصلاحيات"
+    },
+    "confirmSuspend": "هل تريد تعليق هذا المستخدم؟",
+    "confirmActivate": "هل تريد تفعيل هذا المستخدم؟"
+  },
+  "targets": {
+    "title": "الأهداف",
+    "create": "إضافة هدف",
+    "fields": {
+      "type": "النوع",
+      "userId": "المستخدم",
+      "selectUser": "اختر مستخدمًا…",
+      "title": "عنوان الهدف",
+      "targetAmount": "المبلغ المستهدف",
+      "currentAmount": "المنجز",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء"
+    }
+  },
+  "expenses": {
+    "title": "المصروفات",
+    "categories": "فئات المصروفات",
+    "create": "إضافة مصروف",
+    "createCategory": "إضافة فئة",
+    "filterByCategory": "تصفية حسب الفئة",
+    "fields": {
+      "title": "العنوان",
+      "amount": "المبلغ",
+      "category": "الفئة",
+      "date": "التاريخ",
+      "notes": "ملاحظات",
+      "attachments": "المرفقات"
+    },
+    "confirmDelete": "هل تريد حذف هذا المصروف؟"
+  },
+  "wallets": {
+    "title": "المحافظ",
+    "balance": "الرصيد",
+    "available": "المتاح",
+    "pendingWithdrawal": "قيد السحب",
+    "totalEarned": "إجمالي الأرباح",
+    "totalWithdrawn": "إجمالي المسحوب",
+    "lastUpdated": "آخر تحديث",
+    "transactions": "المعاملات",
+    "adjust": "تعديل المحفظة",
+    "adjustment": {
+      "credit": "إضافة",
+      "debit": "خصم"
+    }
+  },
+  "withdrawals": {
+    "title": "السحوبات",
+    "filterByStatus": "تصفية حسب الحالة",
+    "fields": {
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "reference": "مرجع الدفع",
+      "reason": "سبب الرفض",
+      "createdAt": "تاريخ الطلب"
+    },
+    "rejectReason": "سبب الرفض",
+    "paymentReference": "مرجع الدفع",
+    "confirmApprove": "هل تريد الموافقة على هذا السحب؟",
+    "confirmPay": "هل تريد وضع علامة كمدفوع؟"
+  },
+  "commissions": {
+    "title": "العمولات",
+    "bySale": "العمولات حسب البيع",
+    "fields": {
+      "saleId": "معرّف البيع",
+      "recipientId": "المستلم",
+      "recipientRole": "دور المستلم",
+      "percentage": "النسبة",
+      "saleAmount": "مبلغ البيع",
+      "amount": "العمولة"
+    }
+  },
+  "sales": {
+    "title": "المبيعات",
+    "filterByStatus": "تصفية حسب الحالة"
+  },
+  "hierarchy": {
+    "title": "الهيكل التنظيمي",
+    "rootUser": "المستخدم الجذر",
+    "reassign": "نقل الأب",
+    "newParent": "المعرّف الجديد للأب"
+  },
+  "analytics": {
+    "title": "التحليلات",
+    "daily": "ملخص يومي",
+    "monthly": "تحليلات شهرية"
+  },
+  "access": {
+    "title": "إدارة الصلاحيات",
+    "permissionCatalog": "كتالوج الصلاحيات",
+    "admins": "المشرفون",
+    "editPermissions": "تعديل صلاحيات المشرف"
+  },
+  "status": {
+    "active": "نشط",
+    "suspended": "معلّق",
+    "pending": "قيد الانتظار",
+    "approved": "تمت الموافقة",
+    "rejected": "مرفوض",
+    "paid": "مدفوع",
+    "credited": "مُضاف",
+    "processed": "مُعالج",
+    "cancelled": "ملغي",
+    "achieved": "محقق",
+    "expired": "منتهٍ"
+  },
+  "role": {
+    "admin": "مدير",
+    "sub-admin": "مشرف فرعي",
+    "seller": "بائع",
+    "leader": "قائد فريق"
+  },
+  "transaction": {
+    "type": {
+      "commission": "عمولة",
+      "bonus": "مكافأة",
+      "withdrawal": "سحب",
+      "adjustment": "تعديل"
+    },
+    "reference": {
+      "sale": "بيع",
+      "bonus": "مكافأة",
+      "withdrawal": "سحب",
+      "adjustment": "تعديل"
+    },
+    "balanceBefore": "الرصيد قبل",
+    "balanceAfter": "الرصيد بعد",
+    "filterByType": "تصفية حسب النوع",
+    "title": "حركات المحفظة",
+    "description": "كل حركات الرصيد عبر المستخدمين"
+  },
+  "withdrawals_ext": {
+    "requestedAt": "تاريخ الطلب",
+    "reviewedAt": "تاريخ المراجعة",
+    "reviewedBy": "تمت المراجعة بواسطة",
+    "rejectionReason": "سبب الرفض"
+  },
+  "hierarchy_ext": {
+    "team": "الفريق",
+    "directReports": "تابع مباشر",
+    "indirectReports": "تابع غير مباشر",
+    "expandAll": "توسيع الكل",
+    "collapseAll": "طي الكل",
+    "totalMembers": "إجمالي الأعضاء",
+    "levels": "المستويات"
+  },
+  "backend": {
+    "pending": "بانتظار الواجهة الخلفية"
+  }
+}

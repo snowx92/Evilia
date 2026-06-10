@@ -1,0 +1,268 @@
+{
+  "app": {
+    "title": "Evilia — Admin Panel",
+    "shortName": "Evilia"
+  },
+  "common": {
+    "search": "Search",
+    "filter": "Filter",
+    "filters": "Filters",
+    "actions": "Actions",
+    "all": "All",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "loading": "Loading…",
+    "loadMore": "Load more",
+    "noResults": "No results",
+    "none": "None",
+    "tryAgain": "Try again",
+    "error": "Something went wrong",
+    "required": "This field is required",
+    "page": "Page",
+    "of": "of",
+    "rowsPerPage": "Rows per page",
+    "next": "Next",
+    "prev": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "logout": "Log out",
+    "settings": "Settings",
+    "profile": "Profile",
+    "language": "Language",
+    "submit": "Submit",
+    "back": "Back",
+    "details": "Details",
+    "amount": "Amount",
+    "status": "Status",
+    "date": "Date",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "description": "Description",
+    "notes": "Notes",
+    "title": "Title",
+    "from": "From",
+    "to": "To",
+    "reason": "Reason",
+    "approve": "Approve",
+    "reject": "Reject",
+    "markPaid": "Mark as paid",
+    "suspend": "Suspend",
+    "activate": "Activate"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "sales": "Sales",
+    "commissions": "Commissions",
+    "wallets": "Wallets",
+    "withdrawals": "Withdrawals",
+    "targets": "Targets",
+    "expenses": "Expenses",
+    "analytics": "Analytics",
+    "hierarchy": "Hierarchy",
+    "access": "Access"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Enter your credentials to access the admin panel",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@evilia.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "invalidEmail": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "passwordMin": "At least 6 characters",
+    "loginFailed": "Couldn't sign you in. Check your credentials.",
+    "welcomeBack": "Welcome back"
+  },
+  "dashboard": {
+    "title": "Overview",
+    "totalSales": "Total sales",
+    "totalCommissions": "Total commissions",
+    "activeUsers": "Active users",
+    "today": "Today"
+  },
+  "users": {
+    "title": "Users",
+    "create": "Add user",
+    "createSubAdmin": "Add sub-admin",
+    "filterByRole": "Role",
+    "filterByStatus": "Status",
+    "fields": {
+      "displayName": "Display name",
+      "sellerCode": "Seller code",
+      "commissionPercentage": "Commission %",
+      "parentId": "Parent",
+      "selectParent": "Select parent (optional)",
+      "isSuperAdmin": "Super admin",
+      "permissions": "Permissions",
+      "createdAt": "Created"
+    },
+    "actions": {
+      "suspend": "Suspend user",
+      "activate": "Activate user",
+      "viewWallet": "View wallet",
+      "editPermissions": "Edit permissions"
+    },
+    "confirmSuspend": "Suspend this user?",
+    "confirmActivate": "Activate this user?"
+  },
+  "targets": {
+    "title": "Targets",
+    "create": "Add target",
+    "fields": {
+      "type": "Type",
+      "userId": "User",
+      "selectUser": "Select a user…",
+      "title": "Title",
+      "targetAmount": "Target amount",
+      "currentAmount": "Current",
+      "startDate": "Start date",
+      "endDate": "End date"
+    }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "categories": "Categories",
+    "create": "Add expense",
+    "createCategory": "Add category",
+    "filterByCategory": "Category",
+    "fields": {
+      "title": "Title",
+      "amount": "Amount",
+      "category": "Category",
+      "date": "Date",
+      "notes": "Notes",
+      "attachments": "Attachments"
+    },
+    "confirmDelete": "Delete this expense?"
+  },
+  "wallets": {
+    "title": "Wallets",
+    "balance": "Balance",
+    "available": "Available",
+    "pendingWithdrawal": "Pending withdrawal",
+    "totalEarned": "Total earned",
+    "totalWithdrawn": "Total withdrawn",
+    "lastUpdated": "Last updated",
+    "transactions": "Transactions",
+    "adjust": "Adjust wallet",
+    "adjustment": {
+      "credit": "Credit",
+      "debit": "Debit"
+    }
+  },
+  "withdrawals": {
+    "title": "Withdrawals",
+    "filterByStatus": "Status",
+    "fields": {
+      "amount": "Amount",
+      "status": "Status",
+      "reference": "Payment reference",
+      "reason": "Rejection reason",
+      "createdAt": "Requested"
+    },
+    "rejectReason": "Rejection reason",
+    "paymentReference": "Payment reference",
+    "confirmApprove": "Approve this withdrawal?",
+    "confirmPay": "Mark this withdrawal as paid?"
+  },
+  "commissions": {
+    "title": "Commissions",
+    "bySale": "Commissions by sale",
+    "fields": {
+      "saleId": "Sale ID",
+      "recipientId": "Recipient",
+      "recipientRole": "Recipient role",
+      "percentage": "Percentage",
+      "saleAmount": "Sale amount",
+      "amount": "Commission"
+    }
+  },
+  "sales": {
+    "title": "Sales",
+    "filterByStatus": "Status"
+  },
+  "hierarchy": {
+    "title": "Hierarchy",
+    "rootUser": "Root user",
+    "reassign": "Reassign parent",
+    "newParent": "New parent ID"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "daily": "Daily summary",
+    "monthly": "Monthly user analytics"
+  },
+  "access": {
+    "title": "Access",
+    "permissionCatalog": "Permission catalog",
+    "admins": "Admins",
+    "editPermissions": "Edit admin permissions"
+  },
+  "status": {
+    "active": "Active",
+    "suspended": "Suspended",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "paid": "Paid",
+    "credited": "Credited",
+    "processed": "Processed",
+    "cancelled": "Cancelled",
+    "achieved": "Achieved",
+    "expired": "Expired"
+  },
+  "role": {
+    "admin": "Admin",
+    "sub-admin": "Sub-admin",
+    "seller": "Seller",
+    "leader": "Team Lead"
+  },
+  "transaction": {
+    "type": {
+      "commission": "Commission",
+      "bonus": "Bonus",
+      "withdrawal": "Withdrawal",
+      "adjustment": "Adjustment"
+    },
+    "reference": {
+      "sale": "Sale",
+      "bonus": "Bonus",
+      "withdrawal": "Withdrawal",
+      "adjustment": "Adjustment"
+    },
+    "balanceBefore": "Balance before",
+    "balanceAfter": "Balance after",
+    "filterByType": "Filter by type",
+    "title": "Wallet transactions",
+    "description": "All ledger movements across users"
+  },
+  "withdrawals_ext": {
+    "requestedAt": "Requested",
+    "reviewedAt": "Reviewed",
+    "reviewedBy": "Reviewer",
+    "rejectionReason": "Rejection reason"
+  },
+  "hierarchy_ext": {
+    "team": "Team",
+    "directReports": "direct",
+    "indirectReports": "indirect",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "totalMembers": "Total members",
+    "levels": "Levels"
+  },
+  "backend": {
+    "pending": "Pending backend"
+  }
+}
