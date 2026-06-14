@@ -37,30 +37,63 @@ function DetailRow({
   );
 }
 
+function CurrencyRow({
+  label,
+  amount,
+  currency,
+  locale,
+}: {
+  label: string;
+  amount?: number;
+  currency: string;
+  locale: string;
+}) {
+  if (amount == null) return null;
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-medium tabular-nums">{formatCurrency(amount, locale, currency)}</dd>
+    </div>
+  );
+}
+
 export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata; currency: string }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const payment = meta.payment;
+  const hasOrderOverview = Boolean(
+    meta.orderId ||
+      meta.orderStatus ||
+      meta.marketPlaceId ||
+      meta.productsCount != null ||
+      meta.pickupMethod ||
+      meta.country,
+  );
 
   return (
     <div className="space-y-5">
-      {/* Customer */}
-      {meta.customer && (
+      {hasOrderOverview ? (
         <section className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {t('sales.customer')}
+            {t('sales.orderOverview')}
           </p>
           <dl className="space-y-2 rounded-xl border border-border/70 bg-surface p-4">
-            <DetailRow label={t('common.name')} value={meta.customer.name} />
-            <DetailRow label={t('common.phone')} value={meta.customer.phone} copy={meta.customer.phone} />
-            <DetailRow label={t('sales.governorate')} value={meta.customer.gov} />
-            <DetailRow label={t('sales.address')} value={meta.customer.address} />
+            <DetailRow label={t('sales.orderId')} value={meta.orderId} mono copy={meta.orderId} />
+            <DetailRow label={t('common.status')} value={meta.orderStatus} />
+            <DetailRow label={t('sales.marketplace')} value={meta.marketPlaceId} />
+            {meta.productsCount != null ? (
+              <div className="flex items-center justify-between text-sm">
+                <dt className="text-muted-foreground">{t('sales.productsCount')}</dt>
+                <dd className="font-medium tabular-nums">{meta.productsCount}</dd>
+              </div>
+            ) : null}
+            <DetailRow label={t('sales.pickupMethod')} value={meta.pickupMethod} />
+            <DetailRow label={t('sales.country')} value={meta.country} />
           </dl>
         </section>
-      )}
+      ) : null}
 
-      {/* Products */}
-      {meta.products.length > 0 && (
+      {meta.products.length > 0 ? (
         <section className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t('sales.products')} ({meta.products.length})
@@ -86,13 +119,10 @@ export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata;
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="text-sm font-medium leading-snug">{product.name}</p>
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                    {product.quantity != null ? (
-                      <span>× {product.quantity}</span>
-                    ) : null}
+                    {product.id ? <span className="font-mono">#{product.id}</span> : null}
+                    {product.quantity != null ? <span>× {product.quantity}</span> : null}
                     {product.itemPrice != null ? (
-                      <span>
-                        {formatCurrency(product.itemPrice, locale, currency)}
-                      </span>
+                      <span>{formatCurrency(product.itemPrice, locale, currency)}</span>
                     ) : null}
                     {product.cost != null ? (
                       <span>
@@ -122,10 +152,9 @@ export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata;
             ))}
           </ul>
         </section>
-      )}
+      ) : null}
 
-      {/* Payment */}
-      {payment && (
+      {payment ? (
         <section className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t('sales.payment')}
@@ -141,66 +170,94 @@ export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata;
                 </dd>
               </div>
             ) : null}
+            <DetailRow label={t('sales.gateway')} value={payment.gateway} />
             <DetailRow label={t('sales.paymentStatus')} value={payment.paymentStatus} />
-            <DetailRow
+            <CurrencyRow
               label={t('sales.productsPrice')}
-              value={
-                payment.productsPrice != null
-                  ? formatCurrency(payment.productsPrice, locale, currency)
-                  : undefined
-              }
+              amount={payment.productsPrice}
+              currency={currency}
+              locale={locale}
             />
-            <DetailRow
-              label={t('sales.cost')}
-              value={
-                payment.cost != null ? formatCurrency(payment.cost, locale, currency) : undefined
-              }
-            />
-            <DetailRow
-              label={t('sales.profit')}
-              value={
-                payment.profit != null ? formatCurrency(payment.profit, locale, currency) : undefined
-              }
-            />
-            <DetailRow
+            <CurrencyRow label={t('sales.cost')} amount={payment.cost} currency={currency} locale={locale} />
+            <CurrencyRow label={t('sales.profit')} amount={payment.profit} currency={currency} locale={locale} />
+            <CurrencyRow
               label={t('sales.affiliateCommission')}
-              value={
-                payment.affiliateCommission != null
-                  ? formatCurrency(payment.affiliateCommission, locale, currency)
-                  : undefined
-              }
+              amount={payment.affiliateCommission}
+              currency={currency}
+              locale={locale}
+            />
+            <CurrencyRow
+              label={t('common.amount')}
+              amount={payment.totalPrice}
+              currency={currency}
+              locale={locale}
+            />
+            <CurrencyRow
+              label={t('sales.paidAmount')}
+              amount={payment.paidAmount}
+              currency={currency}
+              locale={locale}
+            />
+            <CurrencyRow
+              label={t('sales.remainingAmount')}
+              amount={payment.remainingAmount}
+              currency={currency}
+              locale={locale}
             />
             {payment.shippingFees != null && payment.shippingFees > 0 ? (
-              <DetailRow
+              <CurrencyRow
                 label={t('sales.shipping')}
-                value={formatCurrency(payment.shippingFees, locale, currency)}
+                amount={payment.shippingFees}
+                currency={currency}
+                locale={locale}
               />
             ) : null}
-            {payment.discount != null && payment.discount > 0 ? (
-              <DetailRow
-                label={t('sales.discount')}
-                value={formatCurrency(payment.discount, locale, currency)}
+            {payment.gatewayFees != null && payment.gatewayFees > 0 ? (
+              <CurrencyRow
+                label={t('sales.gatewayFees')}
+                amount={payment.gatewayFees}
+                currency={currency}
+                locale={locale}
               />
+            ) : null}
+            {payment.taxes != null && payment.taxes > 0 ? (
+              <CurrencyRow label={t('sales.taxes')} amount={payment.taxes} currency={currency} locale={locale} />
+            ) : null}
+            {payment.discount != null && payment.discount > 0 ? (
+              <CurrencyRow
+                label={t('sales.discount')}
+                amount={payment.discount}
+                currency={currency}
+                locale={locale}
+              />
+            ) : null}
+            {payment.needPaymentVerification != null ? (
+              <div className="flex items-center justify-between text-sm">
+                <dt className="text-muted-foreground">{t('sales.needsVerification')}</dt>
+                <dd>{payment.needPaymentVerification ? t('common.yes') : t('common.no')}</dd>
+              </div>
             ) : null}
           </dl>
         </section>
-      )}
+      ) : null}
 
-      {/* Attribution */}
-      {meta.utmData && (
+      {meta.utmData ? (
         <section className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t('sales.attribution')}
           </p>
           <dl className="space-y-2 rounded-xl border border-border/70 bg-surface p-4">
             <DetailRow label={t('sales.trafficSource')} value={meta.utmData.source} />
+            <DetailRow label={t('sales.medium')} value={meta.utmData.medium} />
             <DetailRow label={t('sales.referrer')} value={meta.utmData.referrer} />
             <DetailRow label={t('sales.affiliateCode')} value={meta.utmData.aff} />
             <DetailRow label={t('sales.campaign')} value={meta.utmData.campaign} />
+            <DetailRow label={t('sales.content')} value={meta.utmData.content} />
+            <DetailRow label={t('sales.term')} value={meta.utmData.term} />
             <DetailRow label={t('sales.ipAddress')} value={meta.utmData.ipAddress} mono />
           </dl>
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

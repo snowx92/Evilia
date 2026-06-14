@@ -21,11 +21,15 @@ export type SalePayment = {
   currency?: string;
   discount?: number;
   gateway?: string;
+  gatewayFees?: number;
   method?: string;
+  needPaymentVerification?: boolean;
+  paidAmount?: number;
   paymentStatus?: string;
   affiliateCommission?: number;
   productsPrice?: number;
   profit?: number;
+  remainingAmount?: number;
   shippingFees?: number;
   taxes?: number;
   totalPrice?: number;
@@ -46,6 +50,7 @@ export type ParsedSaleMetadata = {
   orderId?: string;
   storeId?: string;
   orderStatus?: string;
+  marketPlaceId?: string;
   pickupMethod?: string;
   country?: string;
   productsCount?: number;
@@ -110,11 +115,16 @@ function parsePayment(raw: unknown): SalePayment | undefined {
     currency: asString(r.currency),
     discount: asNumber(r.discount),
     gateway: asString(r.gateway),
+    gatewayFees: asNumber(r.gatewayFees),
     method: asString(r.method),
+    needPaymentVerification:
+      typeof r.needPaymentVerification === 'boolean' ? r.needPaymentVerification : undefined,
+    paidAmount: asNumber(r.paidAmount),
     paymentStatus: asString(r.paymentStatus),
     affiliateCommission: asNumber(r.affiliateCommission),
     productsPrice: asNumber(r.productsPrice),
     profit: asNumber(r.profit),
+    remainingAmount: asNumber(r.remainingAmount),
     shippingFees: asNumber(r.shippingFees),
     taxes: asNumber(r.taxes),
     totalPrice: asNumber(r.totalPrice),
@@ -144,6 +154,7 @@ export function parseSaleMetadata(metadata?: Record<string, unknown>): ParsedSal
     orderId: asString(metadata.orderId),
     storeId: asString(metadata.storeId),
     orderStatus: asString(metadata.status),
+    marketPlaceId: asString(metadata.marketPlaceId),
     pickupMethod: asString(metadata.pickupMethod),
     country: asString(metadata.country),
     productsCount: asNumber(metadata.productsCount),
@@ -156,14 +167,14 @@ export function parseSaleMetadata(metadata?: Record<string, unknown>): ParsedSal
   };
 }
 
-export function saleOrderSummary(meta: ParsedSaleMetadata): string {
-  const customer = meta.customer?.name;
-  const product = meta.products[0]?.name;
-  if (customer && product) return `${customer} · ${product}`;
-  if (customer) return customer;
-  if (product) return product;
-  if (meta.orderId) return `#${meta.orderId}`;
-  return '';
+export function saleProductSummary(meta: ParsedSaleMetadata): string {
+  const products = meta.products.filter((p) => p.name);
+  if (products.length === 0) {
+    return meta.orderId ? `#${meta.orderId}` : '';
+  }
+  const first = products[0]!.name!;
+  if (products.length === 1) return first;
+  return `${first} +${products.length - 1}`;
 }
 
 export function saleCommissionTotal(

@@ -21,7 +21,7 @@ import {
 import {
   parseSaleMetadata,
   saleCommissionTotal,
-  saleOrderSummary,
+  saleProductSummary,
 } from '@/lib/sale-metadata';
 import type { Sale } from '@/types/admin/sales';
 
@@ -37,7 +37,7 @@ export function SaleRow({ sale }: { sale: Sale }) {
   );
   const commissionRatio = sale.amount > 0 ? (totalCommissions / sale.amount) * 100 : 0;
   const net = sale.amount - totalCommissions;
-  const summary = saleOrderSummary(meta);
+  const productSummary = saleProductSummary(meta);
   const orderStatus = meta.orderStatus;
   const trafficSource = meta.utmData?.source;
   const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode);
@@ -90,17 +90,10 @@ export function SaleRow({ sale }: { sale: Sale }) {
           </div>
         </TableCell>
 
-        {/* Customer / product summary */}
+        {/* Product summary (customer PII hidden) */}
         <TableCell className="max-w-[240px]">
-          {summary ? (
-            <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm">{summary}</span>
-              {meta.customer?.phone ? (
-                <span className="truncate text-[11px] text-muted-foreground">
-                  {meta.customer.phone}
-                </span>
-              ) : null}
-            </div>
+          {productSummary ? (
+            <span className="block truncate text-sm">{productSummary}</span>
           ) : (
             <span className="text-sm text-muted-foreground">{t('common.none')}</span>
           )}

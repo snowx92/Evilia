@@ -51,6 +51,7 @@ export default function SalesPage() {
       return {
         gross: 0,
         commissions: 0,
+        avgOrder: 0,
         sellers: 0,
         currency: 'EGP',
       };
@@ -64,10 +65,19 @@ export default function SalesPage() {
     return {
       gross,
       commissions,
+      avgOrder: gross / items.length,
       sellers,
       currency: items[0]?.currency ?? 'EGP',
     };
   }, [items]);
+
+  const pageSublabel =
+    data && items.length > 0
+      ? t('sales.pageTotals', {
+          count: formatNumber(items.length, locale),
+          total: formatNumber(data.totalItems, locale),
+        })
+      : t('seller.totalsThisPage');
 
   return (
     <div className="space-y-8">
@@ -102,12 +112,12 @@ export default function SalesPage() {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
           label={t('dashboard.totalSales')}
           value={formatCurrency(kpis.gross, locale, kpis.currency)}
-          sublabel={t('seller.totalsThisPage')}
+          sublabel={pageSublabel}
           icon={TrendingUp}
           isLoading={query.isLoading}
           accent="indigo"
@@ -115,15 +125,23 @@ export default function SalesPage() {
         <MetricCard
           label={t('commissions.title')}
           value={formatCurrency(kpis.commissions, locale, kpis.currency)}
-          sublabel={t('seller.totalsThisPage')}
+          sublabel={pageSublabel}
           icon={ScrollText}
           isLoading={query.isLoading}
           accent="emerald"
         />
         <MetricCard
+          label={t('sales.avgOrder')}
+          value={formatCurrency(kpis.avgOrder, locale, kpis.currency)}
+          sublabel={pageSublabel}
+          icon={TrendingUp}
+          isLoading={query.isLoading}
+          accent="amber"
+        />
+        <MetricCard
           label={t('sales.sellersOnPage')}
           value={formatNumber(kpis.sellers, locale)}
-          sublabel={t('seller.totalsThisPage')}
+          sublabel={pageSublabel}
           icon={Users}
           isLoading={query.isLoading}
           accent="rose"
@@ -141,7 +159,7 @@ export default function SalesPage() {
                 <TableHead className="w-10" />
                 <TableHead>{t('sales.trafficSource')}</TableHead>
                 <TableHead>{t('sales.seller')}</TableHead>
-                <TableHead>{t('sales.order')}</TableHead>
+                <TableHead>{t('sales.products')}</TableHead>
                 <TableHead>{t('common.amount')}</TableHead>
                 <TableHead>{t('commissions.title')}</TableHead>
                 <TableHead>{t('common.status')}</TableHead>
