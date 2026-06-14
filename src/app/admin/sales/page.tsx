@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, ScrollText, Receipt, Users } from 'lucide-react';
+import { TrendingUp, ScrollText, Users } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { MetricCard } from '@/components/shared/metric-card';
@@ -51,7 +51,6 @@ export default function SalesPage() {
       return {
         gross: 0,
         commissions: 0,
-        avg: 0,
         sellers: 0,
         currency: 'EGP',
       };
@@ -65,7 +64,6 @@ export default function SalesPage() {
     return {
       gross,
       commissions,
-      avg: gross / items.length,
       sellers,
       currency: items[0]?.currency ?? 'EGP',
     };
@@ -104,7 +102,7 @@ export default function SalesPage() {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         <MetricCard
           label={t('dashboard.totalSales')}
@@ -121,14 +119,6 @@ export default function SalesPage() {
           icon={ScrollText}
           isLoading={query.isLoading}
           accent="emerald"
-        />
-        <MetricCard
-          label={t('sales.avgOrder')}
-          value={formatCurrency(kpis.avg, locale, kpis.currency)}
-          sublabel={t('seller.totalsThisPage')}
-          icon={Receipt}
-          isLoading={query.isLoading}
-          accent="amber"
         />
         <MetricCard
           label={t('sales.sellersOnPage')}
@@ -149,7 +139,7 @@ export default function SalesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10" />
-                <TableHead>{t('sales.source')}</TableHead>
+                <TableHead>{t('sales.trafficSource')}</TableHead>
                 <TableHead>{t('sales.seller')}</TableHead>
                 <TableHead>{t('sales.order')}</TableHead>
                 <TableHead>{t('common.amount')}</TableHead>

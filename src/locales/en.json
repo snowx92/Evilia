@@ -267,7 +267,8 @@
     "externalId": "External ID",
     "internalId": "Internal ID",
     "processedAt": "Processed at",
-    "unmatchedSeller": "Unmatched seller code"
+    "unmatchedSeller": "Unmatched seller code",
+    "unmatched": "Unmatched"
   },
   "hierarchy": {
     "title": "Hierarchy",

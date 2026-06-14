@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ArrowUpRight, Wallet } from 'lucide-react';
+import { ChevronDown, ArrowUpRight, Wallet, AlertTriangle } from 'lucide-react';
 import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
@@ -39,6 +39,8 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const net = sale.amount - totalCommissions;
   const summary = saleOrderSummary(meta);
   const orderStatus = meta.orderStatus;
+  const trafficSource = meta.utmData?.source;
+  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode);
 
   return (
     <>
@@ -60,12 +62,16 @@ export function SaleRow({ sale }: { sale: Sale }) {
           </motion.span>
         </TableCell>
 
-        {/* Source */}
+        {/* Traffic source */}
         <TableCell>
           <div className="flex flex-col gap-1 leading-tight">
-            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
-              {sale.source}
-            </Badge>
+            {trafficSource ? (
+              <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
+                {trafficSource}
+              </Badge>
+            ) : (
+              <span className="text-sm text-muted-foreground">{t('common.none')}</span>
+            )}
             {meta.orderId ? (
               <span className="font-mono text-[11px] text-muted-foreground">
                 #{meta.orderId}
@@ -80,14 +86,7 @@ export function SaleRow({ sale }: { sale: Sale }) {
             <Avatar className="h-9 w-9">
               <AvatarFallback>{getInitials(sale.sellerCode)}</AvatarFallback>
             </Avatar>
-            <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm font-medium">{sale.sellerCode}</span>
-              {meta.unmatchedSellerCode ? (
-                <span className="truncate text-[11px] text-warning-foreground">
-                  {t('sales.unmatchedSeller')}
-                </span>
-              ) : null}
-            </div>
+            <span className="truncate text-sm font-medium">{sale.sellerCode}</span>
           </div>
         </TableCell>
 
@@ -121,7 +120,18 @@ export function SaleRow({ sale }: { sale: Sale }) {
               <span className="text-sm font-medium tabular-nums">
                 {formatCurrency(totalCommissions, locale, sale.currency)}
               </span>
-              {totalCommissions > 0 ? (
+              {isUnmatchedSeller ? (
+                <span
+                  className="inline-flex items-center gap-0.5 text-warning-foreground"
+                  title={t('sales.unmatchedSeller')}
+                >
+                  <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
+                  <span className="text-[10px] font-medium uppercase tracking-wide">
+                    {t('sales.unmatched')}
+                  </span>
+                </span>
+              ) : null}
+              {totalCommissions > 0 && !isUnmatchedSeller ? (
                 <span className="text-[11px] text-muted-foreground">
                   {commissionRatio.toFixed(1)}%
                 </span>

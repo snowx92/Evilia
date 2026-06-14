@@ -267,7 +267,8 @@
     "externalId": "المعرّف الخارجي",
     "internalId": "المعرّف الداخلي",
     "processedAt": "تاريخ المعالجة",
-    "unmatchedSeller": "كود بائع غير مطابق"
+    "unmatchedSeller": "كود بائع غير مطابق",
+    "unmatched": "غير مطابق"
   },
   "hierarchy": {
     "title": "الهيكل التنظيمي",
