@@ -62,22 +62,15 @@ export function SaleRow({ sale }: { sale: Sale }) {
           </motion.span>
         </TableCell>
 
-        {/* Traffic source */}
+        {/* Traffic source — order id moved to the expanded panel below */}
         <TableCell>
-          <div className="flex flex-col gap-1 leading-tight">
-            {trafficSource ? (
-              <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
-                {trafficSource}
-              </Badge>
-            ) : (
-              <span className="text-sm text-muted-foreground">{t('common.none')}</span>
-            )}
-            {meta.orderId ? (
-              <span className="font-mono text-[11px] text-muted-foreground">
-                #{meta.orderId}
-              </span>
-            ) : null}
-          </div>
+          {trafficSource ? (
+            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
+              {trafficSource}
+            </Badge>
+          ) : (
+            <span className="text-sm text-muted-foreground">{t('common.none')}</span>
+          )}
         </TableCell>
 
         {/* Seller */}

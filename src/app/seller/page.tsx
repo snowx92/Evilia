@@ -258,8 +258,8 @@ function EarningsCalculator() {
           <input
             type="range"
             min={0}
-            max={50000}
-            step={100}
+            max={2000000}
+            step={1000}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
             className="w-full accent-success"

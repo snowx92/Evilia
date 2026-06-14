@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency } from '@/lib/utils';
 import type { ParsedSaleMetadata } from '@/lib/sale-metadata';
+import type { Locale } from '@/types/auth';
 
 function DetailRow({
   label,
@@ -46,7 +47,7 @@ function CurrencyRow({
   label: string;
   amount?: number;
   currency: string;
-  locale: string;
+  locale: Locale;
 }) {
   if (amount == null) return null;
   return (
@@ -89,6 +90,29 @@ export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata;
             ) : null}
             <DetailRow label={t('sales.pickupMethod')} value={meta.pickupMethod} />
             <DetailRow label={t('sales.country')} value={meta.country} />
+          </dl>
+        </section>
+      ) : null}
+
+      {meta.customer &&
+      (meta.customer.name ||
+        meta.customer.phone ||
+        meta.customer.gov ||
+        meta.customer.address) ? (
+        <section className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t('sales.customer')}
+          </p>
+          <dl className="space-y-2 rounded-xl border border-border/70 bg-surface p-4">
+            <DetailRow label={t('common.name')} value={meta.customer.name} />
+            <DetailRow
+              label={t('common.phone')}
+              value={meta.customer.phone}
+              mono
+              copy={meta.customer.phone ?? undefined}
+            />
+            <DetailRow label={t('sales.governorate')} value={meta.customer.gov} />
+            <DetailRow label={t('sales.address')} value={meta.customer.address} />
           </dl>
         </section>
       ) : null}
