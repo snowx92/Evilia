@@ -3,11 +3,10 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DemoBadge } from './demo-badge';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import type { WithdrawalsBreakdownResponse } from '@/types/admin/analytics';
+import type { DashboardWithdrawalsByStatus } from '@/types/admin/analytics';
 
 const COLORS: Record<string, string> = {
   paid: '#10b981',
@@ -19,25 +18,24 @@ const COLORS: Record<string, string> = {
 export function WithdrawalsChart({
   data,
   isLoading,
-  isDemo,
 }: {
-  data: WithdrawalsBreakdownResponse;
+  data?: DashboardWithdrawalsByStatus;
   isLoading?: boolean;
-  isDemo?: boolean;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const chartData = data.byStatus.map((s) => ({ ...s, fill: COLORS[s.status] ?? '#a78bfa' }));
+
+  const breakdown = data?.breakdown ?? [];
+  const totalAmount = data?.totalAmount ?? 0;
+  const totalCount = data?.totalCount ?? 0;
+  const chartData = breakdown.map((s) => ({ ...s, fill: COLORS[s.status] ?? '#a78bfa' }));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {t('withdrawals.title')}
-          <DemoBadge show={Boolean(isDemo)} />
-        </CardTitle>
+        <CardTitle>{t('withdrawals.title')}</CardTitle>
         <CardDescription>
-          {formatNumber(data.totalCount, locale)} · {formatCurrency(data.totalAmount, locale)}
+          {formatNumber(totalCount, locale)} · {formatCurrency(totalAmount, locale)}
         </CardDescription>
       </CardHeader>
       <CardContent>

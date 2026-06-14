@@ -57,7 +57,7 @@ export default function HierarchyPage() {
   const tree = useMemo(() => buildTree(filtered), [filtered]);
   const { total, levels } = useMemo(() => countAll(tree), [tree]);
   const adminCount = allUsers.filter((u) => u.role === 'admin').length;
-  const leaderCount = allUsers.filter((u) => u.role === 'leader').length;
+  const sellerCount = allUsers.filter((u) => u.role === 'seller').length;
 
   return (
     <div className="space-y-8">
@@ -96,8 +96,8 @@ export default function HierarchyPage() {
           isLoading={usersQuery.isLoading}
         />
         <MetricCard
-          label={t('role.leader')}
-          value={String(leaderCount)}
+          label={t('role.seller')}
+          value={String(sellerCount)}
           icon={Users2}
           accent="rose"
           isLoading={usersQuery.isLoading}

@@ -36,16 +36,30 @@ export function TodaySnapshot() {
                 {t('dashboard.totalSales')}
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">
-                {d ? formatCurrency(d.totalSales, locale) : '—'}
+                {d ? formatCurrency(d.totalSalesAmount ?? 0, locale) : '—'}
               </p>
+              {d && (
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {t('dashboard.salesCount', {
+                    count: formatNumber(d.totalSales ?? 0, locale),
+                  })}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 {t('dashboard.totalCommissions')}
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">
-                {d ? formatCurrency(d.totalCommissions, locale) : '—'}
+                {d ? formatCurrency(d.totalCommissionsAmount ?? 0, locale) : '—'}
               </p>
+              {d && (
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {t('dashboard.commissionsCount', {
+                    count: formatNumber(d.totalCommissions ?? 0, locale),
+                  })}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

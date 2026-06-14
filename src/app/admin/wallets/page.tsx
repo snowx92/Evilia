@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -21,19 +21,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { DemoBadge } from '@/features/analytics/demo-badge';
-import { useWalletsListQuery } from '@/hooks/queries/use-wallets';
+import { useWalletsListQuery, useWalletsSummaryQuery } from '@/hooks/queries/use-wallets';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
-import { cn, formatCurrency, formatDateTime } from '@/lib/utils';
+import { cn, formatCurrency, formatDateTime, formatNumber } from '@/lib/utils';
 import { fadeUp, stagger } from '@/lib/motion';
 import { DEFAULT_PAGE_SIZE } from '@/constants/admin';
-import type { WalletSnapshot } from '@/types/admin/wallets';
+import type { WalletListRow } from '@/types/admin/wallets';
 
 const ROLE_TONE: Record<string, 'brand' | 'success' | 'warning' | 'muted'> = {
   admin: 'warning',
-  'sub-admin': 'warning',
-  leader: 'success',
   seller: 'brand',
 };
 
@@ -64,10 +61,11 @@ function MiniBar({
   );
 }
 
-function WalletRow({ w }: { w: WalletSnapshot }) {
+function WalletCard({ row }: { row: WalletListRow }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const denominator = Math.max(w.totalEarned, 1);
+  const { user, wallet } = row;
+  const denominator = Math.max(wallet.totalEarned, 1);
 
   return (
     <motion.div
@@ -75,28 +73,28 @@ function WalletRow({ w }: { w: WalletSnapshot }) {
       className="group rounded-2xl border border-border/70 bg-card shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
     >
       <Link
-        href={`/admin/wallets/${encodeURIComponent(w.userId)}`}
+        href={`/admin/wallets/${encodeURIComponent(user.id)}`}
         className="grid grid-cols-1 items-center gap-5 p-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto]"
       >
         {/* Identity */}
         <div className="flex min-w-0 items-center gap-3">
           <Avatar className="h-11 w-11">
-            <AvatarFallback>{getInitials(w.displayName)}</AvatarFallback>
+            <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <p className="truncate text-sm font-semibold">{w.displayName}</p>
-              {w.role && (
-                <Badge variant={ROLE_TONE[w.role] ?? 'outline'} className="text-[10px]">
-                  {t(`role.${w.role}`)}
+              <p className="truncate text-sm font-semibold">{user.displayName}</p>
+              {user.role && (
+                <Badge variant={ROLE_TONE[user.role] ?? 'outline'} className="text-[10px]">
+                  {t(`role.${user.role}`)}
                 </Badge>
               )}
             </div>
             <p className="truncate text-[11px] text-muted-foreground">
-              {w.email}
-              {w.sellerCode ? ` · ${w.sellerCode}` : ''}
+              {user.email}
+              {user.sellerCode ? ` · ${user.sellerCode}` : ''}
             </p>
-            <p className="font-mono text-[10px] text-muted-foreground/80">{w.userId}</p>
+            <p className="font-mono text-[10px] text-muted-foreground/80">{user.id}</p>
           </div>
         </div>
 
@@ -106,10 +104,10 @@ function WalletRow({ w }: { w: WalletSnapshot }) {
             {t('wallets.balance')}
           </p>
           <p className="text-2xl font-semibold tabular-nums">
-            {formatCurrency(w.balance, locale)}
+            {formatCurrency(wallet.balance, locale)}
           </p>
           <p className="text-[11px] text-muted-foreground">
-            {t('wallets.lastUpdated')}: {formatDateTime(w.updatedAt, locale)}
+            {t('wallets.lastUpdated')}: {formatDateTime(wallet.updatedAt, locale)}
           </p>
         </div>
 
@@ -117,19 +115,19 @@ function WalletRow({ w }: { w: WalletSnapshot }) {
         <div className="hidden gap-4 lg:flex">
           <MiniBar
             label={t('wallets.available')}
-            value={w.available}
+            value={wallet.available}
             total={denominator}
             color="#4f46e5"
           />
           <MiniBar
             label={t('wallets.pendingWithdrawal')}
-            value={w.pendingWithdrawal}
+            value={wallet.pendingWithdrawal}
             total={denominator}
             color="#f59e0b"
           />
           <MiniBar
             label={t('wallets.totalWithdrawn')}
-            value={w.totalWithdrawn}
+            value={wallet.totalWithdrawn}
             total={denominator}
             color="#10b981"
           />
@@ -151,19 +149,19 @@ function WalletRow({ w }: { w: WalletSnapshot }) {
       <div className="grid gap-4 border-t border-border/60 p-5 lg:hidden">
         <MiniBar
           label={t('wallets.available')}
-          value={w.available}
+          value={wallet.available}
           total={denominator}
           color="#4f46e5"
         />
         <MiniBar
           label={t('wallets.pendingWithdrawal')}
-          value={w.pendingWithdrawal}
+          value={wallet.pendingWithdrawal}
           total={denominator}
           color="#f59e0b"
         />
         <MiniBar
           label={t('wallets.totalWithdrawn')}
-          value={w.totalWithdrawn}
+          value={wallet.totalWithdrawn}
           total={denominator}
           color="#10b981"
         />
@@ -178,36 +176,23 @@ export default function WalletsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
 
-  const params = { page, limit: DEFAULT_PAGE_SIZE, ...(search ? { search } : {}) };
-  const query = useWalletsListQuery(params);
+  const summary = useWalletsSummaryQuery();
+  const listParams = { page, limit: DEFAULT_PAGE_SIZE, ...(search ? { search } : {}) };
+  const query = useWalletsListQuery(listParams);
   const data = query.data;
   const items = data?.items ?? [];
-
-  const kpis = useMemo(() => {
-    const stats = { balance: 0, earned: 0, withdrawn: 0, pending: 0 };
-    items.forEach((w) => {
-      stats.balance += w.balance;
-      stats.earned += w.totalEarned;
-      stats.withdrawn += w.totalWithdrawn;
-      stats.pending += w.pendingWithdrawal;
-    });
-    return stats;
-  }, [items]);
+  const s = summary.data;
 
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow={
-          <span className="inline-flex items-center gap-2">
-            {t('nav.wallets')}
-            <span className="inline-flex h-2 w-2 rounded-full bg-warning ring-2 ring-warning/30" />
-            <span className="text-[10px] font-medium normal-case text-warning-foreground/80">
-              {t('backend.pending')}
-            </span>
-          </span>
-        }
+        eyebrow={t('nav.wallets')}
         title={t('wallets.title')}
-        description={t('transaction.description')}
+        description={
+          s
+            ? `${formatNumber(s.walletCount, locale)} ${t('wallets.title').toLowerCase()}`
+            : undefined
+        }
       />
 
       <motion.div
@@ -218,31 +203,31 @@ export default function WalletsPage() {
       >
         <MetricCard
           label={t('wallets.balance')}
-          value={formatCurrency(kpis.balance, locale)}
+          value={s ? formatCurrency(s.totalBalance, locale) : '—'}
           icon={WalletIcon}
           accent="indigo"
-          isLoading={query.isLoading}
+          isLoading={summary.isLoading}
         />
         <MetricCard
           label={t('wallets.totalEarned')}
-          value={formatCurrency(kpis.earned, locale)}
+          value={s ? formatCurrency(s.totalEarned, locale) : '—'}
           icon={TrendingUp}
           accent="emerald"
-          isLoading={query.isLoading}
+          isLoading={summary.isLoading}
         />
         <MetricCard
           label={t('wallets.pendingWithdrawal')}
-          value={formatCurrency(kpis.pending, locale)}
+          value={s ? formatCurrency(s.totalPendingWithdrawal, locale) : '—'}
           icon={Coins}
           accent="amber"
-          isLoading={query.isLoading}
+          isLoading={summary.isLoading}
         />
         <MetricCard
           label={t('wallets.totalWithdrawn')}
-          value={formatCurrency(kpis.withdrawn, locale)}
+          value={s ? formatCurrency(s.totalWithdrawn, locale) : '—'}
           icon={Banknote}
           accent="rose"
-          isLoading={query.isLoading}
+          isLoading={summary.isLoading}
         />
       </motion.div>
 
@@ -263,15 +248,8 @@ export default function WalletsPage() {
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between px-1">
-        <p className="text-xs text-muted-foreground">
-          {t('wallets.title')}
-        </p>
-        <DemoBadge show={Boolean(query.isDemo)} />
-      </div>
-
       {query.isError ? (
-        <ErrorState onRetry={() => window.location.reload()} />
+        <ErrorState onRetry={() => query.refetch()} />
       ) : query.isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -286,8 +264,8 @@ export default function WalletsPage() {
         </Card>
       ) : (
         <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-3">
-          {items.map((w) => (
-            <WalletRow key={w.userId} w={w} />
+          {items.map((row) => (
+            <WalletCard key={row.user.id} row={row} />
           ))}
         </motion.div>
       )}

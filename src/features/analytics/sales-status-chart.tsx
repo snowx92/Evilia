@@ -3,11 +3,10 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DemoBadge } from './demo-badge';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import type { SalesBreakdownResponse } from '@/types/admin/analytics';
+import type { DashboardSalesByStatus } from '@/types/admin/analytics';
 
 const COLORS: Record<string, string> = {
   processed: '#4f46e5',
@@ -18,27 +17,21 @@ const COLORS: Record<string, string> = {
 export function SalesStatusChart({
   data,
   isLoading,
-  isDemo,
 }: {
-  data: SalesBreakdownResponse;
+  data?: DashboardSalesByStatus;
   isLoading?: boolean;
-  isDemo?: boolean;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const total = data.byStatus.reduce((acc, s) => acc + s.amount, 0);
-  const chartData = data.byStatus.map((s) => ({
-    ...s,
-    fill: COLORS[s.status] ?? '#a78bfa',
-  }));
+
+  const breakdown = data?.breakdown ?? [];
+  const total = data?.totalAmount ?? 0;
+  const chartData = breakdown.map((s) => ({ ...s, fill: COLORS[s.status] ?? '#a78bfa' }));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {t('sales.title')}
-          <DemoBadge show={Boolean(isDemo)} />
-        </CardTitle>
+        <CardTitle>{t('sales.title')}</CardTitle>
         <CardDescription>{t('common.status')}</CardDescription>
       </CardHeader>
       <CardContent>

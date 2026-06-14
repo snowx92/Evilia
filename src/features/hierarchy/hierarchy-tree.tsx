@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Crown,
+  Eye,
   Loader2,
   Plus,
   UserPlus,
   Users2,
-  ChevronsUpDown,
-  Check,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -36,15 +36,8 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { ReassignParentDialog } from './reassign-parent-dialog';
-import { useCreateMemberMutation } from '@/hooks/queries/use-users';
+import { useCreateSellerMutation } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { toast } from '@/components/ui/sonner';
@@ -56,15 +49,11 @@ import { type TreeNode } from './build-tree';
 
 const ROLE_BADGE: Record<string, 'brand' | 'success' | 'warning' | 'muted'> = {
   admin: 'warning',
-  'sub-admin': 'warning',
-  leader: 'success',
   seller: 'brand',
 };
 
 const ROLE_RING: Record<string, string> = {
   admin: 'ring-warning/40',
-  'sub-admin': 'ring-warning/40',
-  leader: 'ring-success/40',
   seller: 'ring-primary/40',
 };
 
@@ -75,22 +64,25 @@ const addChildSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   phone: z.string().min(1),
-  role: z.enum(['leader', 'seller']),
   sellerCode: z.string().optional(),
-  commissionPercentage: z.coerce.number().min(0).max(100),
+  directCommissionPercentage: z.coerce.number().min(0).max(100),
+  networkCommissionPercentage: z.coerce.number().min(0).max(100),
+  socialMediaLink: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
 type AddChildValues = z.infer<typeof addChildSchema>;
 
 function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
-  const create = useCreateMemberMutation();
+  const create = useCreateSellerMutation();
 
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<AddChildValues>({
@@ -100,13 +92,12 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
       email: '',
       password: '',
       phone: '',
-      role: 'seller',
       sellerCode: '',
-      commissionPercentage: 0,
+      directCommissionPercentage: 0,
+      networkCommissionPercentage: 0,
+      socialMediaLink: '',
     },
   });
-
-  const role = watch('role');
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -115,12 +106,12 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
         email: values.email,
         password: values.password,
         phone: values.phone,
-        role: values.role,
-        commissionPercentage: values.commissionPercentage,
+        role: 'seller',
+        directCommissionPercentage: values.directCommissionPercentage,
+        networkCommissionPercentage: values.networkCommissionPercentage,
         parentId: parentNode.id,
-        ...(values.role === 'seller' && values.sellerCode
-          ? { sellerCode: values.sellerCode }
-          : {}),
+        ...(values.sellerCode ? { sellerCode: values.sellerCode } : {}),
+        ...(values.socialMediaLink ? { socialMediaLink: values.socialMediaLink } : {}),
       });
       toast.success(t('common.save'));
       setOpen(false);
@@ -162,24 +153,6 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
             </div>
 
             <div className="space-y-2">
-              <Label>{t('common.role')}</Label>
-              <Select
-                value={role}
-                onValueChange={(v) =>
-                  setValue('role', v as 'leader' | 'seller', { shouldDirty: true })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="leader">{t('role.leader')}</SelectItem>
-                  <SelectItem value="seller">{t('role.seller')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>{t('common.email')}</Label>
               <Input
                 type="email"
@@ -205,24 +178,46 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
             </div>
 
             <div className="space-y-2">
-              <Label>{t('users.fields.commissionPercentage')}</Label>
+              <Label>{t('users.fields.sellerCode')}</Label>
+              <Input dir="ltr" {...register('sellerCode')} />
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('users.fields.directCommissionPercentage')}</Label>
               <Input
                 type="number"
                 step="0.01"
                 min="0"
                 max="100"
                 dir="ltr"
-                {...register('commissionPercentage')}
-                aria-invalid={Boolean(errors.commissionPercentage)}
+                {...register('directCommissionPercentage')}
+                aria-invalid={Boolean(errors.directCommissionPercentage)}
               />
             </div>
 
-            {role === 'seller' && (
-              <div className="space-y-2 sm:col-span-2">
-                <Label>{t('users.fields.sellerCode')}</Label>
-                <Input dir="ltr" {...register('sellerCode')} />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>{t('users.fields.networkCommissionPercentage')}</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                dir="ltr"
+                {...register('networkCommissionPercentage')}
+                aria-invalid={Boolean(errors.networkCommissionPercentage)}
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{t('users.fields.socialMediaLink')}</Label>
+              <Input
+                type="url"
+                dir="ltr"
+                placeholder="https://"
+                {...register('socialMediaLink')}
+                aria-invalid={Boolean(errors.socialMediaLink)}
+              />
+            </div>
           </div>
 
           <DialogFooter>
@@ -277,11 +272,15 @@ function NodeCard({ node, isRoot }: { node: TreeNode; isRoot: boolean }) {
         <AddChildDialog parentNode={node} />
       </div>
 
-      {/* Identity */}
-      <div className="min-w-0 leading-tight">
+      {/* Identity — links to the user's profile */}
+      <Link
+        href={`/admin/users/${encodeURIComponent(node.id)}`}
+        className="block min-w-0 leading-tight outline-none transition-colors hover:text-primary focus-visible:text-primary"
+        title={t('users.actions.viewProfile')}
+      >
         <p className="truncate text-[13px] font-semibold">{node.displayName}</p>
         <p className="truncate text-[11px] text-muted-foreground">{node.email}</p>
-      </div>
+      </Link>
 
       {/* Badges row */}
       <div className="flex flex-wrap items-center gap-1">
@@ -294,7 +293,7 @@ function NodeCard({ node, isRoot }: { node: TreeNode; isRoot: boolean }) {
       </div>
 
       {/* Metrics row */}
-      <div className="flex items-center justify-between border-t border-border/50 pt-2 text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-border/50 pt-2 text-[10px] text-muted-foreground">
         {node.descendantCount > 0 ? (
           <span className="inline-flex items-center gap-1">
             <Users2 className="h-3 w-3" />
@@ -303,13 +302,42 @@ function NodeCard({ node, isRoot }: { node: TreeNode; isRoot: boolean }) {
         ) : (
           <span />
         )}
-        <span className="font-medium tabular-nums text-foreground">
-          {formatPercent(node.commissionPercentage, locale)}
+        <span className="flex flex-col items-end leading-tight tabular-nums">
+          <span>
+            <span className="text-muted-foreground/70">
+              {t('users.fields.directCommissionShort')}:
+            </span>{' '}
+            <span className="font-medium text-foreground">
+              {formatPercent(
+                node.directCommissionPercentage ?? node.commissionPercentage ?? 0,
+                locale,
+              )}
+            </span>
+          </span>
+          <span>
+            <span className="text-muted-foreground/70">
+              {t('users.fields.networkCommissionShort')}:
+            </span>{' '}
+            <span className="font-medium text-foreground">
+              {formatPercent(node.networkCommissionPercentage ?? 0, locale)}
+            </span>
+          </span>
         </span>
       </div>
 
-      {/* Reassign (hover reveal) */}
-      <div className="absolute bottom-2 end-2 opacity-0 transition-opacity group-hover/node:opacity-100">
+      {/* Hover-revealed actions: view profile + reassign parent */}
+      <div className="absolute bottom-2 end-2 flex items-center gap-1 opacity-0 transition-opacity group-hover/node:opacity-100">
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          title={t('users.actions.viewProfile')}
+        >
+          <Link href={`/admin/users/${encodeURIComponent(node.id)}`}>
+            <Eye className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
         <ReassignParentDialog userId={node.id} />
       </div>
     </div>

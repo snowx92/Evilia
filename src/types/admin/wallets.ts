@@ -1,5 +1,45 @@
+// Source of truth: Postman collection (Admins / Admin — Wallets).
+
 import type { PaginationParams } from '@/types/api';
 import type { TimestampLike } from '@/lib/utils';
+import type { Wallet } from '@/types/auth';
+
+// ─── /v1/admin/wallets/summary ───────────────────────────────────────────────
+
+export type WalletsSummary = {
+  totalBalance: number;
+  totalPendingWithdrawal: number;
+  totalEarned: number;
+  totalWithdrawn: number;
+  walletCount: number;
+};
+
+// ─── /v1/admin/wallets (list) ────────────────────────────────────────────────
+
+/** User identity returned alongside each wallet in the list. */
+export type WalletListUser = {
+  id: string;
+  displayName: string;
+  email: string;
+  sellerCode?: string | null;
+  role?: string;
+  status?: string;
+  profileImageUrl?: string | null;
+};
+
+/** One row in the paginated wallets list. */
+export type WalletListRow = {
+  user: WalletListUser;
+  wallet: Wallet;
+};
+
+export type WalletsListParams = PaginationParams & {
+  role?: string;
+  status?: string;
+  search?: string;
+};
+
+// ─── /v1/admin/wallets/{userId}/transactions ─────────────────────────────────
 
 export type WalletTransactionType =
   | 'commission'
@@ -10,6 +50,7 @@ export type WalletTransactionType =
 
 export type WalletTransactionReferenceType =
   | 'sale'
+  | 'commission'
   | 'bonus'
   | 'withdrawal'
   | 'adjustment'
@@ -17,7 +58,8 @@ export type WalletTransactionReferenceType =
 
 export type WalletTransaction = {
   id: string;
-  userId: string;
+  /** Server omits userId on the per-user transactions endpoint. */
+  userId?: string;
   type: WalletTransactionType;
   amount: number;
   balanceBefore?: number;
@@ -26,42 +68,17 @@ export type WalletTransaction = {
   referenceType?: WalletTransactionReferenceType;
   description?: string;
   createdAt: TimestampLike;
-  itemIndex?: number;
 };
 
 export type WalletTransactionsParams = PaginationParams;
 
+// ─── POST /v1/admin/wallets/{userId}/adjust ──────────────────────────────────
+
+export type AdjustWalletType = 'bonus' | 'adjustment';
+
 export type AdjustWalletRequest = {
+  /** Positive credits the wallet, negative debits it. */
   amount: number;
-  type: string;
+  type: AdjustWalletType;
   description: string;
-};
-
-/* ── Proposed endpoint shapes — see docs/proposed-endpoints.md ────────── */
-
-/** One row in the wallets list — wallet snapshot enriched with user identity. */
-export type WalletSnapshot = {
-  userId: string;
-  displayName: string;
-  email: string;
-  sellerCode?: string | null;
-  role?: string;
-  balance: number;
-  available: number;
-  pendingWithdrawal: number;
-  totalEarned: number;
-  totalWithdrawn: number;
-  updatedAt: TimestampLike;
-};
-
-export type WalletsListParams = PaginationParams & {
-  search?: string;
-  role?: string;
-};
-
-export type AllWalletTransactionsParams = PaginationParams & {
-  userId?: string;
-  type?: WalletTransactionType;
-  from?: string;
-  to?: string;
 };

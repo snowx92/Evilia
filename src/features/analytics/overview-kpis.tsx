@@ -7,13 +7,13 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { stagger } from '@/lib/motion';
-import type { AnalyticsOverview } from '@/types/admin/analytics';
+import type { DashboardSummary } from '@/types/admin/analytics';
 
 export function OverviewKpis({
   data,
   isLoading,
 }: {
-  data: AnalyticsOverview;
+  data?: DashboardSummary;
   isLoading?: boolean;
 }) {
   const { t } = useTranslation();
@@ -28,34 +28,41 @@ export function OverviewKpis({
     >
       <MetricCard
         label={t('dashboard.totalSales')}
-        value={formatCurrency(data.totalSales, locale)}
+        value={data ? formatCurrency(data.totalSales.amount, locale) : '—'}
         icon={TrendingUp}
         accent="indigo"
-        trend={{ value: data.deltaSales }}
+        trend={data ? { value: data.totalSales.changePercentage } : undefined}
         isLoading={isLoading}
       />
       <MetricCard
         label={t('dashboard.totalCommissions')}
-        value={formatCurrency(data.totalCommissions, locale)}
+        value={data ? formatCurrency(data.totalCommissions.amount, locale) : '—'}
         icon={ScrollText}
         accent="emerald"
-        trend={{ value: data.deltaCommissions }}
+        trend={data ? { value: data.totalCommissions.changePercentage } : undefined}
         isLoading={isLoading}
       />
       <MetricCard
         label={t('dashboard.activeUsers')}
-        value={formatNumber(data.newUsers, locale)}
+        value={data ? formatNumber(data.activeUsers.count, locale) : '—'}
         icon={Users}
         accent="amber"
-        trend={{ value: data.deltaNewUsers }}
+        trend={data ? { value: data.activeUsers.changePercentage } : undefined}
         isLoading={isLoading}
       />
       <MetricCard
         label={t('withdrawals.title')}
-        value={formatCurrency(data.paidWithdrawals, locale)}
+        value={data ? formatCurrency(data.withdrawals.amount, locale) : '—'}
+        sublabel={
+          data
+            ? t('dashboard.commissionsCount', {
+                count: formatNumber(data.withdrawals.count, locale),
+              })
+            : undefined
+        }
         icon={Banknote}
         accent="rose"
-        trend={{ value: data.deltaPaidWithdrawals }}
+        trend={data ? { value: data.withdrawals.changePercentage } : undefined}
         isLoading={isLoading}
       />
     </motion.div>

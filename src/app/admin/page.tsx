@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/shared/page-header';
 import { MetricCard } from '@/components/shared/metric-card';
 import { Button } from '@/components/ui/button';
 import { useDailyAnalyticsQuery } from '@/hooks/queries/use-analytics';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
 import { useAuthStore } from '@/store/auth';
 import { useLocaleStore } from '@/store/locale';
@@ -17,6 +18,7 @@ import { RecentActivityCard } from '@/features/dashboard/recent-activity-card';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  useDocumentTitle(t('nav.dashboard'));
   const user = useAuthStore((s) => s.user);
   const wallet = useAuthStore((s) => s.wallet);
   const locale = useLocaleStore((s) => s.locale);
@@ -73,14 +75,28 @@ export default function DashboardPage() {
       >
         <MetricCard
           label={t('dashboard.totalSales')}
-          value={data ? formatCurrency(data.totalSales, locale) : '—'}
+          value={data ? formatCurrency(data.totalSalesAmount ?? 0, locale) : '—'}
+          sublabel={
+            data
+              ? t('dashboard.salesCount', {
+                  count: formatNumber(data.totalSales ?? 0, locale),
+                })
+              : undefined
+          }
           icon={TrendingUp}
           isLoading={daily.isLoading}
           accent="indigo"
         />
         <MetricCard
           label={t('dashboard.totalCommissions')}
-          value={data ? formatCurrency(data.totalCommissions, locale) : '—'}
+          value={data ? formatCurrency(data.totalCommissionsAmount ?? 0, locale) : '—'}
+          sublabel={
+            data
+              ? t('dashboard.commissionsCount', {
+                  count: formatNumber(data.totalCommissions ?? 0, locale),
+                })
+              : undefined
+          }
           icon={ScrollText}
           isLoading={daily.isLoading}
           accent="emerald"

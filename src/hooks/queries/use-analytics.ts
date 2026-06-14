@@ -3,198 +3,96 @@
 import { useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/services/analytics.service';
 import { queryKeys } from '@/lib/query-keys';
-import {
-  demoOverview,
-  demoSalesBreakdown,
-  demoTimeseries,
-  demoTopPerformers,
-  demoWithdrawalsBreakdown,
-} from '@/lib/analytics-demo';
-import { ApiError } from '@/types/api';
 import type {
-  AnalyticsGranularity,
-  AnalyticsOverview,
-  AnalyticsRangeParams,
-  AnalyticsTimeseries,
-  SalesBreakdownResponse,
-  TopPerformersResponse,
-  WithdrawalsBreakdownResponse,
+  DailyAnalyticsParams,
+  DailyAnalyticsSummary,
+  DashboardRangeParams,
+  LeaderboardParams,
+  UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
 
-/* ── Existing endpoints ────────────────────────────────────────────────── */
+/* ── /v1/admin/analytics/dashboard ────────────────────────────────────────── */
 
+export function useAnalyticsDashboardQuery(params: DashboardRangeParams) {
+  return useQuery({
+    queryKey: queryKeys.analytics.dashboard(params),
+    queryFn: () => analyticsService.dashboard(params),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+/* ── /v1/admin/analytics/daily ────────────────────────────────────────────── */
+
+/**
+ * Today snapshot — calls /daily with no params so the backend returns the
+ * single-object shape for the current day.
+ */
 export function useDailyAnalyticsQuery() {
   return useQuery({
-    queryKey: queryKeys.analytics.daily,
-    queryFn: () => analyticsService.daily(),
+    queryKey: queryKeys.analytics.daily({}),
+    queryFn: async () => {
+      const res = await analyticsService.daily();
+      // Defensive normalisation: API can return either an object or an array.
+      const summary = Array.isArray(res) ? res[0] : res;
+      return summary as DailyAnalyticsSummary | undefined;
+    },
     staleTime: 60_000,
   });
 }
 
-export function useUserMonthlyAnalyticsQuery(userId: string, enabled = true) {
+/** Range mode — returns the array shape. */
+export function useDailyAnalyticsRangeQuery(params: DailyAnalyticsParams) {
   return useQuery({
-    queryKey: queryKeys.analytics.userMonthly(userId),
-    queryFn: () => analyticsService.userMonthly(userId),
-    enabled: enabled && Boolean(userId),
-  });
-}
-
-/* ── Proposed endpoints ────────────────────────────────────────────────────
-   Each hook tries the backend first; on 404 (not yet implemented) it falls
-   back to deterministic preview data and surfaces `isDemo: true` so the UI
-   can show a "preview data" pill. Any other error surfaces normally.
-   ─────────────────────────────────────────────────────────────────────── */
-
-type WithDemo<T> = { data: T; isDemo: boolean; isLoading: boolean; isError: boolean };
-
-function isMissingEndpoint(err: unknown): boolean {
-  return err instanceof ApiError && (err.status === 404 || err.status === 501 || err.status === 0);
-}
-
-export function useAnalyticsTimeseries(
-  from: Date,
-  to: Date,
-  granularity: AnalyticsGranularity,
-): WithDemo<AnalyticsTimeseries> {
-  const params: AnalyticsRangeParams = {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-    granularity,
-  };
-  const q = useQuery({
-    queryKey: ['analytics', 'timeseries', params],
-    queryFn: () => analyticsService.timeseries(params),
-    retry: (count, err) => (isMissingEndpoint(err) ? false : count < 1),
+    queryKey: queryKeys.analytics.daily(params),
+    queryFn: async () => {
+      const res = await analyticsService.daily(params);
+      const arr = Array.isArray(res) ? res : res ? [res] : [];
+      return arr;
+    },
+    enabled: Boolean(params.from && params.to) || Boolean(params.date),
     staleTime: 60_000,
   });
-
-  if (q.data) return { data: q.data, isDemo: false, isLoading: false, isError: false };
-  if (q.isLoading)
-    return {
-      data: { granularity, points: [] },
-      isDemo: false,
-      isLoading: true,
-      isError: false,
-    };
-  // Backend not implemented (or unreachable) → render demo data so design previews end-to-end.
-  if (isMissingEndpoint(q.error) || q.isError) {
-    return { data: demoTimeseries(from, to, granularity), isDemo: true, isLoading: false, isError: false };
-  }
-  return { data: { granularity, points: [] }, isDemo: false, isLoading: false, isError: true };
 }
 
-export function useAnalyticsOverview(
-  from: Date,
-  to: Date,
-  granularity: AnalyticsGranularity,
-  fallbackSeries: AnalyticsTimeseries,
-): WithDemo<AnalyticsOverview> {
-  const params: AnalyticsRangeParams = {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-    granularity,
-  };
-  const q = useQuery({
-    queryKey: ['analytics', 'overview', params],
-    queryFn: () => analyticsService.overview(params),
-    retry: (count, err) => (isMissingEndpoint(err) ? false : count < 1),
+/* ── /v1/admin/analytics/leaderboard ──────────────────────────────────────── */
+
+export function useLeaderboardQuery(params: LeaderboardParams, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.analytics.leaderboard(params),
+    queryFn: () => analyticsService.leaderboard(params),
+    enabled,
     staleTime: 60_000,
+    placeholderData: (prev) => prev,
   });
-  if (q.data) return { data: q.data, isDemo: false, isLoading: false, isError: false };
-  if (q.isLoading) {
-    return {
-      data: {
-        totalSales: 0,
-        totalCommissions: 0,
-        newUsers: 0,
-        paidWithdrawals: 0,
-        deltaSales: 0,
-        deltaCommissions: 0,
-        deltaNewUsers: 0,
-        deltaPaidWithdrawals: 0,
-      },
-      isDemo: false,
-      isLoading: true,
-      isError: false,
-    };
-  }
-  return { data: demoOverview(fallbackSeries), isDemo: true, isLoading: false, isError: false };
 }
 
-export function useAnalyticsSalesBreakdown(
-  from: Date,
-  to: Date,
-  fallbackSeries: AnalyticsTimeseries,
-): WithDemo<SalesBreakdownResponse> {
-  const params = {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-  };
-  const q = useQuery({
-    queryKey: ['analytics', 'sales-breakdown', params],
-    queryFn: () => analyticsService.salesBreakdown(params),
-    retry: (count, err) => (isMissingEndpoint(err) ? false : count < 1),
+/* ── /v1/admin/analytics/users/{userId} ───────────────────────────────────── */
+
+export function useUserMonthlyAnalyticsQuery(
+  userId: string,
+  month: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.analytics.userMonthly(userId, month),
+    queryFn: () => analyticsService.userMonthly(userId, { month }),
+    enabled: enabled && Boolean(userId) && Boolean(month),
     staleTime: 60_000,
   });
-  if (q.data) return { data: q.data, isDemo: false, isLoading: false, isError: false };
-  if (q.isLoading)
-    return { data: { byStatus: [] }, isDemo: false, isLoading: true, isError: false };
-  return { data: demoSalesBreakdown(fallbackSeries), isDemo: true, isLoading: false, isError: false };
 }
 
-export function useAnalyticsTopPerformers(
-  from: Date,
-  to: Date,
-  fallbackSeries: AnalyticsTimeseries,
-): WithDemo<TopPerformersResponse> {
-  const params = {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-  };
-  const q = useQuery({
-    queryKey: ['analytics', 'top-performers', params],
-    queryFn: () => analyticsService.topPerformers(params),
-    retry: (count, err) => (isMissingEndpoint(err) ? false : count < 1),
-    staleTime: 60_000,
-  });
-  if (q.data) return { data: q.data, isDemo: false, isLoading: false, isError: false };
-  if (q.isLoading)
-    return {
-      data: { bySales: [], byCommissions: [] },
-      isDemo: false,
-      isLoading: true,
-      isError: false,
-    };
-  return { data: demoTopPerformers(fallbackSeries), isDemo: true, isLoading: false, isError: false };
-}
+/* ── /v1/admin/analytics/users/{userId}/history ───────────────────────────── */
 
-export function useAnalyticsWithdrawals(
-  from: Date,
-  to: Date,
-  fallbackSeries: AnalyticsTimeseries,
-): WithDemo<WithdrawalsBreakdownResponse> {
-  const params = {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-  };
-  const q = useQuery({
-    queryKey: ['analytics', 'withdrawals-breakdown', params],
-    queryFn: () => analyticsService.withdrawalsBreakdown(params),
-    retry: (count, err) => (isMissingEndpoint(err) ? false : count < 1),
+export function useUserMonthlyHistoryQuery(
+  userId: string,
+  params: UserMonthlyHistoryParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.analytics.userMonthlyHistory(userId, params),
+    queryFn: () => analyticsService.userMonthlyHistory(userId, params),
+    enabled: enabled && Boolean(userId) && Boolean(params.fromMonth) && Boolean(params.toMonth),
     staleTime: 60_000,
   });
-  if (q.data) return { data: q.data, isDemo: false, isLoading: false, isError: false };
-  if (q.isLoading)
-    return {
-      data: { byStatus: [], totalAmount: 0, totalCount: 0 },
-      isDemo: false,
-      isLoading: true,
-      isError: false,
-    };
-  return {
-    data: demoWithdrawalsBreakdown(fallbackSeries),
-    isDemo: true,
-    isLoading: false,
-    isError: false,
-  };
 }

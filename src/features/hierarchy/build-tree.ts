@@ -39,8 +39,8 @@ export function buildTree(users: User[]): TreeNode[] {
     return node.descendantCount;
   };
 
-  // Sort by role hierarchy first (admin > leader > seller), then by name.
-  const ROLE_ORDER = ['admin', 'sub-admin', 'leader', 'seller'];
+  // Sort by role hierarchy first (admin > seller), then by name.
+  const ROLE_ORDER = ['admin', 'seller'];
   const sortNodes = (nodes: TreeNode[]) => {
     nodes.sort((a, b) => {
       const ra = ROLE_ORDER.indexOf(a.role);

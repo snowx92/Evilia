@@ -20,6 +20,14 @@
     "loadMore": "Load more",
     "noResults": "No results",
     "none": "None",
+    "uploadImage": "Upload image",
+    "removeImage": "Remove image",
+    "fileTooLarge": "File is too large (max {max})",
+    "notAnImage": "Only image files are allowed",
+    "export": "Export",
+    "exportCsv": "Export CSV",
+    "share": "Share",
+    "showing": "Showing {from}-{to} of {total}",
     "tryAgain": "Try again",
     "error": "Something went wrong",
     "required": "This field is required",
@@ -82,27 +90,42 @@
     "passwordRequired": "Password is required",
     "passwordMin": "At least 6 characters",
     "loginFailed": "Couldn't sign you in. Check your credentials.",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "areYouSeller": "Are you a seller?",
+    "sellerLogin": "Seller sign in",
+    "quoteTeam": "Great teams are built on trust, not titles.",
+    "quoteGrowth": "Growth follows everyone who keeps showing up.",
+    "quoteVision": "Vision becomes momentum when shared."
   },
   "dashboard": {
     "title": "Overview",
     "totalSales": "Total sales",
     "totalCommissions": "Total commissions",
     "activeUsers": "Active users",
-    "today": "Today"
+    "today": "Today",
+    "salesCount": "{count} sales",
+    "commissionsCount": "{count} commissions"
   },
   "users": {
     "title": "Users",
-    "create": "Add user",
-    "createSubAdmin": "Add sub-admin",
+    "create": "Add seller",
+    "createSubAdmin": "Add admin",
     "filterByRole": "Role",
     "filterByStatus": "Status",
     "fields": {
       "displayName": "Display name",
       "sellerCode": "Seller code",
       "commissionPercentage": "Commission %",
-      "parentId": "Parent",
-      "selectParent": "Select parent (optional)",
+      "directCommissionPercentage": "Direct commission %",
+      "networkCommissionPercentage": "Network commission %",
+      "directCommissionShort": "Direct",
+      "networkCommissionShort": "Network",
+      "parentId": "Upline",
+      "selectParent": "Select upline (optional)",
+      "socialMediaLink": "Social media link",
+      "affiliateLinks": "Affiliate links",
+      "addAffiliateLink": "Add link",
+      "affiliateLinksDesc": "Public URLs the seller shares with their network",
       "isSuperAdmin": "Super admin",
       "permissions": "Permissions",
       "createdAt": "Created"
@@ -110,11 +133,29 @@
     "actions": {
       "suspend": "Suspend user",
       "activate": "Activate user",
+      "viewProfile": "View profile",
       "viewWallet": "View wallet",
+      "editUser": "Edit user",
+      "userUpdated": "User updated",
+      "resetPassword": "Reset password",
+      "resetPasswordDesc": "Set a new password for this user. They'll need it for their next sign-in.",
+      "passwordReset": "Password reset",
       "editPermissions": "Edit permissions"
     },
     "confirmSuspend": "Suspend this user?",
-    "confirmActivate": "Activate this user?"
+    "confirmActivate": "Activate this user?",
+    "detail": {
+      "overview": "Overview",
+      "contact": "Contact",
+      "wallet": "Wallet",
+      "transactions": "Recent transactions",
+      "analytics": "Monthly analytics",
+      "history": "6-month history",
+      "salesCount": "Sales count",
+      "networkCount": "Network sales count",
+      "noSocial": "Not provided",
+      "noPhone": "Not provided"
+    }
   },
   "targets": {
     "title": "Targets",
@@ -201,7 +242,16 @@
   "analytics": {
     "title": "Analytics",
     "daily": "Daily summary",
-    "monthly": "Monthly user analytics"
+    "monthly": "Monthly user analytics",
+    "leaderboard": "Top performers",
+    "networkSales": "Network sales",
+    "month": "Month",
+    "preset": {
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "thisMonth": "This month",
+      "last3m": "Last 90 days"
+    }
   },
   "access": {
     "title": "Access",
@@ -211,6 +261,7 @@
   },
   "status": {
     "active": "Active",
+    "inactive": "Inactive",
     "suspended": "Suspended",
     "pending": "Pending",
     "approved": "Approved",
@@ -224,9 +275,7 @@
   },
   "role": {
     "admin": "Admin",
-    "sub-admin": "Sub-admin",
-    "seller": "Seller",
-    "leader": "Team Lead"
+    "seller": "Seller"
   },
   "transaction": {
     "type": {
@@ -252,6 +301,82 @@
     "reviewedAt": "Reviewed",
     "reviewedBy": "Reviewer",
     "rejectionReason": "Rejection reason"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal information",
+    "personalInfoDesc": "Update your name, phone, and profile picture",
+    "security": "Security",
+    "securityDesc": "Change your password",
+    "notifications": "Notifications",
+    "notificationsDesc": "Browser push notifications",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password updated",
+    "passwordMismatch": "Passwords don't match",
+    "pushEnabled": "Push notifications are enabled",
+    "pushDisabled": "Enable push notifications to get instant alerts",
+    "enablePush": "Enable notifications",
+    "memberSince": "Member since"
+  },
+  "seller": {
+    "portal": "Seller portal",
+    "subtitle": "Track your sales, commissions, network and wallet",
+    "notSeller": "Not a seller?",
+    "adminLogin": "Admin sign in",
+    "totalEarned": "Total earned",
+    "networkRevenue": "Network revenue (month)",
+    "networkSize": "Network size",
+    "recentSales": "Your most recent sales",
+    "recentCommissions": "Your most recent commissions",
+    "commissionRates": "Commission rates",
+    "commissionRatesDesc": "Your direct and network commission percentages",
+    "yourAffiliateLinks": "Your affiliate links",
+    "shareWithNetwork": "Share these with your network",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "noAffiliateLinks": "No affiliate links yet",
+    "requestWithdrawal": "Request withdrawal",
+    "requestedAmount": "Requested amount",
+    "withdrawalSubmitted": "Withdrawal request submitted",
+    "amountTooHigh": "Amount exceeds your available balance",
+    "saleAmount": "Sale amount",
+    "you": "You",
+    "directReports": "direct reports",
+    "nav": {
+      "section": "My business",
+      "network": "My network",
+      "sales": "My sales",
+      "commissions": "My commissions",
+      "wallet": "Wallet",
+      "withdrawals": "Withdrawals",
+      "analytics": "Analytics"
+    },
+    "earningsCalculator": "Earnings calculator",
+    "calculatorDesc": "Estimate what you'd earn at a given sales amount",
+    "ifYouSell": "If you sell",
+    "youEarn": "You earn",
+    "directEarn": "Direct earnings",
+    "networkEarn": "Network earnings",
+    "totalEarn": "Total earnings",
+    "byType": "By type",
+    "totalsThisPage": "Totals on this page",
+    "qrCode": "QR code",
+    "scanToOpen": "Scan to open this affiliate link",
+    "shareNow": "Share",
+    "sumOfPage": "Sum",
+    "perMonth": "Per month",
+    "monthlyTrend": "Monthly trend",
+    "yourPerformance": "Your performance"
+  },
+  "notifications_ext": {
+    "title": "Notifications",
+    "empty": "You're all caught up",
+    "markAllRead": "Mark all read",
+    "viewAll": "View all",
+    "newCount": "{count} new"
   },
   "hierarchy_ext": {
     "team": "Team",

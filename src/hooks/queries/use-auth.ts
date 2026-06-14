@@ -7,7 +7,12 @@ import { queryKeys } from '@/lib/query-keys';
 import { useAuthStore } from '@/store/auth';
 import { useLocaleStore } from '@/store/locale';
 import { getFirebaseAuth } from '@/lib/firebase';
-import type { LoginRequest, MeResponse } from '@/types/auth';
+import type {
+  ChangePasswordRequest,
+  LoginRequest,
+  MeResponse,
+  UpdateProfileRequest,
+} from '@/types/auth';
 import type { PaginationParams } from '@/types/api';
 
 export function useMeQuery(enabled = true) {
@@ -54,6 +59,24 @@ export function useLoginMutation() {
       setUser(data.user);
       qc.invalidateQueries({ queryKey: queryKeys.auth.me });
     },
+  });
+}
+
+export function useUpdateProfileMutation() {
+  const setUser = useAuthStore((s) => s.setUser);
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateProfileRequest) => authService.updateProfile(body),
+    onSuccess: (data) => {
+      setUser(data.user);
+      qc.invalidateQueries({ queryKey: queryKeys.auth.me });
+    },
+  });
+}
+
+export function useChangePasswordMutation() {
+  return useMutation({
+    mutationFn: (body: ChangePasswordRequest) => authService.changePassword(body),
   });
 }
 

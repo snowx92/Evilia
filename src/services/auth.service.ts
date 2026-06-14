@@ -1,9 +1,12 @@
 import { api, unwrap } from '@/lib/api/client';
 import type {
+  ChangePasswordRequest,
   LoginRequest,
   LoginResponse,
   MeResponse,
   Notification,
+  UpdateProfileRequest,
+  User,
 } from '@/types/auth';
 import type { ApiResponse, PaginatedResponse, PaginationParams } from '@/types/api';
 
@@ -12,6 +15,14 @@ export const authService = {
     unwrap(api.post<ApiResponse<LoginResponse>>('/v1/auth/login', body)),
 
   me: () => unwrap(api.get<ApiResponse<MeResponse>>('/v1/me')),
+
+  updateProfile: (body: UpdateProfileRequest) =>
+    unwrap(api.put<ApiResponse<{ user: User }>>('/v1/me/profile', body)),
+
+  changePassword: (body: ChangePasswordRequest) =>
+    unwrap(
+      api.put<ApiResponse<{ success: boolean }>>('/v1/auth/change-password', body),
+    ),
 
   registerFcmToken: (token: string) =>
     unwrap(api.put<ApiResponse<null>>('/v1/me/fcm-token', { token })),

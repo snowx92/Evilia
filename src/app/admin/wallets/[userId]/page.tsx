@@ -56,13 +56,14 @@ import type { WalletTransaction } from '@/types/admin/wallets';
 
 const adjustSchema = z.object({
   amount: z.coerce.number().refine((n) => n !== 0, { message: 'required' }),
-  type: z.enum(['credit', 'debit']),
+  type: z.enum(['bonus', 'adjustment']),
   description: z.string().min(1),
 });
 type AdjustValues = z.infer<typeof adjustSchema>;
 
-function AdjustDialog({ userId }: { userId: string }) {
+function AdjustDialog({ userId, currentBalance }: { userId: string; currentBalance?: number }) {
   const { t } = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const [open, setOpen] = useState(false);
   const adjust = useAdjustWalletMutation();
   const {
@@ -74,8 +75,11 @@ function AdjustDialog({ userId }: { userId: string }) {
     formState: { isSubmitting },
   } = useForm<AdjustValues>({
     resolver: zodResolver(adjustSchema),
-    defaultValues: { type: 'credit', amount: 0, description: '' },
+    defaultValues: { type: 'bonus', amount: 0, description: '' },
   });
+
+  const amount = Number(watch('amount')) || 0;
+  const previewBalance = (currentBalance ?? 0) + amount;
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -103,17 +107,17 @@ function AdjustDialog({ userId }: { userId: string }) {
             <Input type="number" step="0.01" dir="ltr" {...register('amount')} />
           </div>
           <div className="space-y-2">
-            <Label>{t('common.title')}</Label>
+            <Label>{t('targets.fields.type')}</Label>
             <Select
               value={watch('type')}
-              onValueChange={(v) => setValue('type', v as 'credit' | 'debit')}
+              onValueChange={(v) => setValue('type', v as 'bonus' | 'adjustment')}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="credit">{t('wallets.adjustment.credit')}</SelectItem>
-                <SelectItem value="debit">{t('wallets.adjustment.debit')}</SelectItem>
+                <SelectItem value="bonus">{t('transaction.type.bonus')}</SelectItem>
+                <SelectItem value="adjustment">{t('transaction.type.adjustment')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -121,6 +125,32 @@ function AdjustDialog({ userId }: { userId: string }) {
             <Label>{t('common.description')}</Label>
             <Textarea {...register('description')} rows={3} />
           </div>
+
+          {/* Before / after preview */}
+          {currentBalance !== undefined && (
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-xs">
+              <div className="flex flex-col leading-tight">
+                <span className="text-muted-foreground">{t('wallets.balance')}</span>
+                <span className="font-semibold tabular-nums">
+                  {formatCurrency(currentBalance, locale)}
+                </span>
+              </div>
+              <span className="text-muted-foreground">→</span>
+              <div className="flex flex-col leading-tight text-end">
+                <span className="text-muted-foreground">{t('common.save')}</span>
+                <span
+                  className={cn(
+                    'font-semibold tabular-nums',
+                    amount > 0 && 'text-success',
+                    amount < 0 && 'text-destructive',
+                  )}
+                >
+                  {formatCurrency(previewBalance, locale)}
+                </span>
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               {t('common.cancel')}
@@ -222,7 +252,7 @@ export default function UserWalletPage({
         eyebrow={t('nav.wallets')}
         title={u?.displayName ?? userId}
         description={u?.email}
-        actions={<AdjustDialog userId={userId} />}
+        actions={<AdjustDialog userId={userId} currentBalance={w?.balance} />}
       />
 
       <Card>

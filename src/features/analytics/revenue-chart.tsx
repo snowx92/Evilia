@@ -12,29 +12,22 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DemoBadge } from './demo-badge';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency } from '@/lib/utils';
-import type { AnalyticsTimeseries } from '@/types/admin/analytics';
+import type { DashboardSalesCommissionsPoint } from '@/types/admin/analytics';
 
 export function RevenueChart({
   data,
   isLoading,
-  isDemo,
 }: {
-  data: AnalyticsTimeseries;
+  data: DashboardSalesCommissionsPoint[];
   isLoading?: boolean;
-  isDemo?: boolean;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
 
   const tickFormat = (raw: string) => {
-    if (data.granularity === 'month') {
-      const d = parseISO(`${raw}-01`);
-      return format(d, 'MMM');
-    }
     const d = parseISO(raw);
     return format(d, 'MMM d');
   };
@@ -43,13 +36,10 @@ export function RevenueChart({
     <Card className="lg:col-span-2">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="space-y-1">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle>
             {t('dashboard.totalSales')} · {t('dashboard.totalCommissions')}
-            <DemoBadge show={Boolean(isDemo)} />
           </CardTitle>
-          <CardDescription>
-            {data.granularity === 'day' ? t('analytics.daily') : t('analytics.monthly')}
-          </CardDescription>
+          <CardDescription>{t('analytics.daily')}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -58,7 +48,7 @@ export function RevenueChart({
         ) : (
           <div className="h-72 w-full">
             <ResponsiveContainer>
-              <AreaChart data={data.points} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="evilia-sales-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#4f46e5" stopOpacity={0.35} />
@@ -71,7 +61,7 @@ export function RevenueChart({
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" vertical={false} />
                 <XAxis
-                  dataKey="bucket"
+                  dataKey="date"
                   tickFormatter={tickFormat}
                   tickLine={false}
                   axisLine={false}
@@ -104,19 +94,21 @@ export function RevenueChart({
                   labelFormatter={(label) => tickFormat(String(label))}
                   formatter={(value, name) => [
                     formatCurrency(Number(value) || 0, locale),
-                    name === 'sales' ? t('dashboard.totalSales') : t('dashboard.totalCommissions'),
+                    name === 'totalSalesAmount'
+                      ? t('dashboard.totalSales')
+                      : t('dashboard.totalCommissions'),
                   ]}
                 />
                 <Area
                   type="monotone"
-                  dataKey="sales"
+                  dataKey="totalSalesAmount"
                   stroke="#4f46e5"
                   strokeWidth={2}
                   fill="url(#evilia-sales-grad)"
                 />
                 <Area
                   type="monotone"
-                  dataKey="commissions"
+                  dataKey="totalCommissionsAmount"
                   stroke="#10b981"
                   strokeWidth={2}
                   fill="url(#evilia-commissions-grad)"

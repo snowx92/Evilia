@@ -18,13 +18,19 @@ import { isFirebaseConfigured } from '@/lib/env';
  */
 export function FirebaseAuthBridge({ children }: { children: ReactNode }) {
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    // If Firebase isn't wired, unblock AuthGuard immediately — otherwise it
+    // would spin on the loader forever waiting for the bridge.
+    if (!isFirebaseConfigured) {
+      useAuthStore.getState().setFirebaseReady(true);
+      return;
+    }
     const auth = getFirebaseAuth();
     const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
-      const { setToken, reset, user } = useAuthStore.getState();
+      const { setToken, reset, setFirebaseReady, user } = useAuthStore.getState();
       if (!fbUser) {
         // If we already have no token, this was just initial load with no user — no-op.
         if (useAuthStore.getState().token || user) reset();
+        setFirebaseReady(true);
         return;
       }
       try {
@@ -32,6 +38,8 @@ export function FirebaseAuthBridge({ children }: { children: ReactNode }) {
         setToken(idToken);
       } catch {
         reset();
+      } finally {
+        setFirebaseReady(true);
       }
     });
     return () => unsubscribe();

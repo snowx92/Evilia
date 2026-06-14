@@ -2,6 +2,7 @@
 @plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant rtl (&:where([dir='rtl'], [dir='rtl'] *));
 
 /* ────────────────────────────────────────────────────────────────────────────
    Design tokens — premium SaaS palette: indigo primary on near-white slate,
@@ -152,7 +153,8 @@
   --radius-2xl: 1.75rem;
   --radius-3xl: 2rem;
 
-  --font-sans: var(--font-plex-arabic), 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+  --font-sans: var(--font-arabic), var(--font-inter), 'Tajawal', 'Inter', system-ui, sans-serif;
+  --font-latin: var(--font-inter), system-ui, sans-serif;
 
   --shadow-card: var(--shadow-card);
   --shadow-card-hover: var(--shadow-card-hover);
@@ -317,5 +319,31 @@
   .org-tree > li::before,
   .org-tree > li::after {
     display: none;
+  }
+}
+
+/* ───── Print ────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide app chrome — sidebar, topbar, action buttons, dialogs. */
+  aside,
+  header,
+  [role='dialog'],
+  .print\:hide,
+  button {
+    display: none !important;
+  }
+  main,
+  .max-w-\[1440px\] {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .shadow-card,
+  .shadow-card-hover,
+  .shadow-pop {
+    box-shadow: none !important;
   }
 }

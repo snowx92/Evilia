@@ -17,13 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -33,21 +26,30 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { useCreateUserMutation, useCreateMemberMutation, useUsersQuery } from '@/hooks/queries/use-users';
+import { LinksListEditor } from '@/components/shared/links-list-editor';
+import {
+  useCreateAdminMutation,
+  useCreateSellerMutation,
+  useUsersQuery,
+} from '@/hooks/queries/use-users';
 import { usePermissionCatalogQuery } from '@/hooks/queries/use-access';
 import { useTranslation } from '@/hooks/use-translation';
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import { ApiError } from '@/types/api';
-import type { UserRole } from '@/types/auth';
 
-// ─── Create Admin (sub-admin) ────────────────────────────────────────────────
+// ─── Create Admin ────────────────────────────────────────────────────────────
 
 const adminSchema = z.object({
   displayName: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
   isSuperAdmin: z.boolean(),
+  socialMediaLink: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
 type AdminValues = z.infer<typeof adminSchema>;
 
@@ -56,7 +58,7 @@ export function CreateAdminDialog() {
   const [permissions, setPermissions] = useState<string[]>([]);
   const { t } = useTranslation();
   const catalog = usePermissionCatalogQuery();
-  const create = useCreateUserMutation();
+  const create = useCreateAdminMutation();
 
   const {
     register,
@@ -67,7 +69,13 @@ export function CreateAdminDialog() {
     formState: { errors, isSubmitting },
   } = useForm<AdminValues>({
     resolver: zodResolver(adminSchema),
-    defaultValues: { displayName: '', email: '', password: '', isSuperAdmin: false },
+    defaultValues: {
+      displayName: '',
+      email: '',
+      password: '',
+      isSuperAdmin: false,
+      socialMediaLink: '',
+    },
   });
 
   const isSuperAdmin = watch('isSuperAdmin');
@@ -78,9 +86,10 @@ export function CreateAdminDialog() {
         displayName: values.displayName,
         email: values.email,
         password: values.password,
-        role: 'sub-admin' as UserRole,
+        role: 'admin',
         isSuperAdmin: values.isSuperAdmin,
         permissions,
+        ...(values.socialMediaLink ? { socialMediaLink: values.socialMediaLink } : {}),
       });
       toast.success(t('common.save'));
       setOpen(false);
@@ -126,9 +135,20 @@ export function CreateAdminDialog() {
                 aria-invalid={Boolean(errors.email)}
               />
             </div>
-            <div className="space-y-2 sm:col-span-2">
+            <div className="space-y-2">
               <Label htmlFor="a-password">{t('auth.passwordLabel')}</Label>
               <Input id="a-password" type="password" dir="ltr" {...register('password')} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="a-social">{t('users.fields.socialMediaLink')}</Label>
+              <Input
+                id="a-social"
+                type="url"
+                dir="ltr"
+                placeholder="https://"
+                {...register('socialMediaLink')}
+                aria-invalid={Boolean(errors.socialMediaLink)}
+              />
             </div>
           </div>
 
@@ -175,26 +195,33 @@ export function CreateAdminDialog() {
   );
 }
 
-// ─── Create Member (leader / seller) ─────────────────────────────────────────
+// ─── Create Seller ───────────────────────────────────────────────────────────
 
-const memberSchema = z.object({
+const sellerSchema = z.object({
   displayName: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
   phone: z.string().min(1),
-  role: z.enum(['leader', 'seller']),
   sellerCode: z.string().optional(),
   parentId: z.string().optional(),
-  commissionPercentage: z.coerce.number().min(0).max(100),
+  directCommissionPercentage: z.coerce.number().min(0).max(100),
+  networkCommissionPercentage: z.coerce.number().min(0).max(100),
+  socialMediaLink: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
-type MemberValues = z.infer<typeof memberSchema>;
+type SellerValues = z.infer<typeof sellerSchema>;
 
-export function CreateMemberDialog() {
+export function CreateSellerDialog() {
   const [open, setOpen] = useState(false);
   const [parentPopoverOpen, setParentPopoverOpen] = useState(false);
   const [parentSearch, setParentSearch] = useState('');
+  const [affiliateLinks, setAffiliateLinks] = useState<string[]>([]);
   const { t } = useTranslation();
-  const create = useCreateMemberMutation();
+  const create = useCreateSellerMutation();
+  // Sellers can be parented under admins or other sellers.
   const usersQuery = useUsersQuery({ page: 1, limit: 100 });
   const users = usersQuery.data?.items ?? [];
 
@@ -205,23 +232,22 @@ export function CreateMemberDialog() {
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<MemberValues>({
-    resolver: zodResolver(memberSchema),
+  } = useForm<SellerValues>({
+    resolver: zodResolver(sellerSchema),
     defaultValues: {
       displayName: '',
       email: '',
       password: '',
       phone: '',
-      role: 'leader',
       sellerCode: '',
       parentId: '',
-      commissionPercentage: 0,
+      directCommissionPercentage: 0,
+      networkCommissionPercentage: 0,
+      socialMediaLink: '',
     },
   });
 
-  const role = watch('role');
   const parentId = watch('parentId');
-
   const selectedParent = users.find((u) => u.id === parentId);
   const filteredParents = parentSearch
     ? users.filter(
@@ -233,19 +259,24 @@ export function CreateMemberDialog() {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
+      const cleanedLinks = affiliateLinks.map((l) => l.trim()).filter(Boolean);
       await create.mutateAsync({
         displayName: values.displayName,
         email: values.email,
         password: values.password,
         phone: values.phone,
-        role: values.role,
-        commissionPercentage: values.commissionPercentage,
-        ...(values.role === 'seller' && values.sellerCode ? { sellerCode: values.sellerCode } : {}),
+        role: 'seller',
+        directCommissionPercentage: values.directCommissionPercentage,
+        networkCommissionPercentage: values.networkCommissionPercentage,
+        ...(values.sellerCode ? { sellerCode: values.sellerCode } : {}),
         ...(values.parentId ? { parentId: values.parentId } : { parentId: null }),
+        ...(values.socialMediaLink ? { socialMediaLink: values.socialMediaLink } : {}),
+        ...(cleanedLinks.length ? { affiliateLinks: cleanedLinks } : {}),
       });
       toast.success(t('common.save'));
       setOpen(false);
       reset();
+      setAffiliateLinks([]);
       setParentSearch('');
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t('common.error'));
@@ -266,38 +297,19 @@ export function CreateMemberDialog() {
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <div className="grid gap-3 sm:grid-cols-2">
-            {/* Display name */}
             <div className="space-y-2">
-              <Label htmlFor="m-displayName">{t('users.fields.displayName')}</Label>
+              <Label htmlFor="s-displayName">{t('users.fields.displayName')}</Label>
               <Input
-                id="m-displayName"
+                id="s-displayName"
                 {...register('displayName')}
                 aria-invalid={Boolean(errors.displayName)}
               />
             </div>
 
-            {/* Role */}
             <div className="space-y-2">
-              <Label>{t('common.role')}</Label>
-              <Select
-                value={role}
-                onValueChange={(v) => setValue('role', v as 'leader' | 'seller', { shouldDirty: true })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="leader">{t('role.leader')}</SelectItem>
-                  <SelectItem value="seller">{t('role.seller')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="m-email">{t('common.email')}</Label>
+              <Label htmlFor="s-email">{t('common.email')}</Label>
               <Input
-                id="m-email"
+                id="s-email"
                 type="email"
                 dir="ltr"
                 {...register('email')}
@@ -305,11 +317,10 @@ export function CreateMemberDialog() {
               />
             </div>
 
-            {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="m-phone">{t('common.phone')}</Label>
+              <Label htmlFor="s-phone">{t('common.phone')}</Label>
               <Input
-                id="m-phone"
+                id="s-phone"
                 type="tel"
                 dir="ltr"
                 {...register('phone')}
@@ -317,37 +328,70 @@ export function CreateMemberDialog() {
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="m-password">{t('auth.passwordLabel')}</Label>
-              <Input id="m-password" type="password" dir="ltr" {...register('password')} />
+              <Label htmlFor="s-password">{t('auth.passwordLabel')}</Label>
+              <Input id="s-password" type="password" dir="ltr" {...register('password')} />
             </div>
 
-            {/* Commission */}
             <div className="space-y-2">
-              <Label htmlFor="m-commission">{t('users.fields.commissionPercentage')}</Label>
+              <Label htmlFor="s-sellerCode">{t('users.fields.sellerCode')}</Label>
+              <Input id="s-sellerCode" dir="ltr" {...register('sellerCode')} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="s-direct-commission">
+                {t('users.fields.directCommissionPercentage')}
+              </Label>
               <Input
-                id="m-commission"
+                id="s-direct-commission"
                 type="number"
                 step="0.01"
                 min="0"
                 max="100"
                 dir="ltr"
-                {...register('commissionPercentage')}
-                aria-invalid={Boolean(errors.commissionPercentage)}
+                {...register('directCommissionPercentage')}
+                aria-invalid={Boolean(errors.directCommissionPercentage)}
               />
             </div>
 
-            {/* Seller code — only for seller */}
-            {role === 'seller' && (
-              <div className="space-y-2">
-                <Label htmlFor="m-sellerCode">{t('users.fields.sellerCode')}</Label>
-                <Input id="m-sellerCode" dir="ltr" {...register('sellerCode')} />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="s-network-commission">
+                {t('users.fields.networkCommissionPercentage')}
+              </Label>
+              <Input
+                id="s-network-commission"
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                dir="ltr"
+                {...register('networkCommissionPercentage')}
+                aria-invalid={Boolean(errors.networkCommissionPercentage)}
+              />
+            </div>
 
-            {/* Parent (leader/seller) — user dropdown */}
-            <div className={cn('space-y-2', role !== 'seller' && 'sm:col-span-2')}>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="s-social">{t('users.fields.socialMediaLink')}</Label>
+              <Input
+                id="s-social"
+                type="url"
+                dir="ltr"
+                placeholder="https://"
+                {...register('socialMediaLink')}
+                aria-invalid={Boolean(errors.socialMediaLink)}
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{t('users.fields.affiliateLinks')}</Label>
+              <LinksListEditor
+                value={affiliateLinks}
+                onChange={setAffiliateLinks}
+                placeholder="https://"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
               <Label>{t('users.fields.parentId')}</Label>
               <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen}>
                 <PopoverTrigger asChild>
@@ -366,17 +410,22 @@ export function CreateMemberDialog() {
                     <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <PopoverContent
+                  className="z-[60] w-[--radix-popover-trigger-width] p-0"
+                  align="start"
+                  side="bottom"
+                  sideOffset={4}
+                  collisionPadding={16}
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
                       value={parentSearch}
                       onValueChange={setParentSearch}
                       placeholder={t('common.search')}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-[260px] overflow-y-auto overscroll-contain">
                       <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                       <CommandGroup>
-                        {/* Allow clearing the selection */}
                         <CommandItem
                           value=""
                           onSelect={() => {

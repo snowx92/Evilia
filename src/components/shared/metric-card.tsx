@@ -9,6 +9,7 @@ import { fadeUp } from '@/lib/motion';
 type Props = {
   label: string;
   value: string;
+  sublabel?: string;
   icon: LucideIcon;
   trend?: { value: number; label?: string };
   isLoading?: boolean;
@@ -26,6 +27,7 @@ const ACCENT: Record<NonNullable<Props['accent']>, string> = {
 export function MetricCard({
   label,
   value,
+  sublabel,
   icon: Icon,
   trend,
   isLoading,
@@ -56,7 +58,12 @@ export function MetricCard({
           {isLoading ? (
             <Skeleton className="mt-1 h-8 w-28" />
           ) : (
-            <p className="text-3xl font-semibold tracking-tight">{value}</p>
+            <>
+              <p className="text-3xl font-semibold tracking-tight">{value}</p>
+              {sublabel && (
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{sublabel}</p>
+              )}
+            </>
           )}
         </div>
         <div

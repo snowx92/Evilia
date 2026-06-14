@@ -1,6 +1,7 @@
 'use client';
 
-import { Menu, LogOut, Bell, Search } from 'lucide-react';
+import Link from 'next/link';
+import { Menu, LogOut, Search, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LocaleSwitcher } from '@/components/shared/locale-switcher';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
+import { NotificationsPopover } from '@/features/notifications/notifications-popover';
 import { useAuthStore } from '@/store/auth';
 import { useLogout } from '@/hooks/queries/use-auth';
 import { useTranslation } from '@/hooks/use-translation';
@@ -22,6 +24,9 @@ export function Topbar({ onMobileMenu }: { onMobileMenu?: () => void }) {
   const logout = useLogout();
   const router = useRouter();
   const { t } = useTranslation();
+
+  // Both portals share this Topbar; route to the profile page in the right area.
+  const profilePath = user?.role === 'seller' ? '/seller/profile' : '/admin/profile';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur lg:px-8">
@@ -51,10 +56,7 @@ export function Topbar({ onMobileMenu }: { onMobileMenu?: () => void }) {
 
       <div className="ms-auto flex items-center gap-1.5">
         <LocaleSwitcher />
-        <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute end-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-destructive" />
-        </Button>
+        <NotificationsPopover />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -62,6 +64,9 @@ export function Topbar({ onMobileMenu }: { onMobileMenu?: () => void }) {
               className="flex h-10 items-center gap-2 rounded-xl border border-transparent px-1.5 transition-colors hover:border-border/70 hover:bg-surface"
             >
               <Avatar className="h-7 w-7">
+                {user?.profileImageUrl ? (
+                  <AvatarImage src={user.profileImageUrl} alt={user.displayName} />
+                ) : null}
                 <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
               </Avatar>
               <span className="hidden text-start sm:flex sm:flex-col sm:leading-tight">
@@ -77,6 +82,13 @@ export function Topbar({ onMobileMenu }: { onMobileMenu?: () => void }) {
                 <span className="text-xs text-muted-foreground">{user?.email}</span>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={profilePath} className="gap-2">
+                <UserIcon className="h-4 w-4" />
+                {t('common.profile')}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {

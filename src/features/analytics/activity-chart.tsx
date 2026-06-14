@@ -12,29 +12,22 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DemoBadge } from './demo-badge';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatNumber } from '@/lib/utils';
-import type { AnalyticsTimeseries } from '@/types/admin/analytics';
+import type { DashboardActiveUsersPoint } from '@/types/admin/analytics';
 
 export function ActivityChart({
   data,
   isLoading,
-  isDemo,
 }: {
-  data: AnalyticsTimeseries;
+  data: DashboardActiveUsersPoint[];
   isLoading?: boolean;
-  isDemo?: boolean;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
 
   const tickFormat = (raw: string) => {
-    if (data.granularity === 'month') {
-      const d = parseISO(`${raw}-01`);
-      return format(d, 'MMM');
-    }
     const d = parseISO(raw);
     return format(d, 'MMM d');
   };
@@ -43,11 +36,8 @@ export function ActivityChart({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="space-y-1">
-          <CardTitle className="flex items-center gap-2">
-            {t('users.title')}
-            <DemoBadge show={Boolean(isDemo)} />
-          </CardTitle>
-          <CardDescription>{t('dashboard.activeUsers')}</CardDescription>
+          <CardTitle>{t('dashboard.activeUsers')}</CardTitle>
+          <CardDescription>{t('analytics.daily')}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -56,10 +46,10 @@ export function ActivityChart({
         ) : (
           <div className="h-60 w-full">
             <ResponsiveContainer>
-              <BarChart data={data.points} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" vertical={false} />
                 <XAxis
-                  dataKey="bucket"
+                  dataKey="date"
                   tickFormatter={tickFormat}
                   tickLine={false}
                   axisLine={false}
@@ -83,9 +73,9 @@ export function ActivityChart({
                     fontSize: 12,
                   }}
                   labelFormatter={(label) => tickFormat(String(label))}
-                  formatter={(v) => [formatNumber(Number(v) || 0, locale), t('users.title')]}
+                  formatter={(v) => [formatNumber(Number(v) || 0, locale), t('dashboard.activeUsers')]}
                 />
-                <Bar dataKey="newUsers" fill="#6366f1" radius={[8, 8, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>

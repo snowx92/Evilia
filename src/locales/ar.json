@@ -20,6 +20,14 @@
     "loadMore": "تحميل المزيد",
     "noResults": "لا توجد نتائج",
     "none": "لا شيء",
+    "uploadImage": "رفع صورة",
+    "removeImage": "إزالة الصورة",
+    "fileTooLarge": "حجم الملف كبير جدًا (الحد الأقصى {max})",
+    "notAnImage": "يُسمح فقط بملفات الصور",
+    "export": "تصدير",
+    "exportCsv": "تصدير CSV",
+    "share": "مشاركة",
+    "showing": "عرض {from}-{to} من {total}",
     "tryAgain": "حاول مرة أخرى",
     "error": "حدث خطأ",
     "required": "هذا الحقل مطلوب",
@@ -82,27 +90,42 @@
     "passwordRequired": "كلمة المرور مطلوبة",
     "passwordMin": "الحد الأدنى ٦ أحرف",
     "loginFailed": "تعذر تسجيل الدخول. تحقق من بياناتك.",
-    "welcomeBack": "أهلًا بعودتك"
+    "welcomeBack": "أهلًا بعودتك",
+    "areYouSeller": "هل أنت بائع؟",
+    "sellerLogin": "دخول البائعين",
+    "quoteTeam": "الفرق العظيمة تُبنى على الثقة لا على الألقاب.",
+    "quoteGrowth": "النمو يلازم من يواصل الحضور كل يوم.",
+    "quoteVision": "الرؤية تتحوّل إلى انطلاقة حين تُشارَك."
   },
   "dashboard": {
     "title": "نظرة عامة",
     "totalSales": "إجمالي المبيعات",
     "totalCommissions": "إجمالي العمولات",
     "activeUsers": "المستخدمون النشطون",
-    "today": "اليوم"
+    "today": "اليوم",
+    "salesCount": "{count} طلب",
+    "commissionsCount": "{count} عمولة"
   },
   "users": {
     "title": "المستخدمون",
-    "create": "إضافة مستخدم",
-    "createSubAdmin": "إضافة مشرف فرعي",
+    "create": "إضافة بائع",
+    "createSubAdmin": "إضافة مدير",
     "filterByRole": "تصفية حسب الدور",
     "filterByStatus": "تصفية حسب الحالة",
     "fields": {
       "displayName": "الاسم الظاهر",
       "sellerCode": "رمز البائع",
       "commissionPercentage": "نسبة العمولة",
-      "parentId": "المشرف الأعلى",
-      "selectParent": "اختر مشرفًا (اختياري)",
+      "directCommissionPercentage": "نسبة العمولة المباشرة",
+      "networkCommissionPercentage": "نسبة عمولة الشبكة",
+      "directCommissionShort": "مباشر",
+      "networkCommissionShort": "شبكة",
+      "parentId": "الراعي",
+      "selectParent": "اختر الراعي (اختياري)",
+      "socialMediaLink": "رابط التواصل الاجتماعي",
+      "affiliateLinks": "روابط التسويق",
+      "addAffiliateLink": "إضافة رابط",
+      "affiliateLinksDesc": "روابط عامة يشاركها البائع مع شبكته",
       "isSuperAdmin": "مشرف عام",
       "permissions": "الصلاحيات",
       "createdAt": "تاريخ الإنشاء"
@@ -110,11 +133,29 @@
     "actions": {
       "suspend": "تعليق المستخدم",
       "activate": "تفعيل المستخدم",
+      "viewProfile": "عرض الملف",
       "viewWallet": "عرض المحفظة",
+      "editUser": "تعديل المستخدم",
+      "userUpdated": "تم تحديث المستخدم",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "resetPasswordDesc": "حدد كلمة مرور جديدة لهذا المستخدم. سيستخدمها في تسجيل الدخول التالي.",
+      "passwordReset": "تم تعديل كلمة المرور",
       "editPermissions": "تحرير الصلاحيات"
     },
     "confirmSuspend": "هل تريد تعليق هذا المستخدم؟",
-    "confirmActivate": "هل تريد تفعيل هذا المستخدم؟"
+    "confirmActivate": "هل تريد تفعيل هذا المستخدم؟",
+    "detail": {
+      "overview": "نظرة عامة",
+      "contact": "معلومات الاتصال",
+      "wallet": "المحفظة",
+      "transactions": "أحدث المعاملات",
+      "analytics": "التحليلات الشهرية",
+      "history": "آخر 6 أشهر",
+      "salesCount": "عدد المبيعات",
+      "networkCount": "عدد مبيعات الشبكة",
+      "noSocial": "غير مُحدد",
+      "noPhone": "غير مُحدد"
+    }
   },
   "targets": {
     "title": "الأهداف",
@@ -201,7 +242,16 @@
   "analytics": {
     "title": "التحليلات",
     "daily": "ملخص يومي",
-    "monthly": "تحليلات شهرية"
+    "monthly": "تحليلات شهرية",
+    "leaderboard": "الأفضل أداءً",
+    "networkSales": "مبيعات الشبكة",
+    "month": "الشهر",
+    "preset": {
+      "last7": "آخر 7 أيام",
+      "last30": "آخر 30 يومًا",
+      "thisMonth": "هذا الشهر",
+      "last3m": "آخر 90 يومًا"
+    }
   },
   "access": {
     "title": "إدارة الصلاحيات",
@@ -211,6 +261,7 @@
   },
   "status": {
     "active": "نشط",
+    "inactive": "غير نشط",
     "suspended": "معلّق",
     "pending": "قيد الانتظار",
     "approved": "تمت الموافقة",
@@ -224,9 +275,7 @@
   },
   "role": {
     "admin": "مدير",
-    "sub-admin": "مشرف فرعي",
-    "seller": "بائع",
-    "leader": "قائد فريق"
+    "seller": "بائع"
   },
   "transaction": {
     "type": {
@@ -252,6 +301,82 @@
     "reviewedAt": "تاريخ المراجعة",
     "reviewedBy": "تمت المراجعة بواسطة",
     "rejectionReason": "سبب الرفض"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "personalInfo": "المعلومات الشخصية",
+    "personalInfoDesc": "حدّث اسمك وهاتفك وصورتك الشخصية",
+    "security": "الأمان",
+    "securityDesc": "تغيير كلمة المرور",
+    "notifications": "الإشعارات",
+    "notificationsDesc": "إشعارات المتصفح الفورية",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور الجديدة",
+    "changePassword": "تغيير كلمة المرور",
+    "passwordChanged": "تم تحديث كلمة المرور",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "pushEnabled": "تم تفعيل الإشعارات الفورية",
+    "pushDisabled": "فعّل الإشعارات الفورية لتلقي التنبيهات",
+    "enablePush": "تفعيل الإشعارات",
+    "memberSince": "عضو منذ"
+  },
+  "seller": {
+    "portal": "بوابة البائع",
+    "subtitle": "تابع مبيعاتك وعمولاتك وشبكتك ومحفظتك",
+    "notSeller": "لست بائعًا؟",
+    "adminLogin": "تسجيل دخول المدير",
+    "totalEarned": "إجمالي الأرباح",
+    "networkRevenue": "إيرادات الشبكة (الشهر)",
+    "networkSize": "حجم الشبكة",
+    "recentSales": "أحدث مبيعاتك",
+    "recentCommissions": "أحدث عمولاتك",
+    "commissionRates": "نسب العمولات",
+    "commissionRatesDesc": "نسب عمولاتك المباشرة وعمولات الشبكة",
+    "yourAffiliateLinks": "روابطك التسويقية",
+    "shareWithNetwork": "شاركها مع شبكتك",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم نسخ الرابط",
+    "noAffiliateLinks": "لا توجد روابط بعد",
+    "requestWithdrawal": "طلب سحب",
+    "requestedAmount": "المبلغ المطلوب",
+    "withdrawalSubmitted": "تم إرسال طلب السحب",
+    "amountTooHigh": "المبلغ يتجاوز رصيدك المتاح",
+    "saleAmount": "قيمة البيع",
+    "you": "أنت",
+    "directReports": "تابع مباشر",
+    "nav": {
+      "section": "أعمالي",
+      "network": "شبكتي",
+      "sales": "مبيعاتي",
+      "commissions": "عمولاتي",
+      "wallet": "المحفظة",
+      "withdrawals": "السحوبات",
+      "analytics": "التحليلات"
+    },
+    "earningsCalculator": "حاسبة الأرباح",
+    "calculatorDesc": "احسب أرباحك المتوقعة عند مبلغ مبيعات معين",
+    "ifYouSell": "إذا بعت",
+    "youEarn": "تكسب",
+    "directEarn": "أرباح مباشرة",
+    "networkEarn": "أرباح الشبكة",
+    "totalEarn": "إجمالي الأرباح",
+    "byType": "حسب النوع",
+    "totalsThisPage": "إجماليات الصفحة",
+    "qrCode": "رمز الاستجابة",
+    "scanToOpen": "امسح لفتح رابط التسويق",
+    "shareNow": "مشاركة",
+    "sumOfPage": "المجموع",
+    "perMonth": "شهريًا",
+    "monthlyTrend": "الاتجاه الشهري",
+    "yourPerformance": "أداؤك"
+  },
+  "notifications_ext": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات جديدة",
+    "markAllRead": "تعليم الكل كمقروء",
+    "viewAll": "عرض الكل",
+    "newCount": "{count} جديد"
   },
   "hierarchy_ext": {
     "team": "الفريق",

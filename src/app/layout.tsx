@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
+import { Tajawal, Inter } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/providers/app-providers';
 
-const plexArabic = IBM_Plex_Sans_Arabic({
-  variable: '--font-plex-arabic',
+const tajawal = Tajawal({
+  variable: '--font-arabic',
   subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['300', '400', '500', '700', '800', '900'],
   display: 'swap',
 });
 
@@ -19,6 +19,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Evilia — لوحة الإدارة',
   description: 'Modern admin control plane for Evilia — sales, commissions, wallets, and access.',
+  icons: {
+    icon: [{ url: '/favicon.jpeg', type: 'image/jpeg' }],
+    shortcut: '/favicon.jpeg',
+    apple: '/favicon.jpeg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${plexArabic.variable} ${inter.variable} h-full antialiased`}
+      className={`${tajawal.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground">
         <AppProviders>{children}</AppProviders>

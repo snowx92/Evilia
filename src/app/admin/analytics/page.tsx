@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { format } from 'date-fns';
 import { PageHeader } from '@/components/shared/page-header';
+import { ErrorState } from '@/components/shared/error-state';
 import {
   defaultRange,
   RangeBar,
@@ -15,24 +17,19 @@ import { WithdrawalsChart } from '@/features/analytics/withdrawals-chart';
 import { TopPerformers } from '@/features/analytics/top-performers';
 import { TodaySnapshot } from '@/features/analytics/today-snapshot';
 import { UserMonthlyCard } from '@/features/analytics/user-monthly-card';
-import {
-  useAnalyticsOverview,
-  useAnalyticsSalesBreakdown,
-  useAnalyticsTimeseries,
-  useAnalyticsTopPerformers,
-  useAnalyticsWithdrawals,
-} from '@/hooks/queries/use-analytics';
+import { useAnalyticsDashboardQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
   const [range, setRange] = useState<AnalyticsRange>(() => defaultRange('daily'));
 
-  const series = useAnalyticsTimeseries(range.from, range.to, range.granularity);
-  const overview = useAnalyticsOverview(range.from, range.to, range.granularity, series.data);
-  const sales = useAnalyticsSalesBreakdown(range.from, range.to, series.data);
-  const withdrawals = useAnalyticsWithdrawals(range.from, range.to, series.data);
-  const top = useAnalyticsTopPerformers(range.from, range.to, series.data);
+  const params = {
+    from: format(range.from, 'yyyy-MM-dd'),
+    to: format(range.to, 'yyyy-MM-dd'),
+  };
+  const dashboard = useAnalyticsDashboardQuery(params);
+  const d = dashboard.data;
 
   return (
     <div className="space-y-8">
@@ -43,41 +40,41 @@ export default function AnalyticsPage() {
         actions={<RangeBar value={range} onChange={setRange} />}
       />
 
-      {/* KPI overview */}
-      <OverviewKpis data={overview.data} isLoading={overview.isLoading} />
+      {dashboard.isError ? (
+        <ErrorState onRetry={() => dashboard.refetch()} />
+      ) : (
+        <>
+          {/* KPI overview */}
+          <OverviewKpis data={d?.summary} isLoading={dashboard.isLoading} />
 
-      {/* Today's real snapshot — uses existing /v1/admin/analytics/daily */}
-      <TodaySnapshot />
+          {/* Today's snapshot — uses /v1/admin/analytics/daily directly */}
+          <TodaySnapshot />
 
-      {/* Charts — Revenue + Activity */}
-      <div className="grid gap-5 lg:grid-cols-3">
-        <RevenueChart
-          data={series.data}
-          isLoading={series.isLoading}
-          isDemo={series.isDemo}
-        />
-        <ActivityChart
-          data={series.data}
-          isLoading={series.isLoading}
-          isDemo={series.isDemo}
-        />
-      </div>
+          {/* Charts — Revenue + Activity */}
+          <div className="grid gap-5 lg:grid-cols-3">
+            <RevenueChart
+              data={d?.trends.salesAndCommissions ?? []}
+              isLoading={dashboard.isLoading}
+            />
+            <ActivityChart
+              data={d?.trends.activeUsers ?? []}
+              isLoading={dashboard.isLoading}
+            />
+          </div>
 
-      {/* Breakdown row */}
-      <div className="grid gap-5 lg:grid-cols-2">
-        <SalesStatusChart data={sales.data} isLoading={sales.isLoading} isDemo={sales.isDemo} />
-        <WithdrawalsChart
-          data={withdrawals.data}
-          isLoading={withdrawals.isLoading}
-          isDemo={withdrawals.isDemo}
-        />
-      </div>
+          {/* Breakdown row */}
+          <div className="grid gap-5 lg:grid-cols-2">
+            <SalesStatusChart data={d?.salesByStatus} isLoading={dashboard.isLoading} />
+            <WithdrawalsChart data={d?.withdrawalsByStatus} isLoading={dashboard.isLoading} />
+          </div>
 
-      {/* Top performers */}
-      <TopPerformers data={top.data} isLoading={top.isLoading} isDemo={top.isDemo} />
+          {/* Top performers — own endpoint /v1/admin/analytics/leaderboard */}
+          <TopPerformers />
 
-      {/* Per-user monthly — existing endpoint */}
-      <UserMonthlyCard />
+          {/* Per-user monthly — /v1/admin/analytics/users/{userId} */}
+          <UserMonthlyCard />
+        </>
+      )}
     </div>
   );
 }

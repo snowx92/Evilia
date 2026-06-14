@@ -1,21 +1,30 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
-export function BrandMark({ className }: { className?: string }) {
+type Props = {
+  className?: string;
+  /** Pixel size of the rendered mark (square). Defaults to 36 (h-9 w-9). */
+  size?: number;
+};
+
+export function BrandMark({ className, size = 36 }: Props) {
   return (
     <div
       className={cn(
-        'relative grid place-items-center rounded-xl bg-brand-gradient text-white shadow-card',
-        'h-9 w-9',
+        'relative grid shrink-0 place-items-center overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-border/60',
         className,
       )}
+      style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M5 6.5C5 5.67 5.67 5 6.5 5h11a1.5 1.5 0 0 1 0 3H8v3h7.5a1.5 1.5 0 0 1 0 3H8v3h9.5a1.5 1.5 0 0 1 0 3h-11A1.5 1.5 0 0 1 5 18.5v-12Z"
-          fill="white"
-        />
-      </svg>
+      <Image
+        src="/logo.png"
+        alt=""
+        width={size}
+        height={size}
+        priority
+        className="h-full w-full object-contain"
+      />
     </div>
   );
 }

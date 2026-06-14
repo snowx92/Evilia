@@ -9,11 +9,13 @@ type AuthState = {
   permissionCatalog: PermissionCatalogEntry[];
   effectivePermissions: string[];
   hydrated: boolean;
+  firebaseReady: boolean;
   setToken: (token: string) => void;
   setMe: (me: MeResponse) => void;
   setUser: (user: User) => void;
   setWallet: (wallet: Wallet) => void;
   setLocale: (locale: Locale) => void;
+  setFirebaseReady: (ready: boolean) => void;
   reset: () => void;
 };
 
@@ -30,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       ...initial,
       hydrated: false,
+      firebaseReady: false,
       setToken: (token) => set({ token }),
       setMe: ({ user, wallet, permissionCatalog, effectivePermissions }) =>
         set({ user, wallet, permissionCatalog, effectivePermissions }),
@@ -37,7 +40,9 @@ export const useAuthStore = create<AuthState>()(
       setWallet: (wallet) => set({ wallet }),
       setLocale: (locale) =>
         set((state) => (state.user ? { user: { ...state.user, language: locale } } : {})),
-      reset: () => set({ ...initial }),
+      setFirebaseReady: (ready) => set({ firebaseReady: ready }),
+      // Keep `firebaseReady` after reset so /login renders immediately.
+      reset: () => set({ ...initial, firebaseReady: true }),
     }),
     {
       name: 'evilia-auth',

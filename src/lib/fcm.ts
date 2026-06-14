@@ -1,12 +1,19 @@
 'use client';
 
-import { getMessaging, getToken, isSupported, type Messaging } from 'firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  onMessage,
+  type Messaging,
+  type MessagePayload,
+} from 'firebase/messaging';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { env, isFcmConfigured } from './env';
 
 let _messaging: Messaging | null = null;
 
-async function getMessagingInstance(): Promise<Messaging | null> {
+export async function getMessagingInstance(): Promise<Messaging | null> {
   if (!isFcmConfigured) return null;
   if (typeof window === 'undefined') return null;
   if (!(await isSupported())) return null;
@@ -56,4 +63,16 @@ export async function requestFcmToken(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Subscribe to foreground FCM messages (fires only while the app is open).
+ * Returns an unsubscribe function, or a no-op if FCM isn't available.
+ */
+export async function onForegroundMessage(
+  handler: (payload: MessagePayload) => void,
+): Promise<() => void> {
+  const messaging = await getMessagingInstance();
+  if (!messaging) return () => {};
+  return onMessage(messaging, handler);
 }

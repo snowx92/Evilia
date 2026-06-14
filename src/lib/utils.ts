@@ -58,10 +58,13 @@ export function toDate(value: TimestampLike): Date | null {
   return null;
 }
 
-export function formatCurrency(value: number, locale: Locale = 'ar', currency = 'EGP') {
+export function formatCurrency(value: number, locale: Locale = 'ar', currency?: string) {
+  // Lazy import keeps this file dependency-free for tree-shaking.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { defaultCurrencyFor } = require('@/lib/currency') as typeof import('@/lib/currency');
   return new Intl.NumberFormat(NUMBER_LOCALE[locale], {
     style: 'currency',
-    currency,
+    currency: currency ?? defaultCurrencyFor(locale),
     maximumFractionDigits: 2,
   }).format(value);
 }

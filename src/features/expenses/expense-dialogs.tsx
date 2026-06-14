@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Pencil } from 'lucide-react';
+import Image from 'next/image';
+import { Loader2, Plus, Pencil, Paperclip, X } from 'lucide-react';
+import { fileToBase64, type FileToBase64Error } from '@/lib/file-to-base64';
 import {
   Dialog,
   DialogContent,
@@ -114,6 +116,8 @@ type CreateValues = z.infer<typeof createSchema>;
 export function CreateExpenseDialog() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const categories = useExpenseCategoriesQuery();
   const create = useCreateExpenseMutation();
 
@@ -129,12 +133,31 @@ export function CreateExpenseDialog() {
     defaultValues: { title: '', amount: 0, categoryId: '', date: '', notes: '' },
   });
 
+  const onPickFiles = async (files: FileList) => {
+    for (const file of Array.from(files)) {
+      try {
+        const dataUrl = await fileToBase64(file, { imageOnly: true });
+        setAttachments((prev) => [...prev, dataUrl]);
+      } catch (err) {
+        const e = err as FileToBase64Error;
+        if (e.kind === 'too-large') {
+          toast.error(t('common.fileTooLarge', { max: '3 MB' }));
+        } else if (e.kind === 'not-image') {
+          toast.error(t('common.notAnImage'));
+        } else {
+          toast.error(t('common.error'));
+        }
+      }
+    }
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await create.mutateAsync({ ...values, attachments: [] });
+      await create.mutateAsync({ ...values, attachments });
       toast.success(t('common.save'));
       setOpen(false);
       reset();
+      setAttachments([]);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t('common.error'));
     }
@@ -187,6 +210,57 @@ export function CreateExpenseDialog() {
             <div className="space-y-2 sm:col-span-2">
               <Label>{t('expenses.fields.notes')}</Label>
               <Textarea {...register('notes')} rows={3} />
+            </div>
+
+            {/* Attachments */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{t('expenses.fields.attachments')}</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="sr-only"
+                onChange={(e) => {
+                  if (e.target.files) void onPickFiles(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                {attachments.map((src, i) => (
+                  <div
+                    key={i}
+                    className="group relative h-20 w-20 overflow-hidden rounded-xl border border-border/70 bg-muted"
+                  >
+                    <Image
+                      src={src}
+                      alt=""
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAttachments((prev) => prev.filter((_, idx) => idx !== i))
+                      }
+                      className="absolute -end-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-destructive text-white shadow-card opacity-0 transition-opacity group-hover:opacity-100"
+                      aria-label={t('common.delete')}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="grid h-20 w-20 place-items-center gap-1 rounded-xl border border-dashed border-border/70 text-[10px] text-muted-foreground transition-colors hover:border-primary hover:bg-primary-soft/40 hover:text-primary"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  {t('common.uploadImage')}
+                </button>
+              </div>
             </div>
           </div>
           <DialogFooter>

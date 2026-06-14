@@ -3,17 +3,21 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
+import { formatNumber } from '@/lib/utils';
 
 export function PaginationBar({
   currentPage,
   totalPages,
   totalItems,
+  pageSize,
   onChange,
   disabled,
 }: {
   currentPage: number;
   totalPages: number;
   totalItems: number;
+  /** Page size used to derive the "Showing X-Y" hint. Defaults to 20. */
+  pageSize?: number;
   onChange: (page: number) => void;
   disabled?: boolean;
 }) {
@@ -24,11 +28,18 @@ export function PaginationBar({
   const Prev = isRTL ? ChevronRight : ChevronLeft;
   const Next = isRTL ? ChevronLeft : ChevronRight;
 
+  const limit = pageSize ?? 20;
+  const from = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const to = Math.min(currentPage * limit, totalItems);
+
   return (
     <nav className="flex items-center justify-between gap-3 px-1 py-3 text-sm">
       <p className="text-xs text-muted-foreground">
-        {t('common.page')} {currentPage} {t('common.of')} {Math.max(totalPages, 1)} •{' '}
-        {totalItems.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+        {t('common.showing', {
+          from: formatNumber(from, locale),
+          to: formatNumber(to, locale),
+          total: formatNumber(totalItems, locale),
+        })}
       </p>
       <div className="flex items-center gap-1">
         <Button

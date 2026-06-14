@@ -1,60 +1,57 @@
 import { api, unwrap } from '@/lib/api/client';
 import type { ApiResponse } from '@/types/api';
 import type {
-  AnalyticsOverview,
-  AnalyticsRangeParams,
-  AnalyticsTimeseries,
-  DailyAnalyticsSummary,
-  SalesBreakdownResponse,
-  TopPerformersResponse,
+  AnalyticsDashboardResponse,
+  DailyAnalyticsParams,
+  DailyAnalyticsResponse,
+  DashboardRangeParams,
+  LeaderboardParams,
+  LeaderboardResponse,
   UserMonthlyAnalytics,
-  WithdrawalsBreakdownResponse,
+  UserMonthlyAnalyticsParams,
+  UserMonthlyHistoryEntry,
+  UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
 
 export const analyticsService = {
-  /* ── EXISTING ─────────────────────────────────────────────────────────── */
-
-  daily: () =>
-    unwrap(api.get<ApiResponse<DailyAnalyticsSummary>>('/v1/admin/analytics/daily')),
-
-  userMonthly: (userId: string) =>
+  /** GET /v1/admin/analytics/dashboard?from=YYYY-MM-DD&to=YYYY-MM-DD */
+  dashboard: (params: DashboardRangeParams) =>
     unwrap(
-      api.get<ApiResponse<UserMonthlyAnalytics>>(`/v1/admin/analytics/users/${userId}`),
-    ),
-
-  /* ── PROPOSED ─────────────────────────────────────────────────────────────
-     See docs/analytics-proposed-endpoints.md for the request/response contract.
-     Until the backend ships these, the page renders deterministic preview data.
-     ─────────────────────────────────────────────────────────────────────── */
-
-  overview: (params: AnalyticsRangeParams) =>
-    unwrap(
-      api.get<ApiResponse<AnalyticsOverview>>('/v1/admin/analytics/overview', { params }),
-    ),
-
-  timeseries: (params: AnalyticsRangeParams) =>
-    unwrap(
-      api.get<ApiResponse<AnalyticsTimeseries>>('/v1/admin/analytics/timeseries', { params }),
-    ),
-
-  salesBreakdown: (params: Pick<AnalyticsRangeParams, 'from' | 'to'>) =>
-    unwrap(
-      api.get<ApiResponse<SalesBreakdownResponse>>('/v1/admin/analytics/sales-breakdown', {
+      api.get<ApiResponse<AnalyticsDashboardResponse>>('/v1/admin/analytics/dashboard', {
         params,
       }),
     ),
 
-  topPerformers: (params: Pick<AnalyticsRangeParams, 'from' | 'to'> & { limit?: number }) =>
+  /**
+   * GET /v1/admin/analytics/daily
+   * Pass `date` for a single-day object, or `from`/`to` for an array of days.
+   */
+  daily: (params: DailyAnalyticsParams = {}) =>
     unwrap(
-      api.get<ApiResponse<TopPerformersResponse>>('/v1/admin/analytics/top-performers', {
-        params: { limit: 5, ...params },
+      api.get<ApiResponse<DailyAnalyticsResponse>>('/v1/admin/analytics/daily', { params }),
+    ),
+
+  /** GET /v1/admin/analytics/leaderboard?month=YYYY-MM&metric=...&limit=... */
+  leaderboard: (params: LeaderboardParams) =>
+    unwrap(
+      api.get<ApiResponse<LeaderboardResponse>>('/v1/admin/analytics/leaderboard', {
+        params: { limit: 10, ...params },
       }),
     ),
 
-  withdrawalsBreakdown: (params: Pick<AnalyticsRangeParams, 'from' | 'to'>) =>
+  /** GET /v1/admin/analytics/users/{userId}?month=YYYY-MM */
+  userMonthly: (userId: string, params: UserMonthlyAnalyticsParams) =>
     unwrap(
-      api.get<ApiResponse<WithdrawalsBreakdownResponse>>(
-        '/v1/admin/analytics/withdrawals-breakdown',
+      api.get<ApiResponse<UserMonthlyAnalytics>>(`/v1/admin/analytics/users/${userId}`, {
+        params,
+      }),
+    ),
+
+  /** GET /v1/admin/analytics/users/{userId}/history?fromMonth=YYYY-MM&toMonth=YYYY-MM */
+  userMonthlyHistory: (userId: string, params: UserMonthlyHistoryParams) =>
+    unwrap(
+      api.get<ApiResponse<UserMonthlyHistoryEntry[]>>(
+        `/v1/admin/analytics/users/${userId}/history`,
         { params },
       ),
     ),
