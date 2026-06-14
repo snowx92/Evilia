@@ -28,6 +28,7 @@ import { useSalesQuery } from '@/hooks/queries/use-sales';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { parseSaleMetadata, saleCommissionTotal } from '@/lib/sale-metadata';
 import { DEFAULT_PAGE_SIZE, SALE_STATUSES } from '@/constants/admin';
 import { stagger } from '@/lib/motion';
 import type { SaleStatus } from '@/types/admin/sales';
@@ -45,9 +46,6 @@ export default function SalesPage() {
   const data = query.data;
   const items = data?.items ?? [];
 
-  // KPI strip is computed from the current page. When we have proper analytics
-  // (see docs/analytics-proposed-endpoints.md) these will source from the
-  // overview endpoint instead.
   const kpis = useMemo(() => {
     if (items.length === 0) {
       return {
@@ -59,11 +57,11 @@ export default function SalesPage() {
       };
     }
     const gross = items.reduce((acc, s) => acc + (s.amount ?? 0), 0);
-    const commissions = items.reduce(
-      (acc, s) => acc + (s.commissions ?? []).reduce((a, c) => a + c.amount, 0),
-      0,
-    );
-    const sellers = new Set(items.map((s) => s.sellerId)).size;
+    const commissions = items.reduce((acc, s) => {
+      const meta = parseSaleMetadata(s.metadata);
+      return acc + saleCommissionTotal(s.commissions ?? [], meta.payment?.affiliateCommission);
+    }, 0);
+    const sellers = new Set(items.map((s) => s.sellerCode).filter(Boolean)).size;
     return {
       gross,
       commissions,
@@ -102,7 +100,6 @@ export default function SalesPage() {
         }
       />
 
-      {/* KPI strip — derived from the visible page */}
       <motion.div
         variants={stagger}
         initial="hidden"
@@ -112,6 +109,7 @@ export default function SalesPage() {
         <MetricCard
           label={t('dashboard.totalSales')}
           value={formatCurrency(kpis.gross, locale, kpis.currency)}
+          sublabel={t('seller.totalsThisPage')}
           icon={TrendingUp}
           isLoading={query.isLoading}
           accent="indigo"
@@ -119,20 +117,23 @@ export default function SalesPage() {
         <MetricCard
           label={t('commissions.title')}
           value={formatCurrency(kpis.commissions, locale, kpis.currency)}
+          sublabel={t('seller.totalsThisPage')}
           icon={ScrollText}
           isLoading={query.isLoading}
           accent="emerald"
         />
         <MetricCard
-          label={t('common.amount')}
+          label={t('sales.avgOrder')}
           value={formatCurrency(kpis.avg, locale, kpis.currency)}
+          sublabel={t('seller.totalsThisPage')}
           icon={Receipt}
           isLoading={query.isLoading}
           accent="amber"
         />
         <MetricCard
-          label={t('users.title')}
+          label={t('sales.sellersOnPage')}
           value={formatNumber(kpis.sellers, locale)}
+          sublabel={t('seller.totalsThisPage')}
           icon={Users}
           isLoading={query.isLoading}
           accent="rose"
@@ -148,11 +149,11 @@ export default function SalesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10" />
-                <TableHead>{t('common.role')}</TableHead>
-                <TableHead>External ID</TableHead>
+                <TableHead>{t('sales.source')}</TableHead>
+                <TableHead>{t('sales.seller')}</TableHead>
+                <TableHead>{t('sales.order')}</TableHead>
                 <TableHead>{t('common.amount')}</TableHead>
                 <TableHead>{t('commissions.title')}</TableHead>
-                <TableHead>{t('common.role')}</TableHead>
                 <TableHead>{t('common.status')}</TableHead>
                 <TableHead className="text-end">{t('common.date')}</TableHead>
               </TableRow>

@@ -2,34 +2,43 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Hash, ArrowUpRight, Wallet } from 'lucide-react';
-import { TableCell, TableRow } from '@/components/ui/table';
+import { ChevronDown, ArrowUpRight, Wallet } from 'lucide-react';
+import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { CopyButton } from '@/components/shared/copy-button';
 import { CommissionStrip } from './commission-strip';
 import { CommissionBreakdown } from './commission-breakdown';
+import { SaleOrderDetails } from './sale-order-details';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
-import { cn, formatCurrency, formatDateTime } from '@/lib/utils';
+import {
+  cn,
+  formatCurrency,
+  formatDateTime,
+} from '@/lib/utils';
+import {
+  parseSaleMetadata,
+  saleCommissionTotal,
+  saleOrderSummary,
+} from '@/lib/sale-metadata';
 import type { Sale } from '@/types/admin/sales';
-
-const ROLE_BADGE: Record<string, 'brand' | 'success' | 'warning' | 'muted'> = {
-  seller: 'brand',
-  leader: 'success',
-  admin: 'warning',
-};
 
 export function SaleRow({ sale }: { sale: Sale }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const [open, setOpen] = useState(false);
 
-  const totalCommissions = sale.commissions.reduce((acc, c) => acc + c.amount, 0);
+  const meta = parseSaleMetadata(sale.metadata);
+  const totalCommissions = saleCommissionTotal(
+    sale.commissions,
+    meta.payment?.affiliateCommission,
+  );
   const commissionRatio = sale.amount > 0 ? (totalCommissions / sale.amount) * 100 : 0;
   const net = sale.amount - totalCommissions;
-  const distinctRoles = new Set(sale.commissions.map((c) => c.role));
+  const summary = saleOrderSummary(meta);
+  const orderStatus = meta.orderStatus;
 
   return (
     <>
@@ -41,7 +50,6 @@ export function SaleRow({ sale }: { sale: Sale }) {
         )}
         onClick={() => setOpen((v) => !v)}
       >
-        {/* Expand chevron */}
         <TableCell className="w-10">
           <motion.span
             animate={{ rotate: open ? 180 : 0 }}
@@ -52,6 +60,20 @@ export function SaleRow({ sale }: { sale: Sale }) {
           </motion.span>
         </TableCell>
 
+        {/* Source */}
+        <TableCell>
+          <div className="flex flex-col gap-1 leading-tight">
+            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
+              {sale.source}
+            </Badge>
+            {meta.orderId ? (
+              <span className="font-mono text-[11px] text-muted-foreground">
+                #{meta.orderId}
+              </span>
+            ) : null}
+          </div>
+        </TableCell>
+
         {/* Seller */}
         <TableCell>
           <div className="flex items-center gap-3">
@@ -60,76 +82,72 @@ export function SaleRow({ sale }: { sale: Sale }) {
             </Avatar>
             <div className="flex min-w-0 flex-col leading-tight">
               <span className="truncate text-sm font-medium">{sale.sellerCode}</span>
-              <span className="truncate font-mono text-[11px] text-muted-foreground">
-                {sale.sellerId}
-              </span>
+              {meta.unmatchedSellerCode ? (
+                <span className="truncate text-[11px] text-warning-foreground">
+                  {t('sales.unmatchedSeller')}
+                </span>
+              ) : null}
             </div>
           </div>
         </TableCell>
 
-        {/* External reference + source */}
-        <TableCell>
-          <div className="flex flex-col gap-1 leading-tight">
-            <span className="flex items-center gap-1">
-              <Hash className="h-3 w-3 text-muted-foreground" />
-              <span className="font-mono text-xs">{sale.externalId}</span>
-              <CopyButton value={sale.externalId} className="ms-0.5" />
-            </span>
-            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
-              {sale.source}
-            </Badge>
-          </div>
+        {/* Customer / product summary */}
+        <TableCell className="max-w-[240px]">
+          {summary ? (
+            <div className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-sm">{summary}</span>
+              {meta.customer?.phone ? (
+                <span className="truncate text-[11px] text-muted-foreground">
+                  {meta.customer.phone}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <span className="text-sm text-muted-foreground">{t('common.none')}</span>
+          )}
         </TableCell>
 
         {/* Amount */}
         <TableCell>
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tabular-nums">
-              {formatCurrency(sale.amount, locale, sale.currency)}
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              {t('common.amount')}
-            </span>
-          </div>
+          <span className="text-sm font-semibold tabular-nums">
+            {formatCurrency(sale.amount, locale, sale.currency)}
+          </span>
         </TableCell>
 
-        {/* Commission strip */}
-        <TableCell className="min-w-[220px]">
+        {/* Commissions */}
+        <TableCell className="min-w-[180px]">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-medium tabular-nums">
                 {formatCurrency(totalCommissions, locale, sale.currency)}
               </span>
-              <span className="text-[11px] text-muted-foreground">
-                {commissionRatio.toFixed(1)}% · {sale.commissions.length} {t('commissions.title')}
-              </span>
+              {totalCommissions > 0 ? (
+                <span className="text-[11px] text-muted-foreground">
+                  {commissionRatio.toFixed(1)}%
+                </span>
+              ) : null}
             </div>
-            <CommissionStrip commissions={sale.commissions} saleAmount={sale.amount} />
-          </div>
-        </TableCell>
-
-        {/* Roles */}
-        <TableCell>
-          <div className="flex flex-wrap gap-1">
-            {Array.from(distinctRoles).map((role) => (
-              <Badge key={role} variant={ROLE_BADGE[role] ?? 'outline'} className="text-[10px]">
-                {role}
-              </Badge>
-            ))}
+            {sale.commissions.length > 0 ? (
+              <CommissionStrip commissions={sale.commissions} saleAmount={sale.amount} />
+            ) : null}
           </div>
         </TableCell>
 
         {/* Status */}
         <TableCell>
-          <StatusBadge status={sale.status} />
+          <div className="flex flex-col gap-1">
+            <StatusBadge status={sale.status} />
+            {orderStatus ? (
+              <Badge variant="muted" className="w-fit text-[10px]">
+                {orderStatus}
+              </Badge>
+            ) : null}
+          </div>
         </TableCell>
 
         {/* Date */}
         <TableCell className="text-end">
-          <div className="flex flex-col items-end leading-tight">
-            <span className="text-sm">{formatDateTime(sale.importedAt, locale)}</span>
-            <span className="text-[11px] text-muted-foreground">{t('common.date')}</span>
-          </div>
+          <span className="text-sm">{formatDateTime(sale.importedAt, locale)}</span>
         </TableCell>
       </motion.tr>
 
@@ -151,73 +169,113 @@ export function SaleRow({ sale }: { sale: Sale }) {
                 className="overflow-hidden"
               >
                 <div className="grid gap-5 px-6 py-5 lg:grid-cols-3">
-                  <CommissionBreakdown sale={sale} />
-                  <div className="space-y-3 rounded-xl border border-border/70 bg-surface p-4 lg:col-span-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('common.details')}
-                    </p>
-                    <dl className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">{t('common.amount')}</dt>
-                        <dd className="font-medium tabular-nums">
-                          {formatCurrency(sale.amount, locale, sale.currency)}
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">
-                          {t('commissions.title')}
-                        </dt>
-                        <dd className="font-medium tabular-nums text-destructive">
-                          − {formatCurrency(totalCommissions, locale, sale.currency)}
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between border-t border-border/60 pt-2">
-                        <dt className="flex items-center gap-1.5 font-medium">
-                          <Wallet className="h-3.5 w-3.5 text-primary" />
-                          {t('wallets.available')}
-                        </dt>
-                        <dd className="font-semibold tabular-nums text-success">
-                          {formatCurrency(net, locale, sale.currency)}
-                        </dd>
-                      </div>
-                    </dl>
+                  <div className="lg:col-span-2">
+                    <SaleOrderDetails meta={meta} currency={sale.currency} />
                   </div>
-                  <div className="space-y-3 rounded-xl border border-border/70 bg-surface p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {t('common.details')}
-                    </p>
-                    <dl className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <dt className="text-muted-foreground">External ID</dt>
-                        <dd className="flex items-center gap-1 font-mono text-xs">
-                          {sale.externalId}
-                          <CopyButton value={sale.externalId} />
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <dt className="text-muted-foreground">Internal ID</dt>
-                        <dd className="flex items-center gap-1 font-mono text-xs">
-                          <span className="max-w-[150px] truncate">{sale.id}</span>
-                          <CopyButton value={sale.id} />
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">{t('common.title')}</dt>
-                        <dd>{sale.source}</dd>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">{t('common.date')}</dt>
-                        <dd>{formatDateTime(sale.processedAt, locale)}</dd>
-                      </div>
-                    </dl>
-                    <a
-                      href={`/admin/commissions?saleId=${encodeURIComponent(sale.id)}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                    >
-                      {t('commissions.bySale')}
-                      <ArrowUpRight className="h-3 w-3 rtl:-scale-x-100" />
-                    </a>
+
+                  <div className="space-y-5">
+                    {sale.commissions.length > 0 ? (
+                      <CommissionBreakdown sale={sale} />
+                    ) : null}
+
+                    <div className="space-y-3 rounded-xl border border-border/70 bg-surface p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t('sales.financialSummary')}
+                      </p>
+                      <dl className="space-y-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">{t('common.amount')}</dt>
+                          <dd className="font-medium tabular-nums">
+                            {formatCurrency(sale.amount, locale, sale.currency)}
+                          </dd>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">{t('commissions.title')}</dt>
+                          <dd className="font-medium tabular-nums text-destructive">
+                            − {formatCurrency(totalCommissions, locale, sale.currency)}
+                          </dd>
+                        </div>
+                        <div className="flex items-center justify-between border-t border-border/60 pt-2">
+                          <dt className="flex items-center gap-1.5 font-medium">
+                            <Wallet className="h-3.5 w-3.5 text-primary" />
+                            {t('wallets.available')}
+                          </dt>
+                          <dd className="font-semibold tabular-nums text-success">
+                            {formatCurrency(net, locale, sale.currency)}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div className="space-y-3 rounded-xl border border-border/70 bg-surface p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t('sales.orderMeta')}
+                      </p>
+                      <dl className="space-y-2 text-sm">
+                        {meta.orderId ? (
+                          <div className="flex items-center justify-between gap-3">
+                            <dt className="text-muted-foreground">{t('sales.orderId')}</dt>
+                            <dd className="flex items-center gap-1 font-mono text-xs">
+                              {meta.orderId}
+                              <CopyButton value={meta.orderId} />
+                            </dd>
+                          </div>
+                        ) : null}
+                        {meta.storeId ? (
+                          <div className="flex items-center justify-between gap-3">
+                            <dt className="text-muted-foreground">{t('sales.storeId')}</dt>
+                            <dd className="flex items-center gap-1 font-mono text-xs">
+                              <span className="max-w-[150px] truncate">{meta.storeId}</span>
+                              <CopyButton value={meta.storeId} />
+                            </dd>
+                          </div>
+                        ) : null}
+                        {meta.pickupMethod ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.pickupMethod')}</dt>
+                            <dd>{meta.pickupMethod}</dd>
+                          </div>
+                        ) : null}
+                        {meta.country ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.country')}</dt>
+                            <dd>{meta.country}</dd>
+                          </div>
+                        ) : null}
+                        {meta.trigger ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.trigger')}</dt>
+                            <dd className="font-mono text-xs">{meta.trigger}</dd>
+                          </div>
+                        ) : null}
+                        <div className="flex items-center justify-between gap-3">
+                          <dt className="text-muted-foreground">{t('sales.externalId')}</dt>
+                          <dd className="flex items-center gap-1 font-mono text-xs">
+                            <span className="max-w-[150px] truncate">{sale.externalId}</span>
+                            <CopyButton value={sale.externalId} />
+                          </dd>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <dt className="text-muted-foreground">{t('sales.internalId')}</dt>
+                          <dd className="flex items-center gap-1 font-mono text-xs">
+                            <span className="max-w-[150px] truncate">{sale.id}</span>
+                            <CopyButton value={sale.id} />
+                          </dd>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">{t('sales.processedAt')}</dt>
+                          <dd>{formatDateTime(sale.processedAt, locale)}</dd>
+                        </div>
+                      </dl>
+                      <a
+                        href={`/admin/commissions?saleId=${encodeURIComponent(sale.id)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        {t('commissions.bySale')}
+                        <ArrowUpRight className="h-3 w-3 rtl:-scale-x-100" />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </motion.div>
