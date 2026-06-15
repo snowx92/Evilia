@@ -341,7 +341,7 @@ function WalletSection({ userId }: { userId: string }) {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
       >
         <MetricCard
           label={t('wallets.balance')}
@@ -362,6 +362,13 @@ function WalletSection({ userId }: { userId: string }) {
           value={w ? formatCurrency(w.pendingWithdrawal, locale) : '—'}
           icon={Banknote}
           accent="amber"
+          isLoading={wallet.isLoading}
+        />
+        <MetricCard
+          label={t('wallets.onGoingOrders')}
+          value={w ? formatCurrency(w.onGoingOrdersBalance ?? 0, locale) : '—'}
+          icon={TrendingUp}
+          accent="indigo"
           isLoading={wallet.isLoading}
         />
         <MetricCard

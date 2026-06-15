@@ -14,7 +14,7 @@ import {
   UserPlus,
   Users2,
 } from 'lucide-react';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -281,6 +281,9 @@ function NodeCard({ node, isRoot }: { node: TreeNode; isRoot: boolean }) {
               ROLE_RING[node.role] ?? 'ring-border/40',
             )}
           >
+            {node.profileImageUrl && (
+              <AvatarImage src={node.profileImageUrl} alt={node.displayName} />
+            )}
             <AvatarFallback className="text-xs">{getInitials(node.displayName)}</AvatarFallback>
           </Avatar>
           {node.isSuperAdmin && (

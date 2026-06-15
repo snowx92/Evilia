@@ -194,6 +194,7 @@
     "balance": "Balance",
     "available": "Available",
     "pendingWithdrawal": "Pending withdrawal",
+    "onGoingOrders": "Ongoing orders",
     "totalEarned": "Total earned",
     "totalWithdrawn": "Total withdrawn",
     "lastUpdated": "Last updated",

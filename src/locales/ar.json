@@ -194,6 +194,7 @@
     "balance": "الرصيد",
     "available": "المتاح",
     "pendingWithdrawal": "قيد السحب",
+    "onGoingOrders": "أوامر جارية",
     "totalEarned": "إجمالي الأرباح",
     "totalWithdrawn": "إجمالي المسحوب",
     "lastUpdated": "آخر تحديث",

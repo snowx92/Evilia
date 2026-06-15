@@ -19,7 +19,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -258,6 +258,9 @@ export default function UserWalletPage({
       <Card>
         <CardHeader className="flex flex-row items-center gap-3">
           <Avatar className="h-12 w-12">
+            {u?.profileImageUrl && (
+              <AvatarImage src={u.profileImageUrl} alt={u.displayName} />
+            )}
             <AvatarFallback>{getInitials(u?.displayName ?? userId)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col leading-tight">
@@ -274,18 +277,22 @@ export default function UserWalletPage({
         </CardHeader>
         <CardContent>
           {wallet.isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-5">
-              {Array.from({ length: 5 }).map((_, i) => (
+            <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-6">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-14 w-full" />
               ))}
             </div>
           ) : w ? (
-            <dl className="grid grid-cols-2 gap-6 sm:grid-cols-5">
+            <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
               <Stat label={t('wallets.balance')} value={formatCurrency(w.balance, locale)} />
               <Stat label={t('wallets.available')} value={formatCurrency(w.available, locale)} />
               <Stat
                 label={t('wallets.pendingWithdrawal')}
                 value={formatCurrency(w.pendingWithdrawal, locale)}
+              />
+              <Stat
+                label={t('wallets.onGoingOrders')}
+                value={formatCurrency(w.onGoingOrdersBalance ?? 0, locale)}
               />
               <Stat label={t('wallets.totalEarned')} value={formatCurrency(w.totalEarned, locale)} />
               <Stat label={t('wallets.totalWithdrawn')} value={formatCurrency(w.totalWithdrawn, locale)} />

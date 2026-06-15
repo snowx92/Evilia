@@ -39,6 +39,7 @@ export type Wallet = {
   userId: string;
   balance: number;
   pendingWithdrawal: number;
+  onGoingOrdersBalance: number;
   totalEarned: number;
   totalWithdrawn: number;
   available: number;
