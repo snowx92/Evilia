@@ -25,7 +25,7 @@ export const usersService = {
 
   /** GET /v1/admin/users/{userId} */
   getById: (userId: string) =>
-    unwrap(api.get<ApiResponse<User>>(`/v1/admin/users/${userId}`)),
+    unwrap(api.get<ApiResponse<{ user: User }>>(`/v1/admin/users/${userId}`)).then((d) => d.user),
 
   /** POST /v1/admin/users — create admin / sub-admin (super admin only). */
   createAdmin: (body: CreateSubAdminRequest) =>

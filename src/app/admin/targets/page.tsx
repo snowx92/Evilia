@@ -11,9 +11,10 @@ import { ErrorState } from '@/components/shared/error-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { CreateTargetDialog, EditTargetDialog } from '@/features/targets/target-dialogs';
 import { useTargetsQuery } from '@/hooks/queries/use-targets';
+import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
@@ -33,6 +34,8 @@ function TargetCard({ target }: { target: Target }) {
   const progress = Math.min(100, (target.currentAmount / Math.max(target.targetAmount, 1)) * 100);
   const achieved = target.status === 'achieved' || target.currentAmount >= target.targetAmount;
   const tone = STATUS_TONE[target.status] ?? 'warning';
+  const userQuery = useUserQuery(target.userId);
+  const user = userQuery.data;
 
   return (
     <motion.article
@@ -85,9 +88,18 @@ function TargetCard({ target }: { target: Target }) {
       <footer className="space-y-3 border-t border-border/60 pt-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-7 w-7">
-            <AvatarFallback>{getInitials(target.userId)}</AvatarFallback>
+            {user?.profileImageUrl && (
+              <AvatarImage src={user.profileImageUrl} alt={user.displayName} />
+            )}
+            <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
           </Avatar>
-          <span className="font-mono text-[11px] text-muted-foreground">{target.userId}</span>
+          {userQuery.isLoading ? (
+            <Skeleton className="h-3 w-28" />
+          ) : (
+            <span className="text-[11px] font-medium text-foreground">
+              {user?.displayName ?? target.userId}
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
           <Clock className="h-3 w-3" />
