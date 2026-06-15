@@ -5,7 +5,6 @@ import { signInWithCustomToken, signOut } from 'firebase/auth';
 import { authService } from '@/services/auth.service';
 import { queryKeys } from '@/lib/query-keys';
 import { useAuthStore } from '@/store/auth';
-import { useLocaleStore } from '@/store/locale';
 import { getFirebaseAuth } from '@/lib/firebase';
 import type {
   ChangePasswordRequest,
@@ -17,14 +16,16 @@ import type { PaginationParams } from '@/types/api';
 
 export function useMeQuery(enabled = true) {
   const setMe = useAuthStore((s) => s.setMe);
-  const setLocale = useLocaleStore((s) => s.setLocale);
 
   return useQuery({
     queryKey: queryKeys.auth.me,
     queryFn: async () => {
       const me = await authService.me();
       setMe(me);
-      if (me.user?.language) setLocale(me.user.language);
+      // NOTE: do NOT sync `me.user.language` into the locale store here. The
+      // user's locale switcher + profile update are the source of truth for the
+      // current session — syncing on every refetch would clobber their choice
+      // and the UI would snap back to Arabic whenever they navigated.
       return me;
     },
     enabled,
