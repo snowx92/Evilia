@@ -16,7 +16,7 @@ import { PaginationBar } from '@/components/shared/pagination-bar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +45,7 @@ import {
   useRejectWithdrawalMutation,
   useWithdrawalsQuery,
 } from '@/hooks/queries/use-withdrawals';
+import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDateTime } from '@/lib/utils';
@@ -192,6 +193,8 @@ function WithdrawalCard({ w }: { w: Withdrawal }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const rejected = w.status === 'rejected';
+  const userQuery = useUserQuery(w.userId);
+  const user = userQuery.data;
 
   return (
     <motion.div
@@ -202,11 +205,18 @@ function WithdrawalCard({ w }: { w: Withdrawal }) {
         {/* Left: requester + amount */}
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12">
-            <AvatarFallback>{getInitials(w.userId)}</AvatarFallback>
+            {user?.profileImageUrl && (
+              <AvatarImage src={user.profileImageUrl} alt={user.displayName} />
+            )}
+            <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-baseline gap-2">
-              <p className="truncate font-mono text-sm font-medium">{w.userId}</p>
+              {userQuery.isLoading ? (
+                <Skeleton className="h-4 w-32" />
+              ) : (
+                <p className="truncate text-sm font-semibold">{user?.displayName ?? w.userId}</p>
+              )}
               <StatusPill status={w.status} />
             </div>
             <div className="flex items-baseline gap-2">
