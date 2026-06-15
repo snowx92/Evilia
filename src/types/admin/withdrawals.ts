@@ -3,6 +3,9 @@ import type { TimestampLike } from '@/lib/utils';
 
 export type WithdrawalStatus = 'pending' | 'approved' | 'paid' | 'rejected' | (string & {});
 
+/** How the seller wants to receive their payout (mirrors seller payload). */
+export type WithdrawalPaymentMethod = 'WALLET' | 'IPN' | (string & {});
+
 export type Withdrawal = {
   id: string;
   userId: string;
@@ -13,6 +16,10 @@ export type Withdrawal = {
   reviewedBy?: string | null;
   paymentReference?: string | null;
   rejectionReason?: string | null;
+  /** How the seller asked to be paid. */
+  paymentMethod?: WithdrawalPaymentMethod;
+  /** Phone number for IPN, wallet number for WALLET, etc. */
+  paymentIdentifier?: string;
   itemIndex?: number;
 };
 

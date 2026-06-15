@@ -230,6 +230,33 @@ function WithdrawalCard({ w }: { w: Withdrawal }) {
         </div>
       </div>
 
+      {/* Payment instructions from the seller */}
+      {(w.paymentMethod || w.paymentIdentifier) && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border/60 bg-muted/30 px-5 py-3 text-xs">
+          {w.paymentMethod ? (
+            <div className="flex items-center gap-2 leading-tight">
+              <span className="font-medium uppercase tracking-wider text-muted-foreground/80">
+                {t('withdrawals.fields.paymentMethod')}
+              </span>
+              <Badge variant="outline" className="text-[10px] uppercase">
+                {t(`withdrawals.method.${w.paymentMethod}`)}
+              </Badge>
+            </div>
+          ) : null}
+          {w.paymentIdentifier ? (
+            <div className="flex items-center gap-2 leading-tight">
+              <span className="font-medium uppercase tracking-wider text-muted-foreground/80">
+                {t('withdrawals.fields.paymentIdentifier')}
+              </span>
+              <span className="inline-flex items-center gap-1 font-mono text-sm" dir="ltr">
+                {w.paymentIdentifier}
+                <CopyButton value={w.paymentIdentifier} />
+              </span>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {/* Timeline */}
       <div className="border-t border-border/60 px-5 py-4">
         <ol className="flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -341,7 +341,7 @@ function WalletSection({ userId }: { userId: string }) {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
       >
         <MetricCard
           label={t('wallets.balance')}
@@ -369,6 +369,13 @@ function WalletSection({ userId }: { userId: string }) {
           value={w ? formatCurrency(w.totalEarned, locale) : '—'}
           icon={TrendingUp}
           accent="rose"
+          isLoading={wallet.isLoading}
+        />
+        <MetricCard
+          label={t('wallets.totalWithdrawn')}
+          value={w ? formatCurrency(w.totalWithdrawn, locale) : '—'}
+          icon={Banknote}
+          accent="indigo"
           isLoading={wallet.isLoading}
         />
       </motion.div>

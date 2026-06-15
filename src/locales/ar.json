@@ -84,6 +84,8 @@
     "emailPlaceholder": "name@evilia.com",
     "passwordLabel": "كلمة المرور",
     "passwordPlaceholder": "••••••••",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
     "submit": "تسجيل الدخول",
     "submitting": "جارٍ تسجيل الدخول…",
     "invalidEmail": "البريد الإلكتروني غير صالح",
@@ -210,12 +212,19 @@
       "status": "الحالة",
       "reference": "مرجع الدفع",
       "reason": "سبب الرفض",
-      "createdAt": "تاريخ الطلب"
+      "createdAt": "تاريخ الطلب",
+      "paymentMethod": "طريقة الدفع",
+      "paymentIdentifier": "رقم/معرّف الدفع"
     },
     "rejectReason": "سبب الرفض",
     "paymentReference": "مرجع الدفع",
     "confirmApprove": "هل تريد الموافقة على هذا السحب؟",
-    "confirmPay": "هل تريد وضع علامة كمدفوع؟"
+    "confirmPay": "هل تريد وضع علامة كمدفوع؟",
+    "method": {
+      "WALLET": "محفظة إلكترونية",
+      "IPN": "تحويل فوري IPN"
+    },
+    "identifierHelp": "رقم الهاتف لـ IPN أو رقم المحفظة"
   },
   "commissions": {
     "title": "العمولات",
@@ -236,6 +245,7 @@
     "seller": "البائع",
     "order": "الطلب",
     "avgOrder": "متوسط الطلب",
+    "changeStatus": "تغيير الحالة",
     "pageTotals": "{count} من {total} في هذه الصفحة",
     "orderOverview": "ملخص الطلب",
     "marketplace": "السوق",
@@ -319,6 +329,10 @@
     "paid": "مدفوع",
     "credited": "مُضاف",
     "processed": "مُعالج",
+    "processing": "قيد التنفيذ",
+    "delivered": "تم التوصيل",
+    "failed": "فشل",
+    "deleted": "محذوف",
     "cancelled": "ملغي",
     "achieved": "محقق",
     "expired": "منتهٍ"

@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -340,11 +341,12 @@ function ChangePasswordCard() {
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
-            <Input
+            <PasswordInput
               id="currentPassword"
-              type="password"
               dir="ltr"
               autoComplete="current-password"
+              showLabel={t('auth.showPassword')}
+              hideLabel={t('auth.hidePassword')}
               {...register('currentPassword')}
               aria-invalid={Boolean(errors.currentPassword)}
             />
@@ -352,22 +354,24 @@ function ChangePasswordCard() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
-              <Input
+              <PasswordInput
                 id="newPassword"
-                type="password"
                 dir="ltr"
                 autoComplete="new-password"
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
                 {...register('newPassword')}
                 aria-invalid={Boolean(errors.newPassword)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 dir="ltr"
                 autoComplete="new-password"
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
                 {...register('confirmPassword')}
                 aria-invalid={Boolean(errors.confirmPassword)}
               />

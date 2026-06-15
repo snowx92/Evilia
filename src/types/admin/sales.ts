@@ -1,7 +1,13 @@
 import type { PaginationParams } from '@/types/api';
 import type { TimestampLike } from '@/lib/utils';
 
-export type SaleStatus = 'pending' | 'processed' | 'cancelled' | (string & {});
+export type SaleStatus =
+  | 'pending'
+  | 'processing'
+  | 'delivered'
+  | 'failed'
+  | 'deleted'
+  | (string & {});
 export type SaleCommissionRole = 'seller' | 'admin' | (string & {});
 
 export type SaleCommission = {

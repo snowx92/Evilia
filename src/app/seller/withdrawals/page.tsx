@@ -18,6 +18,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { DataTable, type Column } from '@/components/shared/data-table';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -40,6 +47,8 @@ const buildSchema = (max: number, t: (k: string) => string) =>
       .number()
       .positive()
       .refine((n) => n <= max, { message: t('seller.amountTooHigh') }),
+    paymentMethod: z.enum(['WALLET', 'IPN']),
+    paymentIdentifier: z.string().min(4),
   });
 
 function RequestWithdrawalDialog({
@@ -59,20 +68,26 @@ function RequestWithdrawalDialog({
     register,
     handleSubmit,
     watch,
+    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { amount: 0 },
+    defaultValues: { amount: 0, paymentMethod: 'IPN', paymentIdentifier: '' },
   });
 
   const amount = Number(watch('amount')) || 0;
+  const paymentMethod = watch('paymentMethod');
   const remaining = Math.max(0, available - amount);
   const overLimit = amount > available;
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await request.mutateAsync({ amount: values.amount });
+      await request.mutateAsync({
+        amount: values.amount,
+        paymentMethod: values.paymentMethod,
+        paymentIdentifier: values.paymentIdentifier.trim(),
+      });
       toast.success(t('seller.withdrawalSubmitted'));
       reset();
       setOpen(false);
@@ -155,7 +170,7 @@ function RequestWithdrawalDialog({
                   className="h-7 px-2 text-[11px]"
                   onClick={() => {
                     const val = Math.floor((available * pct) / 100);
-                    reset({ amount: val });
+                    setValue('amount', val, { shouldValidate: true });
                   }}
                 >
                   {pct}%
@@ -163,6 +178,44 @@ function RequestWithdrawalDialog({
               ))}
             </div>
           </div>
+
+          {/* Payment method */}
+          <div className="space-y-2">
+            <Label>{t('withdrawals.fields.paymentMethod')}</Label>
+            <Select
+              value={paymentMethod}
+              onValueChange={(v) =>
+                setValue('paymentMethod', v as 'WALLET' | 'IPN', { shouldDirty: true })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="IPN">{t('withdrawals.method.IPN')}</SelectItem>
+                <SelectItem value="WALLET">{t('withdrawals.method.WALLET')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Payment identifier */}
+          <div className="space-y-2">
+            <Label htmlFor="paymentIdentifier">
+              {t('withdrawals.fields.paymentIdentifier')}
+            </Label>
+            <Input
+              id="paymentIdentifier"
+              type="tel"
+              dir="ltr"
+              placeholder="01025006647"
+              {...register('paymentIdentifier')}
+              aria-invalid={Boolean(errors.paymentIdentifier)}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              {t('withdrawals.identifierHelp')}
+            </p>
+          </div>
+
           <DialogFooter>
             <Button variant="ghost" type="button" onClick={() => setOpen(false)}>
               {t('common.cancel')}
@@ -194,16 +247,33 @@ export default function SellerWithdrawalsPage() {
 
   const columns: Column<SellerWithdrawal>[] = [
     {
-      key: 'id',
-      header: 'ID',
-      cell: (w) => <span className="font-mono text-[11px] text-muted-foreground">{w.id}</span>,
-    },
-    {
       key: 'amount',
       header: t('withdrawals.fields.amount'),
       cell: (w) => (
         <span className="font-semibold tabular-nums">{formatCurrency(w.amount, locale)}</span>
       ),
+    },
+    {
+      key: 'paymentMethod',
+      header: t('withdrawals.fields.paymentMethod'),
+      cell: (w) =>
+        w.paymentMethod ? (
+          <span className="text-sm">{t(`withdrawals.method.${w.paymentMethod}`)}</span>
+        ) : (
+          <span className="text-sm text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: 'paymentIdentifier',
+      header: t('withdrawals.fields.paymentIdentifier'),
+      cell: (w) =>
+        w.paymentIdentifier ? (
+          <span className="font-mono text-xs" dir="ltr">
+            {w.paymentIdentifier}
+          </span>
+        ) : (
+          <span className="text-sm text-muted-foreground">—</span>
+        ),
     },
     {
       key: 'status',

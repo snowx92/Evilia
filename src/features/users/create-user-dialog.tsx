@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -137,7 +138,13 @@ export function CreateAdminDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="a-password">{t('auth.passwordLabel')}</Label>
-              <Input id="a-password" type="password" dir="ltr" {...register('password')} />
+              <PasswordInput
+                id="a-password"
+                dir="ltr"
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
+                {...register('password')}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="a-social">{t('users.fields.socialMediaLink')}</Label>
@@ -330,7 +337,13 @@ export function CreateSellerDialog() {
 
             <div className="space-y-2">
               <Label htmlFor="s-password">{t('auth.passwordLabel')}</Label>
-              <Input id="s-password" type="password" dir="ltr" {...register('password')} />
+              <PasswordInput
+                id="s-password"
+                dir="ltr"
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
+                {...register('password')}
+              />
             </div>
 
             <div className="space-y-2">

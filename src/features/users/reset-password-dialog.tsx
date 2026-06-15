@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/sonner';
 import { useChangeUserPasswordMutation } from '@/hooks/queries/use-users';
@@ -108,22 +109,24 @@ export function ResetPasswordDialog({
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="rp-new">{t('profile.newPassword')}</Label>
-            <Input
+            <PasswordInput
               id="rp-new"
-              type="password"
               dir="ltr"
               autoComplete="new-password"
+              showLabel={t('auth.showPassword')}
+              hideLabel={t('auth.hidePassword')}
               {...register('newPassword')}
               aria-invalid={Boolean(errors.newPassword)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="rp-confirm">{t('profile.confirmPassword')}</Label>
-            <Input
+            <PasswordInput
               id="rp-confirm"
-              type="password"
               dir="ltr"
               autoComplete="new-password"
+              showLabel={t('auth.showPassword')}
+              hideLabel={t('auth.hidePassword')}
               {...register('confirmPassword')}
               aria-invalid={Boolean(errors.confirmPassword)}
             />

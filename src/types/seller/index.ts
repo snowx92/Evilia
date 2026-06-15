@@ -76,14 +76,22 @@ export type SellerWalletTransaction = {
 
 // ─── /v1/sellers/withdrawals ─────────────────────────────────────────────────
 
+/** How the seller wants to receive the payout. */
+export type WithdrawalPaymentMethod = 'WALLET' | 'IPN' | (string & {});
+
 export type SellerWithdrawal = {
   id: string;
   amount: number;
   status: WithdrawalStatus;
+  paymentMethod?: WithdrawalPaymentMethod;
+  /** Phone number for IPN, wallet number for WALLET, etc. */
+  paymentIdentifier?: string;
 };
 
 export type RequestWithdrawalRequest = {
   amount: number;
+  paymentMethod: WithdrawalPaymentMethod;
+  paymentIdentifier: string;
 };
 
 // ─── Shared pagination param type ────────────────────────────────────────────

@@ -18,6 +18,7 @@ import {
 import { BrandMark } from '@/components/layout/brand-mark';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 import { useLoginMutation } from '@/hooks/queries/use-auth';
@@ -282,14 +283,15 @@ export default function LoginPage() {
                   {t('auth.passwordLabel')}
                 </Label>
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
+                  <Lock className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
+                  <PasswordInput
                     id="password"
-                    type="password"
                     autoComplete="current-password"
                     dir="ltr"
                     placeholder={t('auth.passwordPlaceholder')}
                     aria-invalid={Boolean(errors.password)}
+                    showLabel={t('auth.showPassword')}
+                    hideLabel={t('auth.hidePassword')}
                     className="h-11 ps-10"
                     {...register('password')}
                   />

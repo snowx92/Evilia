@@ -2,11 +2,25 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ArrowUpRight, Wallet, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ArrowUpRight, Loader2, Wallet, AlertTriangle } from 'lucide-react';
 import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from '@/components/ui/sonner';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { useUpdateSaleStatusMutation } from '@/hooks/queries/use-sales';
+import { ApiError } from '@/types/api';
+import { SALE_STATUSES } from '@/constants/admin';
+import type { SaleStatus } from '@/types/admin/sales';
 import { CopyButton } from '@/components/shared/copy-button';
 import { CommissionStrip } from './commission-strip';
 import { CommissionBreakdown } from './commission-breakdown';
@@ -129,10 +143,13 @@ export function SaleRow({ sale }: { sale: Sale }) {
           </div>
         </TableCell>
 
-        {/* Status */}
+        {/* Status — clickable dropdown to change */}
         <TableCell>
-          <div className="flex flex-col gap-1">
-            <StatusBadge status={sale.status} />
+          <div
+            className="flex flex-col items-start gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SaleStatusChanger sale={sale} />
             {orderStatus ? (
               <Badge variant="muted" className="w-fit text-[10px]">
                 {orderStatus}
@@ -280,5 +297,59 @@ export function SaleRow({ sale }: { sale: Sale }) {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+// ─── Status changer ─────────────────────────────────────────────────────────
+
+function SaleStatusChanger({ sale }: { sale: Sale }) {
+  const { t } = useTranslation();
+  const update = useUpdateSaleStatusMutation();
+
+  const onPick = async (next: SaleStatus) => {
+    if (next === sale.status) return;
+    try {
+      await update.mutateAsync({ saleId: sale.id, status: next });
+      toast.success(t('common.save'));
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : t('common.error'));
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-auto gap-1 p-0.5 hover:bg-transparent"
+          disabled={update.isPending}
+          aria-label={t('sales.changeStatus')}
+          title={t('sales.changeStatus')}
+        >
+          <StatusBadge status={sale.status} />
+          {update.isPending ? (
+            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          {t('sales.changeStatus')}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {SALE_STATUSES.map((s) => (
+          <DropdownMenuItem
+            key={s}
+            onSelect={() => onPick(s)}
+            className={cn('gap-2 text-sm', s === sale.status && 'bg-primary-soft/40')}
+          >
+            <StatusBadge status={s} />
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

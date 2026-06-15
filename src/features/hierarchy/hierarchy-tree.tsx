@@ -26,6 +26,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -174,7 +175,12 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
 
             <div className="space-y-2">
               <Label>{t('auth.passwordLabel')}</Label>
-              <Input type="password" dir="ltr" {...register('password')} />
+              <PasswordInput
+                dir="ltr"
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
+                {...register('password')}
+              />
             </div>
 
             <div className="space-y-2">

@@ -84,6 +84,8 @@
     "emailPlaceholder": "name@evilia.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "submit": "Sign in",
     "submitting": "Signing in…",
     "invalidEmail": "Enter a valid email address",
@@ -210,12 +212,19 @@
       "status": "Status",
       "reference": "Payment reference",
       "reason": "Rejection reason",
-      "createdAt": "Requested"
+      "createdAt": "Requested",
+      "paymentMethod": "Payment method",
+      "paymentIdentifier": "Payment identifier"
     },
     "rejectReason": "Rejection reason",
     "paymentReference": "Payment reference",
     "confirmApprove": "Approve this withdrawal?",
-    "confirmPay": "Mark this withdrawal as paid?"
+    "confirmPay": "Mark this withdrawal as paid?",
+    "method": {
+      "WALLET": "E-wallet",
+      "IPN": "Instant payment (IPN)"
+    },
+    "identifierHelp": "Phone number for IPN, or e-wallet number"
   },
   "commissions": {
     "title": "Commissions",
@@ -236,6 +245,7 @@
     "seller": "Seller",
     "order": "Order",
     "avgOrder": "Avg. order",
+    "changeStatus": "Change status",
     "pageTotals": "{count} of {total} on this page",
     "orderOverview": "Order overview",
     "marketplace": "Marketplace",
@@ -319,6 +329,10 @@
     "paid": "Paid",
     "credited": "Credited",
     "processed": "Processed",
+    "processing": "Processing",
+    "delivered": "Delivered",
+    "failed": "Failed",
+    "deleted": "Deleted",
     "cancelled": "Cancelled",
     "achieved": "Achieved",
     "expired": "Expired"

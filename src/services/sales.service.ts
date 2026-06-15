@@ -1,6 +1,6 @@
 import { api, unwrap } from '@/lib/api/client';
 import type { ApiResponse, PaginatedResponse } from '@/types/api';
-import type { Sale, SalesListParams } from '@/types/admin/sales';
+import type { Sale, SaleStatus, SalesListParams } from '@/types/admin/sales';
 
 export const salesService = {
   list: (params: SalesListParams = {}) =>
@@ -13,4 +13,15 @@ export const salesService = {
         },
       }),
     ),
+
+  /** PATCH /v1/admin/sales/{saleId}/status — body `{ status }`. */
+  updateStatus: (saleId: string, status: SaleStatus) => {
+    if (!saleId) throw new Error('updateStatus: saleId is required');
+    return unwrap(
+      api.patch<ApiResponse<Sale>>(
+        `/v1/admin/sales/${encodeURIComponent(saleId)}/status`,
+        { status },
+      ),
+    );
+  },
 };
