@@ -122,7 +122,7 @@ export default function LoginPage() {
   const onSubmit = handleSubmit(async (values) => {
     try {
       const result = await login.mutateAsync(values);
-      router.replace(result.user.role === 'seller' ? '/seller' : '/admin');
+      router.replace('/admin');
     } catch (e) {
       const message = e instanceof ApiError ? e.message : t('auth.loginFailed');
       toast.error(message);

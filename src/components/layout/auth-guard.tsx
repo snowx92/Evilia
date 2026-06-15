@@ -14,7 +14,7 @@ import { toast } from '@/components/ui/sonner';
 type AuthGuardProps = {
   children: ReactNode;
   /** When set, redirect away if the authed user's role doesn't match. */
-  requiredRole?: 'admin' | 'seller';
+  requiredRole?: 'admin';
   /** Sign-in page path for this section. Default: `/login`. */
   loginPath?: string;
 };
@@ -46,8 +46,7 @@ export function AuthGuard({
   useEffect(() => {
     if (!requiredRole || !user) return;
     if (user.role === requiredRole) return;
-    if (user.role === 'seller') router.replace('/seller');
-    else router.replace('/admin');
+    router.replace('/admin');
   }, [requiredRole, user, router]);
   const qc = useQueryClient();
 

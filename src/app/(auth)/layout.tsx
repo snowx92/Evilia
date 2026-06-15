@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated || !token) return;
-    router.replace(user?.role === 'seller' ? '/seller' : '/admin');
+    router.replace('/admin');
   }, [hydrated, token, user, router]);
 
   return <div className="min-h-dvh bg-background">{children}</div>;
