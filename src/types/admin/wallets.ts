@@ -72,6 +72,14 @@ export type WalletTransaction = {
 
 export type WalletTransactionsParams = PaginationParams;
 
+// ─── POST /v1/admin/wallets/reset ────────────────────────────────────────────
+
+export type ResetWalletRequest = {
+  password: string;
+  /** Omit to reset ALL wallets. */
+  userId?: string;
+};
+
 // ─── POST /v1/admin/wallets/{userId}/adjust ──────────────────────────────────
 
 export type AdjustWalletType = 'bonus' | 'adjustment';

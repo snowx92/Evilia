@@ -44,6 +44,7 @@ import {
   useWalletQuery,
   useWalletTransactionsQuery,
 } from '@/hooks/queries/use-wallets';
+import { ResetWalletDialog } from '@/features/wallets/reset-wallet-dialog';
 import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -252,7 +253,12 @@ export default function UserWalletPage({
         eyebrow={t('nav.wallets')}
         title={u?.displayName ?? userId}
         description={u?.email}
-        actions={<AdjustDialog userId={userId} currentBalance={w?.balance} />}
+        actions={
+          <div className="flex items-center gap-2">
+            <ResetWalletDialog userId={userId} userName={u?.displayName} />
+            <AdjustDialog userId={userId} currentBalance={w?.balance} />
+          </div>
+        }
       />
 
       <Card>

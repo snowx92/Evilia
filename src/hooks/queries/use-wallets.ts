@@ -5,6 +5,7 @@ import { walletsService } from '@/services/wallets.service';
 import { queryKeys } from '@/lib/query-keys';
 import type {
   AdjustWalletRequest,
+  ResetWalletRequest,
   WalletTransactionsParams,
   WalletsListParams,
 } from '@/types/admin/wallets';
@@ -52,6 +53,21 @@ export function useAdjustWalletMutation() {
       qc.invalidateQueries({ queryKey: ['wallets', 'list'] });
       qc.invalidateQueries({ queryKey: queryKeys.wallets.get(userId) });
       qc.invalidateQueries({ queryKey: ['wallets', userId, 'transactions'] });
+    },
+  });
+}
+
+export function useResetWalletMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ResetWalletRequest) => walletsService.reset(body),
+    onSuccess: (_, { userId }) => {
+      qc.invalidateQueries({ queryKey: queryKeys.wallets.summary });
+      qc.invalidateQueries({ queryKey: ['wallets', 'list'] });
+      if (userId) {
+        qc.invalidateQueries({ queryKey: queryKeys.wallets.get(userId) });
+        qc.invalidateQueries({ queryKey: ['wallets', userId, 'transactions'] });
+      }
     },
   });
 }

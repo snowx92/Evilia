@@ -62,7 +62,8 @@
     "reject": "Reject",
     "markPaid": "Mark as paid",
     "suspend": "Suspend",
-    "activate": "Activate"
+    "activate": "Activate",
+    "dangerZone": "Danger zone"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -200,6 +201,13 @@
     "lastUpdated": "Last updated",
     "transactions": "Transactions",
     "adjust": "Adjust wallet",
+    "reset": "Reset wallet",
+    "resetAll": "Reset all wallets",
+    "resetWarning": "This will permanently zero out this user's wallet balance. This action cannot be undone.",
+    "resetWarningAll": "This will permanently zero out ALL wallet balances across every user. This action cannot be undone.",
+    "resetPassword": "Admin password",
+    "resetConfirmLabel": "Type {word} to confirm",
+    "resetSuccess": "Wallet reset successfully",
     "adjustment": {
       "credit": "Credit",
       "debit": "Debit"

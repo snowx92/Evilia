@@ -3,6 +3,7 @@ import type { ApiResponse, PaginatedResponse } from '@/types/api';
 import type { Wallet } from '@/types/auth';
 import type {
   AdjustWalletRequest,
+  ResetWalletRequest,
   WalletListRow,
   WalletTransaction,
   WalletTransactionsParams,
@@ -45,4 +46,8 @@ export const walletsService = {
   /** POST /v1/admin/wallets/{userId}/adjust */
   adjust: (userId: string, body: AdjustWalletRequest) =>
     unwrap(api.post<ApiResponse<Wallet>>(`/v1/admin/wallets/${userId}/adjust`, body)),
+
+  /** POST /v1/admin/wallets/reset — omit userId to reset ALL wallets. */
+  reset: (body: ResetWalletRequest) =>
+    unwrap(api.post<ApiResponse<{ success: boolean }>>('/v1/admin/wallets/reset', body)),
 };

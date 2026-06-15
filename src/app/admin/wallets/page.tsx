@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useWalletsListQuery, useWalletsSummaryQuery } from '@/hooks/queries/use-wallets';
+import { ResetWalletDialog } from '@/features/wallets/reset-wallet-dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDateTime, formatNumber } from '@/lib/utils';
@@ -193,6 +194,7 @@ export default function WalletsPage() {
             ? `${formatNumber(s.walletCount, locale)} ${t('wallets.title').toLowerCase()}`
             : undefined
         }
+        actions={<ResetWalletDialog />}
       />
 
       <motion.div
