@@ -37,6 +37,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { LinksListEditor } from '@/components/shared/links-list-editor';
 import { ReassignParentDialog } from './reassign-parent-dialog';
 import { useCreateSellerMutation } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
@@ -78,6 +79,7 @@ type AddChildValues = z.infer<typeof addChildSchema>;
 
 function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
   const [open, setOpen] = useState(false);
+  const [affiliateLinks, setAffiliateLinks] = useState<string[]>([]);
   const { t } = useTranslation();
   const create = useCreateSellerMutation();
 
@@ -102,6 +104,7 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
+      const cleanedLinks = affiliateLinks.map((l) => l.trim()).filter(Boolean);
       await create.mutateAsync({
         displayName: values.displayName,
         email: values.email,
@@ -113,17 +116,19 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
         parentId: parentNode.id,
         ...(values.sellerCode ? { sellerCode: values.sellerCode } : {}),
         ...(values.socialMediaLink ? { socialMediaLink: values.socialMediaLink } : {}),
+        ...(cleanedLinks.length ? { affiliateLinks: cleanedLinks } : {}),
       });
       toast.success(t('common.save'));
       setOpen(false);
       reset();
+      setAffiliateLinks([]);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t('common.error'));
     }
   });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { reset(); setAffiliateLinks([]); } }}>
       <DialogTrigger asChild>
         <button
           type="button"
@@ -146,7 +151,7 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
           </p>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        <form onSubmit={onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto px-0.5" noValidate>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>{t('users.fields.displayName')}</Label>
@@ -222,6 +227,15 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
                 placeholder="https://"
                 {...register('socialMediaLink')}
                 aria-invalid={Boolean(errors.socialMediaLink)}
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{t('users.fields.affiliateLinks')}</Label>
+              <LinksListEditor
+                value={affiliateLinks}
+                onChange={setAffiliateLinks}
+                placeholder="https://"
               />
             </div>
           </div>
