@@ -10,6 +10,7 @@ import {
   Coins,
   Banknote,
   ArrowUpRight,
+  ShoppingCart,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { MetricCard } from '@/components/shared/metric-card';
@@ -19,7 +20,7 @@ import { ErrorState } from '@/components/shared/error-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useWalletsListQuery, useWalletsSummaryQuery } from '@/hooks/queries/use-wallets';
 import { ResetWalletDialog } from '@/features/wallets/reset-wallet-dialog';
@@ -67,6 +68,7 @@ function WalletCard({ row }: { row: WalletListRow }) {
   const locale = useLocaleStore((s) => s.locale);
   const { user, wallet } = row;
   const denominator = Math.max(wallet.totalEarned, 1);
+  const onGoing = wallet.onGoingOrdersBalance ?? 0;
 
   return (
     <motion.div
@@ -80,6 +82,9 @@ function WalletCard({ row }: { row: WalletListRow }) {
         {/* Identity */}
         <div className="flex min-w-0 items-center gap-3">
           <Avatar className="h-11 w-11">
+            {user.profileImageUrl && (
+              <AvatarImage src={user.profileImageUrl} alt={user.displayName} />
+            )}
             <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 space-y-1">
@@ -95,7 +100,6 @@ function WalletCard({ row }: { row: WalletListRow }) {
               {user.email}
               {user.sellerCode ? ` · ${user.sellerCode}` : ''}
             </p>
-            <p className="font-mono text-[10px] text-muted-foreground/80">{user.id}</p>
           </div>
         </div>
 
@@ -125,6 +129,12 @@ function WalletCard({ row }: { row: WalletListRow }) {
             value={wallet.pendingWithdrawal}
             total={denominator}
             color="#f59e0b"
+          />
+          <MiniBar
+            label={t('wallets.onGoingOrders')}
+            value={onGoing}
+            total={denominator}
+            color="#8b5cf6"
           />
           <MiniBar
             label={t('wallets.totalWithdrawn')}
@@ -201,7 +211,7 @@ export default function WalletsPage() {
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
       >
         <MetricCard
           label={t('wallets.balance')}
@@ -222,6 +232,13 @@ export default function WalletsPage() {
           value={s ? formatCurrency(s.totalPendingWithdrawal, locale) : '—'}
           icon={Coins}
           accent="amber"
+          isLoading={summary.isLoading}
+        />
+        <MetricCard
+          label={t('wallets.onGoingOrders')}
+          value={s ? formatCurrency(s.totalOnGoingOrdersBalance ?? 0, locale) : '—'}
+          icon={ShoppingCart}
+          accent="indigo"
           isLoading={summary.isLoading}
         />
         <MetricCard

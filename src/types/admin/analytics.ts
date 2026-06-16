@@ -31,11 +31,29 @@ export type DashboardSummaryWithdrawals = {
   changePercentage: number;
 };
 
+export type DashboardSummaryDeliveredSales = {
+  amount: number;
+  count: number;
+  changePercentage: number;
+};
+
+/** Sales not yet delivered — money at risk / future revenue. No change% in the API. */
+export type DashboardSummaryPendingPipeline = {
+  amount: number;
+  count: number;
+};
+
 export type DashboardSummary = {
   totalSales: DashboardSummaryAmount;
   totalCommissions: DashboardSummaryAmount;
   activeUsers: DashboardSummaryCount;
   withdrawals: DashboardSummaryWithdrawals;
+  /** Delivered (commission-eligible) sales for the window. */
+  deliveredSales?: DashboardSummaryDeliveredSales;
+  /** Sales currently pending / processing — pipeline at risk. */
+  pendingPipeline?: DashboardSummaryPendingPipeline;
+  /** Newly onboarded sellers in the window. */
+  newSellers?: DashboardSummaryCount;
 };
 
 export type DashboardTodaySnapshot = {
@@ -62,9 +80,43 @@ export type DashboardActiveUsersPoint = {
   value: number;
 };
 
+export type DashboardDeliveredSalesPoint = {
+  /** YYYY-MM-DD */
+  date: string;
+  totalSalesAmount: number;
+};
+
+export type DashboardNewSellersPoint = {
+  /** YYYY-MM-DD */
+  date: string;
+  count: number;
+};
+
+export type DashboardWithdrawalsPoint = {
+  /** YYYY-MM-DD */
+  date: string;
+  amount: number;
+};
+
+export type DashboardSalesByStatusPoint = {
+  /** YYYY-MM-DD */
+  date: string;
+  value: number;
+};
+
+/** Per-status time series. Each key is a status; value is a point list. */
+export type DashboardSalesByStatusTrends = Partial<
+  Record<'pending' | 'processing' | 'delivered' | 'failed', DashboardSalesByStatusPoint[]>
+>;
+
 export type DashboardTrends = {
   salesAndCommissions: DashboardSalesCommissionsPoint[];
   activeUsers: DashboardActiveUsersPoint[];
+  /** API-optional. Present when window is large enough. */
+  deliveredSales?: DashboardDeliveredSalesPoint[];
+  newSellers?: DashboardNewSellersPoint[];
+  withdrawals?: DashboardWithdrawalsPoint[];
+  salesByStatus?: DashboardSalesByStatusTrends;
 };
 
 export type SalesStatus = 'processed' | 'pending' | 'cancelled' | (string & {});

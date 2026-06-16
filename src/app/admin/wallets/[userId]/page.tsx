@@ -49,6 +49,7 @@ import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDateTime } from '@/lib/utils';
+import { getSafeTxDescription } from '@/lib/transaction-description';
 import { fadeUp, stagger } from '@/lib/motion';
 import { DEFAULT_PAGE_SIZE } from '@/constants/admin';
 import { toast } from '@/components/ui/sonner';
@@ -199,7 +200,7 @@ function TxRow({ tx }: { tx: WalletTransaction }) {
       </span>
       <div className="min-w-0 leading-tight">
         <p className="truncate text-sm font-medium">
-          {tx.description ?? t(`transaction.type.${tx.type}`)}
+          {getSafeTxDescription(tx.type, tx.description) ?? t(`transaction.type.${tx.type}`)}
         </p>
         <p className="text-[11px] text-muted-foreground">
           {t(`transaction.type.${tx.type}`)} · {formatDateTime(tx.createdAt, locale)}
@@ -251,7 +252,7 @@ export default function UserWalletPage({
 
       <PageHeader
         eyebrow={t('nav.wallets')}
-        title={u?.displayName ?? userId}
+        title={u?.displayName ?? t('common.loading')}
         description={u?.email}
         actions={
           <div className="flex items-center gap-2">
@@ -271,14 +272,16 @@ export default function UserWalletPage({
           </Avatar>
           <div className="flex flex-col leading-tight">
             <CardTitle className="text-lg">
-              {u?.displayName ?? userId}{' '}
+              {u?.displayName ?? '—'}{' '}
               {u?.role && (
                 <Badge variant="brand" className="ms-2 align-middle text-[10px]">
                   {t(`role.${u.role}`)}
                 </Badge>
               )}
             </CardTitle>
-            <span className="font-mono text-[11px] text-muted-foreground">{userId}</span>
+            {u?.email && (
+              <span className="text-[12px] text-muted-foreground">{u.email}</span>
+            )}
           </div>
         </CardHeader>
         <CardContent>

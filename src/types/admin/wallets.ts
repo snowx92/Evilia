@@ -9,6 +9,8 @@ import type { Wallet } from '@/types/auth';
 export type WalletsSummary = {
   totalBalance: number;
   totalPendingWithdrawal: number;
+  /** Aggregate of all wallets' ongoing-orders balance. API-optional for back-compat. */
+  totalOnGoingOrdersBalance?: number;
   totalEarned: number;
   totalWithdrawn: number;
   walletCount: number;

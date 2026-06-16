@@ -143,7 +143,6 @@ export function SaleOrderDetails({ meta, currency }: { meta: ParsedSaleMetadata;
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="text-sm font-medium leading-snug">{product.name}</p>
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                    {product.id ? <span className="font-mono">#{product.id}</span> : null}
                     {product.quantity != null ? <span>× {product.quantity}</span> : null}
                     {product.itemPrice != null ? (
                       <span>{formatCurrency(product.itemPrice, locale, currency)}</span>

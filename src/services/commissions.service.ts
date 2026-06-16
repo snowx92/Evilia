@@ -9,7 +9,4 @@ export const commissionsService = {
         params: { page: params.page ?? 1, limit: params.limit ?? 20 },
       }),
     ),
-
-  bySale: (saleId: string) =>
-    unwrap(api.get<ApiResponse<Commission[]>>(`/v1/admin/commissions/sale/${saleId}`)),
 };

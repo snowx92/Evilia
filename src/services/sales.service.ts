@@ -14,6 +14,16 @@ export const salesService = {
       }),
     ),
 
+  /** GET /v1/admin/sales/{saleId} — returns `{ sale }`. */
+  getById: (saleId: string) => {
+    if (!saleId) throw new Error('getById: saleId is required');
+    return unwrap(
+      api.get<ApiResponse<{ sale: Sale }>>(
+        `/v1/admin/sales/${encodeURIComponent(saleId)}`,
+      ),
+    ).then((d) => d.sale);
+  },
+
   /** PATCH /v1/admin/sales/{saleId}/status — body `{ status }`. */
   updateStatus: (saleId: string, status: SaleStatus) => {
     if (!saleId) throw new Error('updateStatus: saleId is required');

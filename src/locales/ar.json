@@ -63,7 +63,9 @@
     "markPaid": "وضع علامة كمدفوع",
     "suspend": "تعليق",
     "activate": "تفعيل",
-    "dangerZone": "منطقة الخطر"
+    "dangerZone": "منطقة الخطر",
+    "by": "بواسطة",
+    "clearFilters": "إزالة التصفية"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -107,7 +109,11 @@
     "activeUsers": "المستخدمون النشطون",
     "today": "اليوم",
     "salesCount": "{count} طلب",
-    "commissionsCount": "{count} عمولة"
+    "commissionsCount": "{count} عمولة",
+    "deliveredSales": "المبيعات المُوصلة",
+    "pendingPipeline": "أوامر قيد التنفيذ",
+    "newSellers": "بائعون جدد",
+    "salesByStatusTrend": "مسار المبيعات عبر الزمن"
   },
   "users": {
     "title": "المستخدمون",
@@ -186,7 +192,8 @@
       "category": "الفئة",
       "date": "التاريخ",
       "notes": "ملاحظات",
-      "attachments": "المرفقات"
+      "attachments": "المرفقات",
+      "createdBy": "أنشئت بواسطة"
     },
     "confirmDelete": "هل تريد حذف هذا المصروف؟"
   },
@@ -240,12 +247,18 @@
     "bySale": "العمولات حسب البيع",
     "fields": {
       "saleId": "معرّف البيع",
-      "recipientId": "المستلم",
+      "recipientId": "البائع",
       "recipientRole": "دور المستلم",
       "percentage": "النسبة",
       "saleAmount": "مبلغ البيع",
       "amount": "العمولة"
-    }
+    },
+    "filters": {
+      "seller": "البائع",
+      "sellerPlaceholder": "اختر بائعًا للتصفية…",
+      "clientSideNote": "عرض {shown} من {loaded} نتيجة محمّلة — التصفية في هذه الصفحة فقط"
+    },
+    "soldBy": "بواسطة"
   },
   "sales": {
     "title": "المبيعات",
@@ -310,11 +323,19 @@
   },
   "analytics": {
     "title": "التحليلات",
+    "subtitle": "المبيعات والعمولات والسحوبات وأداء البائعين",
     "daily": "ملخص يومي",
     "monthly": "تحليلات شهرية",
     "leaderboard": "الأفضل أداءً",
     "networkSales": "مبيعات الشبكة",
     "month": "الشهر",
+    "section": {
+      "today": "نبض اليوم",
+      "todayDesc": "لقطة لحظية لليوم الحالي",
+      "range": "تحليل النطاق",
+      "monthly": "الأداء الشهري",
+      "monthlyDesc": "قوائم الأفضل أداءً وتاريخ كل بائع شهريًا"
+    },
     "preset": {
       "last7": "آخر 7 أيام",
       "last30": "آخر 30 يومًا",

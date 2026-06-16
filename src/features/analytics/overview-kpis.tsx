@@ -1,7 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TrendingUp, ScrollText, Users, Banknote } from 'lucide-react';
+import {
+  TrendingUp,
+  ScrollText,
+  Users,
+  Banknote,
+  PackageCheck,
+  Hourglass,
+  UserPlus,
+} from 'lucide-react';
 import { MetricCard } from '@/components/shared/metric-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -65,6 +73,43 @@ export function OverviewKpis({
         trend={data ? { value: data.withdrawals.changePercentage } : undefined}
         isLoading={isLoading}
       />
+
+      {/* Secondary row — only renders when API returns these blocks. */}
+      {data?.deliveredSales && (
+        <MetricCard
+          label={t('dashboard.deliveredSales')}
+          value={formatCurrency(data.deliveredSales.amount, locale)}
+          sublabel={t('dashboard.salesCount', {
+            count: formatNumber(data.deliveredSales.count, locale),
+          })}
+          icon={PackageCheck}
+          accent="emerald"
+          trend={{ value: data.deliveredSales.changePercentage }}
+          isLoading={isLoading}
+        />
+      )}
+      {data?.pendingPipeline && (
+        <MetricCard
+          label={t('dashboard.pendingPipeline')}
+          value={formatCurrency(data.pendingPipeline.amount, locale)}
+          sublabel={t('dashboard.salesCount', {
+            count: formatNumber(data.pendingPipeline.count, locale),
+          })}
+          icon={Hourglass}
+          accent="amber"
+          isLoading={isLoading}
+        />
+      )}
+      {data?.newSellers && (
+        <MetricCard
+          label={t('dashboard.newSellers')}
+          value={formatNumber(data.newSellers.count, locale)}
+          icon={UserPlus}
+          accent="indigo"
+          trend={{ value: data.newSellers.changePercentage }}
+          isLoading={isLoading}
+        />
+      )}
     </motion.div>
   );
 }

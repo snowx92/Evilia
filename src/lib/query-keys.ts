@@ -40,10 +40,10 @@ export const queryKeys = {
   },
   commissions: {
     list: (params: Record<string, unknown>) => ['commissions', 'list', params] as const,
-    bySale: (saleId: string) => ['commissions', 'by-sale', saleId] as const,
   },
   sales: {
     list: (params: Record<string, unknown>) => ['sales', 'list', params] as const,
+    detail: (saleId: string) => ['sales', 'detail', saleId] as const,
   },
   hierarchy: {
     tree: (rootId: string) => ['hierarchy', 'tree', rootId] as const,

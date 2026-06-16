@@ -1,7 +1,7 @@
 'use client';
 
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { UserName } from '@/components/shared/user-name';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatPercent } from '@/lib/utils';
@@ -34,11 +34,17 @@ export function CommissionBreakdown({ sale }: { sale: Sale }) {
           return (
             <li key={`${c.userId}-${idx}`} className="space-y-1">
               <div className="flex items-center gap-3">
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback>{getInitials(c.userId)}</AvatarFallback>
-                </Avatar>
-                <div className="flex min-w-0 flex-1 flex-col leading-tight">
-                  <span className="truncate font-mono text-xs">{c.userId}</span>
+                <UserName
+                  userId={c.userId}
+                  link
+                  avatarSize={28}
+                  className="min-w-0 flex-1"
+                  nameClassName="text-sm"
+                />
+                <div className="flex flex-col items-end gap-0.5 leading-tight">
+                  <span className="text-sm font-semibold tabular-nums">
+                    {formatCurrency(c.amount, locale, sale.currency)}
+                  </span>
                   <div className="flex items-center gap-1.5">
                     <Badge
                       variant={ROLE_BADGE[c.role] ?? 'outline'}
@@ -51,9 +57,6 @@ export function CommissionBreakdown({ sale }: { sale: Sale }) {
                     </span>
                   </div>
                 </div>
-                <span className="text-sm font-semibold tabular-nums">
-                  {formatCurrency(c.amount, locale, sale.currency)}
-                </span>
               </div>
               <div className="ms-10 h-1 overflow-hidden rounded-full bg-muted">
                 <div

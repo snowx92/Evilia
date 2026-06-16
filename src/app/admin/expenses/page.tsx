@@ -29,6 +29,7 @@ import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { DEFAULT_PAGE_SIZE } from '@/constants/admin';
 import { toast } from '@/components/ui/sonner';
+import { UserName } from '@/components/shared/user-name';
 import { ApiError } from '@/types/api';
 import type { Expense, ExpenseCategory } from '@/types/admin/expenses';
 
@@ -91,13 +92,9 @@ function ExpensesList() {
     },
     {
       key: 'createdBy',
-      header: t('common.role'),
+      header: t('expenses.fields.createdBy'),
       cell: (e) =>
-        e.createdBy ? (
-          <span className="font-mono text-[11px] text-muted-foreground">{e.createdBy}</span>
-        ) : (
-          '—'
-        ),
+        e.createdBy ? <UserName userId={e.createdBy} avatarSize={24} /> : '—',
     },
     {
       key: 'date',
@@ -169,7 +166,6 @@ function CategoriesList() {
   const columns: Column<ExpenseCategory>[] = [
     { key: 'name', header: t('common.name'), cell: (c) => c.name },
     { key: 'description', header: t('common.description'), cell: (c) => c.description },
-    { key: 'id', header: '#', cell: (c) => <span className="font-mono text-xs">{c.id}</span> },
   ];
 
   return (

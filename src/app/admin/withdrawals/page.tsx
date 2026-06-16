@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CopyButton } from '@/components/shared/copy-button';
+import { UserName } from '@/components/shared/user-name';
 import {
   useApproveWithdrawalMutation,
   usePayWithdrawalMutation,
@@ -304,7 +305,10 @@ function WithdrawalCard({ w }: { w: Withdrawal }) {
                 </p>
                 <p className="text-xs">{formatDateTime(w.reviewedAt, locale)}</p>
                 {w.reviewedBy && (
-                  <p className="font-mono text-[10px] text-muted-foreground">{w.reviewedBy}</p>
+                  <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <span>{t('common.by')}</span>
+                    <UserName userId={w.reviewedBy} avatarSize={16} nameClassName="text-[11px] font-medium" />
+                  </div>
                 )}
               </div>
             </li>

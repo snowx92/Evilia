@@ -13,6 +13,14 @@ export function useSalesQuery(params: SalesListParams) {
   });
 }
 
+export function useSaleQuery(saleId: string) {
+  return useQuery({
+    queryKey: queryKeys.sales.detail(saleId),
+    queryFn: () => salesService.getById(saleId),
+    enabled: Boolean(saleId),
+  });
+}
+
 export function useUpdateSaleStatusMutation() {
   const qc = useQueryClient();
   return useMutation({

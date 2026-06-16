@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ArrowUpRight, Loader2, Wallet, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Loader2, Wallet, AlertTriangle } from 'lucide-react';
 import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useUserQuery } from '@/hooks/queries/use-users';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +36,7 @@ import {
 } from '@/lib/utils';
 import {
   parseSaleMetadata,
+  prettyOrderRef,
   saleCommissionTotal,
   saleProductSummary,
 } from '@/lib/sale-metadata';
@@ -45,6 +48,7 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const [open, setOpen] = useState(false);
 
   const meta = parseSaleMetadata(sale.metadata);
+  const orderRef = prettyOrderRef(sale.externalId, meta);
   const totalCommissions = saleCommissionTotal(
     sale.commissions,
     meta.payment?.affiliateCommission,
@@ -87,14 +91,9 @@ export function SaleRow({ sale }: { sale: Sale }) {
           )}
         </TableCell>
 
-        {/* Seller */}
+        {/* Seller — photo + display name from the user record */}
         <TableCell>
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback>{getInitials(sale.sellerCode)}</AvatarFallback>
-            </Avatar>
-            <span className="truncate text-sm font-medium">{sale.sellerCode}</span>
-          </div>
+          <SellerCell sellerId={sale.sellerId} sellerCode={sale.sellerCode} />
         </TableCell>
 
         {/* Product summary (customer PII hidden) */}
@@ -225,24 +224,13 @@ export function SaleRow({ sale }: { sale: Sale }) {
                         {t('sales.orderMeta')}
                       </p>
                       <dl className="space-y-2 text-sm">
-                        {meta.orderId ? (
-                          <div className="flex items-center justify-between gap-3">
-                            <dt className="text-muted-foreground">{t('sales.orderId')}</dt>
-                            <dd className="flex items-center gap-1 font-mono text-xs">
-                              {meta.orderId}
-                              <CopyButton value={meta.orderId} />
-                            </dd>
-                          </div>
-                        ) : null}
-                        {meta.storeId ? (
-                          <div className="flex items-center justify-between gap-3">
-                            <dt className="text-muted-foreground">{t('sales.storeId')}</dt>
-                            <dd className="flex items-center gap-1 font-mono text-xs">
-                              <span className="max-w-[150px] truncate">{meta.storeId}</span>
-                              <CopyButton value={meta.storeId} />
-                            </dd>
-                          </div>
-                        ) : null}
+                        <div className="flex items-center justify-between gap-3">
+                          <dt className="text-muted-foreground">{t('sales.orderId')}</dt>
+                          <dd className="flex items-center gap-1 font-mono text-xs">
+                            {orderRef}
+                            <CopyButton value={orderRef} />
+                          </dd>
+                        </div>
                         {meta.pickupMethod ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">{t('sales.pickupMethod')}</dt>
@@ -255,39 +243,11 @@ export function SaleRow({ sale }: { sale: Sale }) {
                             <dd>{meta.country}</dd>
                           </div>
                         ) : null}
-                        {meta.trigger ? (
-                          <div className="flex items-center justify-between">
-                            <dt className="text-muted-foreground">{t('sales.trigger')}</dt>
-                            <dd className="font-mono text-xs">{meta.trigger}</dd>
-                          </div>
-                        ) : null}
-                        <div className="flex items-center justify-between gap-3">
-                          <dt className="text-muted-foreground">{t('sales.externalId')}</dt>
-                          <dd className="flex items-center gap-1 font-mono text-xs">
-                            <span className="max-w-[150px] truncate">{sale.externalId}</span>
-                            <CopyButton value={sale.externalId} />
-                          </dd>
-                        </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <dt className="text-muted-foreground">{t('sales.internalId')}</dt>
-                          <dd className="flex items-center gap-1 font-mono text-xs">
-                            <span className="max-w-[150px] truncate">{sale.id}</span>
-                            <CopyButton value={sale.id} />
-                          </dd>
-                        </div>
                         <div className="flex items-center justify-between">
                           <dt className="text-muted-foreground">{t('sales.processedAt')}</dt>
                           <dd>{formatDateTime(sale.processedAt, locale)}</dd>
                         </div>
                       </dl>
-                      <a
-                        href={`/admin/commissions?saleId=${encodeURIComponent(sale.id)}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                      >
-                        {t('commissions.bySale')}
-                        <ArrowUpRight className="h-3 w-3 rtl:-scale-x-100" />
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -351,5 +311,38 @@ function SaleStatusChanger({ sale }: { sale: Sale }) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+/**
+ * Seller cell — shows the seller's real profile photo + display name with
+ * the sellerCode as a secondary line. Falls back to sellerCode-initials
+ * while loading or if the user record can't be resolved (e.g. an
+ * unmatched seller code on an imported sale).
+ */
+function SellerCell({ sellerId, sellerCode }: { sellerId: string; sellerCode: string }) {
+  const seller = useUserQuery(sellerId);
+  const user = seller.data;
+  const displayName = user?.displayName ?? sellerCode;
+
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar className="h-9 w-9">
+        {user?.profileImageUrl && (
+          <AvatarImage src={user.profileImageUrl} alt={displayName} />
+        )}
+        <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+      </Avatar>
+      <div className="flex min-w-0 flex-col leading-tight">
+        {seller.isLoading ? (
+          <Skeleton className="h-3.5 w-24" />
+        ) : (
+          <span className="truncate text-sm font-medium">{displayName}</span>
+        )}
+        {sellerCode && (
+          <span className="truncate text-[11px] text-muted-foreground">{sellerCode}</span>
+        )}
+      </div>
+    </div>
   );
 }

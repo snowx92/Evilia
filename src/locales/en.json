@@ -63,7 +63,9 @@
     "markPaid": "Mark as paid",
     "suspend": "Suspend",
     "activate": "Activate",
-    "dangerZone": "Danger zone"
+    "dangerZone": "Danger zone",
+    "by": "by",
+    "clearFilters": "Clear filters"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -107,7 +109,11 @@
     "activeUsers": "Active users",
     "today": "Today",
     "salesCount": "{count} sales",
-    "commissionsCount": "{count} commissions"
+    "commissionsCount": "{count} commissions",
+    "deliveredSales": "Delivered sales",
+    "pendingPipeline": "Pending pipeline",
+    "newSellers": "New sellers",
+    "salesByStatusTrend": "Sales funnel over time"
   },
   "users": {
     "title": "Users",
@@ -186,7 +192,8 @@
       "category": "Category",
       "date": "Date",
       "notes": "Notes",
-      "attachments": "Attachments"
+      "attachments": "Attachments",
+      "createdBy": "Created by"
     },
     "confirmDelete": "Delete this expense?"
   },
@@ -240,12 +247,18 @@
     "bySale": "Commissions by sale",
     "fields": {
       "saleId": "Sale ID",
-      "recipientId": "Recipient",
+      "recipientId": "Seller",
       "recipientRole": "Recipient role",
       "percentage": "Percentage",
       "saleAmount": "Sale amount",
       "amount": "Commission"
-    }
+    },
+    "filters": {
+      "seller": "Seller",
+      "sellerPlaceholder": "Filter by seller…",
+      "clientSideNote": "Showing {shown} of {loaded} loaded — filtered in this view only"
+    },
+    "soldBy": "sold by"
   },
   "sales": {
     "title": "Sales",
@@ -310,11 +323,19 @@
   },
   "analytics": {
     "title": "Analytics",
+    "subtitle": "Sales, commissions, withdrawals and seller performance",
     "daily": "Daily summary",
     "monthly": "Monthly user analytics",
     "leaderboard": "Top performers",
     "networkSales": "Network sales",
     "month": "Month",
+    "section": {
+      "today": "Today's pulse",
+      "todayDesc": "Live snapshot for the current day",
+      "range": "Range analysis",
+      "monthly": "Monthly performance",
+      "monthlyDesc": "Leaderboards and per-seller monthly history"
+    },
     "preset": {
       "last7": "Last 7 days",
       "last30": "Last 30 days",

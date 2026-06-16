@@ -177,6 +177,18 @@ export function saleProductSummary(meta: ParsedSaleMetadata): string {
   return `${first} +${products.length - 1}`;
 }
 
+/**
+ * Returns a clean human-friendly order reference for display. Avoids exposing
+ * composite externalIds like `vondera-{firebaseUid}-{orderNum}` to end users.
+ * Preference: metadata.orderId → trailing 4+ digits of externalId → raw.
+ */
+export function prettyOrderRef(externalId: string | undefined, meta: ParsedSaleMetadata): string {
+  if (meta.orderId) return `#${meta.orderId}`;
+  const tail = externalId?.match(/(\d{4,})$/);
+  if (tail) return `#${tail[1]}`;
+  return externalId || '—';
+}
+
 export function saleCommissionTotal(
   commissions: { amount: number }[],
   affiliateCommission?: number,

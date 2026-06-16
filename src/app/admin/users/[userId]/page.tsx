@@ -68,6 +68,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDate, formatDateTime, formatPercent } from '@/lib/utils';
 import { fadeUp, stagger } from '@/lib/motion';
+import { getSafeTxDescription } from '@/lib/transaction-description';
 import { ApiError } from '@/types/api';
 
 // ─── Identity card ───────────────────────────────────────────────────────────
@@ -247,15 +248,7 @@ function ContactCard({ userId }: { userId: string }) {
               label={t('users.fields.networkCommissionPercentage')}
               value={formatPercent(u.networkCommissionPercentage ?? 0, locale)}
             />
-            {u.parentId && (
-              <InfoRow
-                icon={Users2}
-                label={t('users.fields.parentId')}
-                value={u.parentId}
-                href={`/admin/users/${encodeURIComponent(u.parentId)}`}
-                ltr
-              />
-            )}
+            {u.parentId && <ParentInfoRow parentId={u.parentId} />}
             {u.permissions && u.permissions.length > 0 && (
               <div className="sm:col-span-2">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -274,6 +267,21 @@ function ContactCard({ userId }: { userId: string }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function ParentInfoRow({ parentId }: { parentId: string }) {
+  const { t } = useTranslation();
+  const parent = useUserQuery(parentId);
+  const name = parent.data?.displayName;
+  return (
+    <InfoRow
+      icon={Users2}
+      label={t('users.fields.parentId')}
+      value={name ?? t('common.loading')}
+      href={`/admin/users/${encodeURIComponent(parentId)}`}
+      muted={!name}
+    />
   );
 }
 
@@ -426,7 +434,8 @@ function WalletSection({ userId }: { userId: string }) {
                     </span>
                     <div className="flex min-w-0 flex-1 flex-col leading-tight">
                       <span className="truncate text-sm font-medium">
-                        {tx.description ?? t(`transaction.type.${tx.type}`)}
+                        {getSafeTxDescription(tx.type, tx.description) ??
+                          t(`transaction.type.${tx.type}`)}
                       </span>
                       <span className="truncate text-[11px] text-muted-foreground">
                         {t(`transaction.type.${tx.type}`)} · {formatDateTime(tx.createdAt, locale)}

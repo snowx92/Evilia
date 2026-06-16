@@ -12,11 +12,3 @@ export function useCommissionsQuery(params: CommissionsListParams) {
     placeholderData: (prev) => prev,
   });
 }
-
-export function useCommissionsBySaleQuery(saleId: string, enabled = true) {
-  return useQuery({
-    queryKey: queryKeys.commissions.bySale(saleId),
-    queryFn: () => commissionsService.bySale(saleId),
-    enabled: enabled && Boolean(saleId),
-  });
-}

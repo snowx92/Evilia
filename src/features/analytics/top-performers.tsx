@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useLeaderboardQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
@@ -29,7 +29,7 @@ function BarRow({
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const pct = max > 0 ? (entry.value / max) * 100 : 0;
-  const name = entry.user?.displayName ?? entry.userId;
+  const name = entry.user?.displayName ?? '—';
   const meta = entry.user?.sellerCode ?? entry.user?.email ?? '—';
 
   return (
@@ -39,6 +39,9 @@ function BarRow({
           {entry.rank}
         </span>
         <Avatar className="h-8 w-8">
+          {entry.user?.profileImageUrl && (
+            <AvatarImage src={entry.user.profileImageUrl} alt={name} />
+          )}
           <AvatarFallback>{getInitials(name)}</AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
