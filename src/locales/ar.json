@@ -178,7 +178,8 @@
       "currentAmount": "المنجز",
       "startDate": "تاريخ البدء",
       "endDate": "تاريخ الانتهاء"
-    }
+    },
+    "confirmDelete": "حذف هذا الهدف؟"
   },
   "expenses": {
     "title": "المصروفات",
@@ -195,7 +196,8 @@
       "attachments": "المرفقات",
       "createdBy": "أنشئت بواسطة"
     },
-    "confirmDelete": "هل تريد حذف هذا المصروف؟"
+    "confirmDelete": "هل تريد حذف هذا المصروف؟",
+    "confirmDeleteCategory": "حذف هذه الفئة؟ ستظل المصروفات المرتبطة بها تحمل مرجع الفئة."
   },
   "wallets": {
     "title": "المحافظ",
@@ -479,7 +481,11 @@
     "expandAll": "توسيع الكل",
     "collapseAll": "طي الكل",
     "totalMembers": "إجمالي الأعضاء",
-    "levels": "المستويات"
+    "levels": "المستويات",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "zoomReset": "إعادة التكبير",
+    "zoomFit": "احتواء الشاشة"
   },
   "backend": {
     "pending": "بانتظار الواجهة الخلفية"

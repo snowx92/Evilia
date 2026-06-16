@@ -12,7 +12,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
-import { CreateTargetDialog, EditTargetDialog } from '@/features/targets/target-dialogs';
+import {
+  CreateTargetDialog,
+  DeleteTargetButton,
+  EditTargetDialog,
+} from '@/features/targets/target-dialogs';
 import { useTargetsQuery } from '@/hooks/queries/use-targets';
 import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
@@ -52,7 +56,10 @@ function TargetCard({ target }: { target: Target }) {
             {target.type}
           </p>
         </div>
-        <EditTargetDialog target={target} />
+        <div className="flex items-center gap-0.5">
+          <EditTargetDialog target={target} />
+          <DeleteTargetButton target={target} />
+        </div>
       </header>
 
       <div className="space-y-2">

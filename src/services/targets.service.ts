@@ -20,4 +20,11 @@ export const targetsService = {
 
   update: (targetId: string, body: UpdateTargetRequest) =>
     unwrap(api.put<ApiResponse<Target>>(`/v1/admin/targets/${targetId}`, body)),
+
+  remove: (targetId: string) => {
+    if (!targetId) throw new Error('remove: targetId is required');
+    return unwrap(
+      api.delete<ApiResponse<null>>(`/v1/admin/targets/${encodeURIComponent(targetId)}`),
+    );
+  },
 };

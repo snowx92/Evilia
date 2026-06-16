@@ -11,6 +11,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Loader2,
+  UserCircle,
   Wallet as WalletIcon,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
@@ -256,6 +257,12 @@ export default function UserWalletPage({
         description={u?.email}
         actions={
           <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/users/${encodeURIComponent(userId)}`}>
+                <UserCircle className="h-4 w-4" />
+                {t('users.actions.viewProfile')}
+              </Link>
+            </Button>
             <ResetWalletDialog userId={userId} userName={u?.displayName} />
             <AdjustDialog userId={userId} currentBalance={w?.balance} />
           </div>
@@ -272,7 +279,12 @@ export default function UserWalletPage({
           </Avatar>
           <div className="flex flex-col leading-tight">
             <CardTitle className="text-lg">
-              {u?.displayName ?? '—'}{' '}
+              <Link
+                href={`/admin/users/${encodeURIComponent(userId)}`}
+                className="hover:text-primary hover:underline"
+              >
+                {u?.displayName ?? '—'}
+              </Link>{' '}
               {u?.role && (
                 <Badge variant="brand" className="ms-2 align-middle text-[10px]">
                   {t(`role.${u.role}`)}

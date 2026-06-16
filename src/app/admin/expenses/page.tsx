@@ -1,25 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type Column } from '@/components/shared/data-table';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import {
   CreateCategoryDialog,
   CreateExpenseDialog,
   EditExpenseDialog,
 } from '@/features/expenses/expense-dialogs';
 import {
+  useDeleteExpenseCategoryMutation,
   useDeleteExpenseMutation,
   useExpenseCategoriesQuery,
   useExpensesQuery,
@@ -32,8 +27,6 @@ import { toast } from '@/components/ui/sonner';
 import { UserName } from '@/components/shared/user-name';
 import { ApiError } from '@/types/api';
 import type { Expense, ExpenseCategory } from '@/types/admin/expenses';
-
-const ALL = '__all__';
 
 function DeleteButton({ id }: { id: string }) {
   const { t } = useTranslation();
@@ -51,6 +44,83 @@ function DeleteButton({ id }: { id: string }) {
     <Button variant="ghost" size="icon" onClick={onClick} className="text-destructive">
       <Trash2 className="h-4 w-4" />
     </Button>
+  );
+}
+
+function DeleteCategoryButton({ id }: { id: string }) {
+  const { t } = useTranslation();
+  const remove = useDeleteExpenseCategoryMutation();
+  const onClick = async () => {
+    if (!window.confirm(t('expenses.confirmDeleteCategory'))) return;
+    try {
+      await remove.mutateAsync(id);
+      toast.success(t('common.save'));
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : t('common.error'));
+    }
+  };
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      disabled={remove.isPending}
+      className="text-destructive hover:bg-destructive/10"
+      aria-label={t('common.delete')}
+    >
+      {remove.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+    </Button>
+  );
+}
+
+/**
+ * Category filter rendered as a horizontal pill row so non-technical operators
+ * can see every category at a glance. "All" is the leftmost pill.
+ */
+function CategoryChips({
+  categories,
+  selected,
+  onSelect,
+}: {
+  categories: ExpenseCategory[] | undefined;
+  selected: string | undefined;
+  onSelect: (id: string | undefined) => void;
+}) {
+  const { t } = useTranslation();
+  if (!categories?.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => onSelect(undefined)}
+        className={cn(
+          'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+          !selected
+            ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+            : 'border-border/70 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground',
+        )}
+      >
+        {t('common.all')}
+      </button>
+      {categories.map((c) => {
+        const active = selected === c.id;
+        return (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onSelect(c.id)}
+            className={cn(
+              'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              active
+                ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                : 'border-border/70 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground',
+            )}
+          >
+            {c.name}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -117,26 +187,18 @@ function ExpensesList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Select
-          value={categoryId ?? ALL}
-          onValueChange={(v) => {
-            setCategoryId(v === ALL ? undefined : v);
+      <div className="space-y-2">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {t('expenses.filterByCategory')}
+        </p>
+        <CategoryChips
+          categories={categories.data}
+          selected={categoryId}
+          onSelect={(id) => {
+            setCategoryId(id);
             setPage(1);
           }}
-        >
-          <SelectTrigger className="w-60">
-            <SelectValue placeholder={t('expenses.filterByCategory')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>{t('common.all')}</SelectItem>
-            {categories.data?.map((c) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </div>
       <DataTable
         data={data?.items}
@@ -166,6 +228,13 @@ function CategoriesList() {
   const columns: Column<ExpenseCategory>[] = [
     { key: 'name', header: t('common.name'), cell: (c) => c.name },
     { key: 'description', header: t('common.description'), cell: (c) => c.description },
+    {
+      key: 'actions',
+      header: '',
+      headClassName: 'w-12 text-end',
+      className: 'text-end',
+      cell: (c) => <DeleteCategoryButton id={c.id} />,
+    },
   ];
 
   return (

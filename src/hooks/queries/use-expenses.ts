@@ -26,6 +26,18 @@ export function useCreateExpenseCategoryMutation() {
   });
 }
 
+export function useDeleteExpenseCategoryMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (categoryId: string) => expensesService.removeCategory(categoryId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.expenses.categories });
+      // Expenses list may include categoryId references that just disappeared.
+      qc.invalidateQueries({ queryKey: ['expenses', 'list'] });
+    },
+  });
+}
+
 export function useExpensesQuery(params: ExpensesListParams) {
   return useQuery({
     queryKey: queryKeys.expenses.list(params),

@@ -10,9 +10,13 @@ import {
   Crown,
   Eye,
   Loader2,
+  Maximize2,
   Plus,
+  RotateCcw,
   UserPlus,
   Users2,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -437,6 +441,10 @@ function Branch({
 
 // ─── Public component ─────────────────────────────────────────────────────────
 
+const ZOOM_MIN = 0.4;
+const ZOOM_MAX = 2;
+const ZOOM_STEP = 0.1;
+
 export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
   const { t } = useTranslation();
 
@@ -452,6 +460,7 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
   };
 
   const [open, setOpen] = useState<Set<string>>(() => allIds());
+  const [zoom, setZoom] = useState(1);
 
   const toggle = (id: string) => {
     setOpen((prev) => {
@@ -462,25 +471,87 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
     });
   };
 
+  const zoomPct = Math.round(zoom * 100);
+
   return (
     <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex items-center justify-end gap-1.5">
-        <Button variant="ghost" size="sm" onClick={() => setOpen(allIds())}>
-          {t('hierarchy_ext.expandAll')}
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => setOpen(new Set())}>
-          {t('hierarchy_ext.collapseAll')}
-        </Button>
+      {/* Controls — expand/collapse on the left, zoom on the right */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <Button variant="ghost" size="sm" onClick={() => setOpen(allIds())}>
+            {t('hierarchy_ext.expandAll')}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setOpen(new Set())}>
+            {t('hierarchy_ext.collapseAll')}
+          </Button>
+        </div>
+        <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card p-1 shadow-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
+            disabled={zoom <= ZOOM_MIN}
+            title={t('hierarchy_ext.zoomOut')}
+            aria-label={t('hierarchy_ext.zoomOut')}
+          >
+            <ZoomOut className="h-3.5 w-3.5" />
+          </Button>
+          <span className="min-w-[3rem] text-center text-[11px] font-medium tabular-nums text-muted-foreground">
+            {zoomPct}%
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
+            disabled={zoom >= ZOOM_MAX}
+            title={t('hierarchy_ext.zoomIn')}
+            aria-label={t('hierarchy_ext.zoomIn')}
+          >
+            <ZoomIn className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setZoom(1)}
+            disabled={zoom === 1}
+            title={t('hierarchy_ext.zoomReset')}
+            aria-label={t('hierarchy_ext.zoomReset')}
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setZoom(ZOOM_MIN)}
+            disabled={zoom === ZOOM_MIN}
+            title={t('hierarchy_ext.zoomFit')}
+            aria-label={t('hierarchy_ext.zoomFit')}
+          >
+            <Maximize2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Org-chart diagram */}
-      <div className="overflow-x-auto pb-4">
-        <ul className="org-tree">
-          {roots.map((r) => (
-            <Branch key={r.id} node={r} open={open} onToggle={toggle} />
-          ))}
-        </ul>
+      {/* Scrollable viewport — both axes. Zoom is applied via CSS transform
+          on the inner wrapper; origin top-left so scrolling stays predictable. */}
+      <div className="overflow-auto rounded-xl border border-border/40 bg-muted/20 max-h-[75vh]">
+        <div
+          className="inline-block min-w-full p-6"
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top left',
+          }}
+        >
+          <ul className="org-tree">
+            {roots.map((r) => (
+              <Branch key={r.id} node={r} open={open} onToggle={toggle} />
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

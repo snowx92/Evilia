@@ -178,7 +178,8 @@
       "currentAmount": "Current",
       "startDate": "Start date",
       "endDate": "End date"
-    }
+    },
+    "confirmDelete": "Delete this target?"
   },
   "expenses": {
     "title": "Expenses",
@@ -195,7 +196,8 @@
       "attachments": "Attachments",
       "createdBy": "Created by"
     },
-    "confirmDelete": "Delete this expense?"
+    "confirmDelete": "Delete this expense?",
+    "confirmDeleteCategory": "Delete this category? Expenses tagged with it will keep the reference."
   },
   "wallets": {
     "title": "Wallets",
@@ -479,7 +481,11 @@
     "expandAll": "Expand all",
     "collapseAll": "Collapse all",
     "totalMembers": "Total members",
-    "levels": "Levels"
+    "levels": "Levels",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Reset zoom",
+    "zoomFit": "Fit to view"
   },
   "backend": {
     "pending": "Pending backend"

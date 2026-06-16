@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Pencil, ChevronsUpDown, Check } from 'lucide-react';
+import { Loader2, Plus, Pencil, ChevronsUpDown, Check, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/command';
 import {
   useCreateTargetMutation,
+  useDeleteTargetMutation,
   useUpdateTargetMutation,
 } from '@/hooks/queries/use-targets';
 import { useUsersQuery } from '@/hooks/queries/use-users';
@@ -287,5 +288,31 @@ export function EditTargetDialog({ target }: { target: Target }) {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function DeleteTargetButton({ target }: { target: Target }) {
+  const { t } = useTranslation();
+  const remove = useDeleteTargetMutation();
+  const onClick = async () => {
+    if (!window.confirm(t('targets.confirmDelete'))) return;
+    try {
+      await remove.mutateAsync(target.id);
+      toast.success(t('common.save'));
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : t('common.error'));
+    }
+  };
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      disabled={remove.isPending}
+      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+      aria-label={t('common.delete')}
+    >
+      {remove.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+    </Button>
   );
 }

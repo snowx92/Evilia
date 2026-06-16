@@ -119,9 +119,9 @@ export default function HierarchyPage() {
         </CardContent>
       </Card>
 
-      {/* Tree */}
+      {/* Tree — the inner HierarchyTree handles its own scroll/zoom viewport. */}
       <Card>
-        <CardContent className="py-5">
+        <CardContent className="overflow-hidden py-5">
           {usersQuery.isError ? (
             <ErrorState onRetry={() => usersQuery.refetch()} />
           ) : usersQuery.isLoading ? (

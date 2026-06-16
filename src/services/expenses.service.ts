@@ -16,6 +16,15 @@ export const expensesService = {
   createCategory: (body: CreateExpenseCategoryRequest) =>
     unwrap(api.post<ApiResponse<ExpenseCategory>>('/v1/admin/expenses/categories', body)),
 
+  removeCategory: (categoryId: string) => {
+    if (!categoryId) throw new Error('removeCategory: categoryId is required');
+    return unwrap(
+      api.delete<ApiResponse<null>>(
+        `/v1/admin/expenses/categories/${encodeURIComponent(categoryId)}`,
+      ),
+    );
+  },
+
   list: (params: ExpensesListParams = {}) =>
     unwrap(
       api.get<ApiResponse<PaginatedResponse<Expense>>>('/v1/admin/expenses', {

@@ -33,3 +33,11 @@ export function useUpdateTargetMutation() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['targets', 'list'] }),
   });
 }
+
+export function useDeleteTargetMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => targetsService.remove(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['targets', 'list'] }),
+  });
+}
