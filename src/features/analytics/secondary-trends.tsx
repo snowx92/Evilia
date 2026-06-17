@@ -117,7 +117,7 @@ export function WithdrawalsTrend({
             <ResponsiveContainer>
               <AreaChart data={data ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="evilia-withdrawals-grad" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="Evilla-withdrawals-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.3} />
                     <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
                   </linearGradient>
@@ -163,7 +163,7 @@ export function WithdrawalsTrend({
                   dataKey="amount"
                   stroke="#f43f5e"
                   strokeWidth={2}
-                  fill="url(#evilia-withdrawals-grad)"
+                  fill="url(#Evilla-withdrawals-grad)"
                 />
               </AreaChart>
             </ResponsiveContainer>

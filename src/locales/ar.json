@@ -84,7 +84,7 @@
     "loginTitle": "تسجيل الدخول",
     "loginSubtitle": "أدخل بيانات الاعتماد للوصول إلى لوحة الإدارة",
     "emailLabel": "البريد الإلكتروني",
-    "emailPlaceholder": "name@evilia.com",
+    "emailPlaceholder": "name@Evilla.com",
     "passwordLabel": "كلمة المرور",
     "passwordPlaceholder": "••••••••",
     "showPassword": "إظهار كلمة المرور",
@@ -207,6 +207,14 @@
     "onGoingOrders": "أوامر جارية",
     "totalEarned": "إجمالي الأرباح",
     "totalWithdrawn": "إجمالي المسحوب",
+    "explain": {
+      "balance": "إجمالي الرصيد في المحفظة، بما في ذلك أي مبلغ محجوز حاليًا لطلب سحب.",
+      "available": "المبلغ الذي يمكن للبائع سحبه فعليًا الآن (الرصيد ناقص قيد السحب).",
+      "pendingWithdrawal": "محجوز ريثما تتم مراجعة طلب السحب أو دفعه.",
+      "onGoingOrders": "أرباح من طلبات لم تُسلَّم بعد. تنتقل إلى الرصيد بمجرد تأكيد تسليم كل طلب.",
+      "totalEarned": "إجمالي ما أُضيف إلى هذه المحفظة منذ إنشائها.",
+      "totalWithdrawn": "إجمالي ما تم سحبه من هذه المحفظة منذ إنشائها."
+    },
     "lastUpdated": "آخر تحديث",
     "transactions": "المعاملات",
     "adjust": "تعديل المحفظة",

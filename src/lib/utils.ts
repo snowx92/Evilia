@@ -58,7 +58,16 @@ export function toDate(value: TimestampLike): Date | null {
   return null;
 }
 
-export function formatCurrency(value: number, locale: Locale = 'ar', currency?: string) {
+/** Treat null/undefined/NaN as 0 so missing API fields render cleanly. */
+function safeNumber(value: number | null | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+export function formatCurrency(
+  value: number | null | undefined,
+  locale: Locale = 'ar',
+  currency?: string,
+) {
   // Lazy import keeps this file dependency-free for tree-shaking.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { defaultCurrencyFor } = require('@/lib/currency') as typeof import('@/lib/currency');
@@ -66,18 +75,18 @@ export function formatCurrency(value: number, locale: Locale = 'ar', currency?: 
     style: 'currency',
     currency: currency ?? defaultCurrencyFor(locale),
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(safeNumber(value));
 }
 
-export function formatNumber(value: number, locale: Locale = 'ar') {
-  return new Intl.NumberFormat(NUMBER_LOCALE[locale]).format(value);
+export function formatNumber(value: number | null | undefined, locale: Locale = 'ar') {
+  return new Intl.NumberFormat(NUMBER_LOCALE[locale]).format(safeNumber(value));
 }
 
-export function formatPercent(value: number, locale: Locale = 'ar') {
+export function formatPercent(value: number | null | undefined, locale: Locale = 'ar') {
   return new Intl.NumberFormat(NUMBER_LOCALE[locale], {
     style: 'percent',
     maximumFractionDigits: 1,
-  }).format(value / 100);
+  }).format(safeNumber(value) / 100);
 }
 
 export function formatDate(value: TimestampLike, locale: Locale = 'ar') {

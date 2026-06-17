@@ -266,15 +266,17 @@
     gap: 24px;
     padding-top: 28px;
   }
-  /* trunk from parent card down into children row */
+  /* trunk from parent card down into children row.
+     Picks up the per-branch colour set on the <li> via --branch-color
+     (set inline by hierarchy-tree.tsx); falls back to the neutral border. */
   .org-tree ul::before {
     content: '';
     position: absolute;
     top: 0;
     inset-inline-start: 50%;
-    width: 1px;
+    width: 2px;
     height: 16px;
-    background-color: hsl(var(--border-strong));
+    background-color: var(--branch-color, hsl(var(--border-strong)));
   }
   .org-tree li {
     position: relative;
@@ -287,9 +289,9 @@
     position: absolute;
     top: 0;
     inset-inline-start: 50%;
-    width: 1px;
+    width: 2px;
     height: 14px;
-    background-color: hsl(var(--border-strong));
+    background-color: var(--branch-color, hsl(var(--border-strong)));
   }
   /* horizontal line spanning siblings */
   .org-tree li::after {
@@ -298,8 +300,8 @@
     top: 0;
     inset-inline-start: 0;
     width: 100%;
-    height: 1px;
-    background-color: hsl(var(--border-strong));
+    height: 2px;
+    background-color: var(--branch-color, hsl(var(--border-strong)));
   }
   .org-tree li:only-child::after {
     display: none;

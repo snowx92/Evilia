@@ -1,4 +1,4 @@
-# Evilia Admin API - Endpoint Inventory
+# Evilla Admin API - Endpoint Inventory
 
 ## Summary
 
@@ -1136,7 +1136,7 @@ interface Withdrawals {
   totalPages: number;
 }
 ```
-# Evilia Admin API - Extended Analysis
+# Evilla Admin API - Extended Analysis
 
 ## Enumerations & Constants
 

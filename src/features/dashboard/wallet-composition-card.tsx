@@ -7,37 +7,43 @@ import { useAuthStore } from '@/store/auth';
 import { useLocaleStore } from '@/store/locale';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCurrency } from '@/lib/utils';
+import {
+  WalletStatLabel,
+  type WalletStatKey,
+} from '@/components/shared/wallet-stat-label';
 
 export function WalletCompositionCard() {
   const { t } = useTranslation();
   const wallet = useAuthStore((s) => s.wallet);
   const locale = useLocaleStore((s) => s.locale);
 
-  const data = useMemo(() => {
+  const data = useMemo<{ key: string; stat: WalletStatKey; value: number; color: string }[]>(() => {
     if (!wallet) return [];
     return [
-      { key: 'available', label: t('wallets.available'), value: Math.max(wallet.available, 0), color: '#4f46e5' },
+      { key: 'available', stat: 'available', value: Math.max(wallet.available, 0), color: '#4f46e5' },
       {
         key: 'pending',
-        label: t('wallets.pendingWithdrawal'),
+        stat: 'pendingWithdrawal',
         value: Math.max(wallet.pendingWithdrawal, 0),
         color: '#f59e0b',
       },
       {
         key: 'withdrawn',
-        label: t('wallets.totalWithdrawn'),
+        stat: 'totalWithdrawn',
         value: Math.max(wallet.totalWithdrawn, 0),
         color: '#10b981',
       },
     ];
-  }, [wallet, t]);
+  }, [wallet]);
 
   const total = data.reduce((acc, d) => acc + d.value, 0);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('wallets.balance')}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <WalletStatLabel stat="balance" />
+        </CardTitle>
         <CardDescription>
           {wallet ? formatCurrency(wallet.balance, locale) : '—'}
         </CardDescription>
@@ -66,9 +72,9 @@ export function WalletCompositionCard() {
               </ResponsiveContainer>
               <div className="pointer-events-none absolute inset-0 grid place-items-center">
                 <div className="text-center leading-tight">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    {t('wallets.totalEarned')}
-                  </p>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <WalletStatLabel stat="totalEarned" />
+                  </div>
                   <p className="text-lg font-semibold">
                     {formatCurrency(wallet.totalEarned, locale)}
                   </p>
@@ -86,7 +92,9 @@ export function WalletCompositionCard() {
                       aria-hidden="true"
                     />
                     <span className="flex flex-1 items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{d.label}</span>
+                      <span className="text-muted-foreground">
+                        <WalletStatLabel stat={d.stat} />
+                      </span>
                       <span className="font-medium text-foreground">
                         {formatCurrency(d.value, locale)}
                       </span>

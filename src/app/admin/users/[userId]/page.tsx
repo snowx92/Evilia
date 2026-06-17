@@ -69,6 +69,7 @@ import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDate, formatDateTime, formatPercent } from '@/lib/utils';
 import { fadeUp, stagger } from '@/lib/motion';
 import { getSafeTxDescription } from '@/lib/transaction-description';
+import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { ApiError } from '@/types/api';
 
 // ─── Identity card ───────────────────────────────────────────────────────────
@@ -249,6 +250,30 @@ function ContactCard({ userId }: { userId: string }) {
               value={formatPercent(u.networkCommissionPercentage ?? 0, locale)}
             />
             {u.parentId && <ParentInfoRow parentId={u.parentId} />}
+            {u.affiliateLinks && u.affiliateLinks.length > 0 && (
+              <div className="sm:col-span-2">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t('users.fields.affiliateLinks')}
+                </p>
+                <ul className="flex flex-col gap-1.5">
+                  {u.affiliateLinks.map((link, i) => (
+                    <li key={i}>
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        dir="ltr"
+                        className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
+                        title={link}
+                      >
+                        <LinkIcon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {u.permissions && u.permissions.length > 0 && (
               <div className="sm:col-span-2">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -352,43 +377,49 @@ function WalletSection({ userId }: { userId: string }) {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
       >
         <MetricCard
-          label={t('wallets.balance')}
-          value={w ? formatCurrency(w.balance, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="balance" />}
+          value={formatCurrency(w?.balance, locale)}
           icon={WalletIcon}
           accent="indigo"
           isLoading={wallet.isLoading}
         />
         <MetricCard
-          label={t('wallets.available')}
-          value={w ? formatCurrency(w.available, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="available" />}
+          value={formatCurrency(w?.available, locale)}
           icon={Coins}
           accent="emerald"
           isLoading={wallet.isLoading}
         />
         <MetricCard
-          label={t('wallets.pendingWithdrawal')}
-          value={w ? formatCurrency(w.pendingWithdrawal, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="pendingWithdrawal" />}
+          value={formatCurrency(w?.pendingWithdrawal, locale)}
           icon={Banknote}
           accent="amber"
           isLoading={wallet.isLoading}
         />
         <MetricCard
-          label={t('wallets.onGoingOrders')}
-          value={w ? formatCurrency(w.onGoingOrdersBalance ?? 0, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="onGoingOrders" />}
+          value={formatCurrency(w?.onGoingOrdersBalance, locale)}
           icon={TrendingUp}
           accent="indigo"
           isLoading={wallet.isLoading}
         />
         <MetricCard
-          label={t('wallets.totalEarned')}
-          value={w ? formatCurrency(w.totalEarned, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="totalEarned" />}
+          value={formatCurrency(w?.totalEarned, locale)}
           icon={TrendingUp}
           accent="rose"
           isLoading={wallet.isLoading}
         />
         <MetricCard
-          label={t('wallets.totalWithdrawn')}
-          value={w ? formatCurrency(w.totalWithdrawn, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="totalWithdrawn" />}
+          value={formatCurrency(w?.totalWithdrawn, locale)}
           icon={Banknote}
           accent="indigo"
           isLoading={wallet.isLoading}

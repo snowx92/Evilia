@@ -50,11 +50,11 @@ export function RevenueChart({
             <ResponsiveContainer>
               <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="evilia-sales-grad" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="Evilla-sales-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#4f46e5" stopOpacity={0.35} />
                     <stop offset="100%" stopColor="#4f46e5" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="evilia-commissions-grad" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="Evilla-commissions-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
                     <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
@@ -104,14 +104,14 @@ export function RevenueChart({
                   dataKey="totalSalesAmount"
                   stroke="#4f46e5"
                   strokeWidth={2}
-                  fill="url(#evilia-sales-grad)"
+                  fill="url(#Evilla-sales-grad)"
                 />
                 <Area
                   type="monotone"
                   dataKey="totalCommissionsAmount"
                   stroke="#10b981"
                   strokeWidth={2}
-                  fill="url(#evilia-commissions-grad)"
+                  fill="url(#Evilla-commissions-grad)"
                 />
               </AreaChart>
             </ResponsiveContainer>

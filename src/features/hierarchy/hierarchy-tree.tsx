@@ -261,29 +261,60 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
   );
 }
 
+// ─── Branch colour palette ───────────────────────────────────────────────────
+// Each top-level child of the root is assigned the next colour in this list
+// (looping if there are more branches than colours). Descendants inherit
+// their ancestor's colour so a whole sub-tree shares one visual identity.
+
+const BRANCH_PALETTE = [
+  '#6366f1', // indigo
+  '#10b981', // emerald
+  '#f59e0b', // amber
+  '#ef4444', // rose
+  '#8b5cf6', // violet
+  '#06b6d4', // cyan
+  '#ec4899', // pink
+  '#84cc16', // lime
+  '#0ea5e9', // sky
+  '#f97316', // orange
+] as const;
+
 // ─── Node card ────────────────────────────────────────────────────────────────
 
-function NodeCard({ node, isRoot }: { node: TreeNode; isRoot: boolean }) {
+function NodeCard({
+  node,
+  isRoot,
+  branchColor,
+}: {
+  node: TreeNode;
+  isRoot: boolean;
+  branchColor: string | null;
+}) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
 
   return (
     <div
       className={cn(
-        'group/node relative flex w-[200px] flex-col gap-2 rounded-2xl border bg-card p-3 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
+        'group/node relative flex w-[200px] flex-col gap-2 overflow-hidden rounded-2xl border bg-card p-3 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
         isRoot
           ? 'border-primary/30 bg-gradient-to-br from-primary-soft/40 to-card'
           : 'border-border/70',
       )}
+      style={
+        branchColor && !isRoot
+          ? { boxShadow: `inset 4px 0 0 0 ${branchColor}` }
+          : undefined
+      }
     >
       {/* Top row: avatar + add button */}
       <div className="flex items-start justify-between gap-1">
         <div className="relative">
           <Avatar
-            className={cn(
-              'h-9 w-9 ring-2',
-              ROLE_RING[node.role] ?? 'ring-border/40',
-            )}
+            className={cn('h-9 w-9 ring-2', ROLE_RING[node.role] ?? 'ring-border/40')}
+            style={
+              branchColor && !isRoot ? { boxShadow: `0 0 0 2px ${branchColor}` } : undefined
+            }
           >
             {node.profileImageUrl && (
               <AvatarImage src={node.profileImageUrl} alt={node.displayName} />
@@ -377,25 +408,35 @@ function Branch({
   node,
   open,
   onToggle,
+  branchColor,
 }: {
   node: TreeNode;
   open: Set<string>;
   onToggle: (id: string) => void;
+  /** Colour for this whole sub-tree. Null for the root. */
+  branchColor: string | null;
 }) {
   const expanded = open.has(node.id);
   const hasChildren = node.children.length > 0;
   const isRoot = node.depth === 0;
 
+  // Expose the branch colour to CSS so the .org-tree connector pseudo-elements
+  // tint themselves to match this sub-tree.
+  const liStyle = branchColor
+    ? ({ '--branch-color': branchColor } as React.CSSProperties)
+    : undefined;
+
   return (
-    <li>
+    <li style={liStyle}>
       {/* Node card + collapse toggle */}
       <div className="relative inline-block">
-        <NodeCard node={node} isRoot={isRoot} />
+        <NodeCard node={node} isRoot={isRoot} branchColor={branchColor} />
         {hasChildren && (
           <button
             type="button"
             onClick={() => onToggle(node.id)}
             className="absolute -bottom-3 left-1/2 z-10 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-border/70 bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary hover:text-primary"
+            style={branchColor && !isRoot ? { borderColor: branchColor, color: branchColor } : undefined}
             title={expanded ? 'Collapse' : 'Expand'}
           >
             <motion.span animate={{ rotate: expanded ? 0 : 180 }} transition={{ duration: 0.2 }}>
@@ -419,7 +460,8 @@ function Branch({
         )}
       </div>
 
-      {/* Children */}
+      {/* Children — when this is the root, each top-level child gets its own
+          colour and propagates it down. Otherwise, children inherit. */}
       <AnimatePresence initial={false}>
         {expanded && hasChildren && (
           <motion.ul
@@ -429,9 +471,20 @@ function Branch({
             style={{ originY: 0 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
-            {node.children.map((child) => (
-              <Branch key={child.id} node={child} open={open} onToggle={onToggle} />
-            ))}
+            {node.children.map((child, idx) => {
+              const childColor = isRoot
+                ? BRANCH_PALETTE[idx % BRANCH_PALETTE.length]
+                : branchColor;
+              return (
+                <Branch
+                  key={child.id}
+                  node={child}
+                  open={open}
+                  onToggle={onToggle}
+                  branchColor={childColor ?? null}
+                />
+              );
+            })}
           </motion.ul>
         )}
       </AnimatePresence>
@@ -548,7 +601,13 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
         >
           <ul className="org-tree">
             {roots.map((r) => (
-              <Branch key={r.id} node={r} open={open} onToggle={toggle} />
+              <Branch
+                key={r.id}
+                node={r}
+                open={open}
+                onToggle={toggle}
+                branchColor={null}
+              />
             ))}
           </ul>
         </div>

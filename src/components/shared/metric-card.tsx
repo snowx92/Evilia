@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDownRight, ArrowUpRight, type LucideIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,13 +8,16 @@ import { cn } from '@/lib/utils';
 import { fadeUp } from '@/lib/motion';
 
 type Props = {
-  label: string;
+  /** Plain text or a React node (e.g. label with an info-tooltip icon). */
+  label: ReactNode;
   value: string;
   sublabel?: string;
   icon: LucideIcon;
   trend?: { value: number; label?: string };
   isLoading?: boolean;
   accent?: 'indigo' | 'emerald' | 'amber' | 'rose';
+  /** Shrinks padding, icon, and value font for tight grids (wallet tiles). */
+  compact?: boolean;
   className?: string;
 };
 
@@ -32,6 +36,7 @@ export function MetricCard({
   trend,
   isLoading,
   accent = 'indigo',
+  compact = false,
   className,
 }: Props) {
   const positive = (trend?.value ?? 0) >= 0;
@@ -39,7 +44,8 @@ export function MetricCard({
     <motion.div
       variants={fadeUp}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
+        'group relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
+        compact ? 'p-3.5' : 'p-5',
         className,
       )}
     >
@@ -50,31 +56,42 @@ export function MetricCard({
           ACCENT[accent],
         )}
       />
-      <div className="relative flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             {label}
-          </p>
+          </div>
           {isLoading ? (
-            <Skeleton className="mt-1 h-8 w-28" />
+            <Skeleton className={cn('mt-1', compact ? 'h-6 w-20' : 'h-8 w-28')} />
           ) : (
             <>
-              <p className="text-3xl font-semibold tracking-tight">{value}</p>
+              <p
+                className={cn(
+                  'truncate font-semibold tracking-tight tabular-nums',
+                  compact ? 'text-lg' : 'text-3xl',
+                )}
+                title={value}
+              >
+                {value}
+              </p>
               {sublabel && (
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{sublabel}</p>
+                <p className="mt-0.5 truncate text-[10px] text-muted-foreground">
+                  {sublabel}
+                </p>
               )}
             </>
           )}
         </div>
         <div
           className={cn(
-            'grid h-10 w-10 place-items-center rounded-xl bg-primary-soft text-primary shadow-sm',
+            'grid shrink-0 place-items-center rounded-xl bg-primary-soft text-primary shadow-sm',
+            compact ? 'h-7 w-7' : 'h-10 w-10',
             accent === 'emerald' && 'bg-success-soft text-success',
             accent === 'amber' && 'bg-warning-soft text-warning-foreground',
             accent === 'rose' && 'bg-destructive-soft text-destructive',
           )}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className={compact ? 'h-3.5 w-3.5' : 'h-5 w-5'} />
         </div>
       </div>
       {trend && !isLoading && (

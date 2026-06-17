@@ -15,7 +15,7 @@ export const useLocaleStore = create<LocaleState>()(
       setLocale: (locale) => set({ locale }),
     }),
     {
-      name: 'evilia-locale',
+      name: 'Evilla-locale',
       storage: createJSONStorage(() => localStorage),
     },
   ),

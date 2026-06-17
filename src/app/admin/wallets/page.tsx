@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { useWalletsListQuery, useWalletsSummaryQuery } from '@/hooks/queries/use-wallets';
 import { ResetWalletDialog } from '@/features/wallets/reset-wallet-dialog';
+import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDateTime, formatNumber } from '@/lib/utils';
@@ -42,7 +43,7 @@ function MiniBar({
   total,
   color,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: number;
   total: number;
   color: string;
@@ -50,9 +51,9 @@ function MiniBar({
   const pct = total > 0 ? Math.min(100, (value / total) * 100) : 0;
   return (
     <div className="min-w-0 flex-1 leading-tight">
-      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
-      </p>
+      </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full"
@@ -119,25 +120,25 @@ function WalletCard({ row }: { row: WalletListRow }) {
         {/* Breakdown bars */}
         <div className="hidden gap-4 lg:flex">
           <MiniBar
-            label={t('wallets.available')}
+            label={<WalletStatLabel stat="available" />}
             value={wallet.available}
             total={denominator}
             color="#4f46e5"
           />
           <MiniBar
-            label={t('wallets.pendingWithdrawal')}
+            label={<WalletStatLabel stat="pendingWithdrawal" />}
             value={wallet.pendingWithdrawal}
             total={denominator}
             color="#f59e0b"
           />
           <MiniBar
-            label={t('wallets.onGoingOrders')}
+            label={<WalletStatLabel stat="onGoingOrders" />}
             value={onGoing}
             total={denominator}
             color="#8b5cf6"
           />
           <MiniBar
-            label={t('wallets.totalWithdrawn')}
+            label={<WalletStatLabel stat="totalWithdrawn" />}
             value={wallet.totalWithdrawn}
             total={denominator}
             color="#10b981"
@@ -214,36 +215,41 @@ export default function WalletsPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
       >
         <MetricCard
-          label={t('wallets.balance')}
-          value={s ? formatCurrency(s.totalBalance, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="balance" />}
+          value={formatCurrency(s?.totalBalance, locale)}
           icon={WalletIcon}
           accent="indigo"
           isLoading={summary.isLoading}
         />
         <MetricCard
-          label={t('wallets.totalEarned')}
-          value={s ? formatCurrency(s.totalEarned, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="totalEarned" />}
+          value={formatCurrency(s?.totalEarned, locale)}
           icon={TrendingUp}
           accent="emerald"
           isLoading={summary.isLoading}
         />
         <MetricCard
-          label={t('wallets.pendingWithdrawal')}
-          value={s ? formatCurrency(s.totalPendingWithdrawal, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="pendingWithdrawal" />}
+          value={formatCurrency(s?.totalPendingWithdrawal, locale)}
           icon={Coins}
           accent="amber"
           isLoading={summary.isLoading}
         />
         <MetricCard
-          label={t('wallets.onGoingOrders')}
-          value={s ? formatCurrency(s.totalOnGoingOrdersBalance ?? 0, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="onGoingOrders" />}
+          value={formatCurrency(s?.totalOnGoingOrdersBalance, locale)}
           icon={ShoppingCart}
           accent="indigo"
           isLoading={summary.isLoading}
         />
         <MetricCard
-          label={t('wallets.totalWithdrawn')}
-          value={s ? formatCurrency(s.totalWithdrawn, locale) : '—'}
+          compact
+          label={<WalletStatLabel stat="totalWithdrawn" />}
+          value={formatCurrency(s?.totalWithdrawn, locale)}
           icon={Banknote}
           accent="rose"
           isLoading={summary.isLoading}

@@ -46,6 +46,7 @@ import {
   useWalletTransactionsQuery,
 } from '@/hooks/queries/use-wallets';
 import { ResetWalletDialog } from '@/features/wallets/reset-wallet-dialog';
+import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -169,12 +170,12 @@ function AdjustDialog({ userId, currentBalance }: { userId: string; currentBalan
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: React.ReactNode; value: string }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
-      </p>
+      </div>
       <p className="mt-1 text-xl font-semibold tracking-tight">{value}</p>
     </div>
   );
@@ -305,18 +306,30 @@ export default function UserWalletPage({
             </div>
           ) : w ? (
             <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-              <Stat label={t('wallets.balance')} value={formatCurrency(w.balance, locale)} />
-              <Stat label={t('wallets.available')} value={formatCurrency(w.available, locale)} />
               <Stat
-                label={t('wallets.pendingWithdrawal')}
+                label={<WalletStatLabel stat="balance" />}
+                value={formatCurrency(w.balance, locale)}
+              />
+              <Stat
+                label={<WalletStatLabel stat="available" />}
+                value={formatCurrency(w.available, locale)}
+              />
+              <Stat
+                label={<WalletStatLabel stat="pendingWithdrawal" />}
                 value={formatCurrency(w.pendingWithdrawal, locale)}
               />
               <Stat
-                label={t('wallets.onGoingOrders')}
-                value={formatCurrency(w.onGoingOrdersBalance ?? 0, locale)}
+                label={<WalletStatLabel stat="onGoingOrders" />}
+                value={formatCurrency(w.onGoingOrdersBalance, locale)}
               />
-              <Stat label={t('wallets.totalEarned')} value={formatCurrency(w.totalEarned, locale)} />
-              <Stat label={t('wallets.totalWithdrawn')} value={formatCurrency(w.totalWithdrawn, locale)} />
+              <Stat
+                label={<WalletStatLabel stat="totalEarned" />}
+                value={formatCurrency(w.totalEarned, locale)}
+              />
+              <Stat
+                label={<WalletStatLabel stat="totalWithdrawn" />}
+                value={formatCurrency(w.totalWithdrawn, locale)}
+              />
             </dl>
           ) : (
             <EmptyState title={t('common.noResults')} description={t('wallets.title')} />

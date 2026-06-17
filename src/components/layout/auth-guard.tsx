@@ -71,7 +71,7 @@ export function AuthGuard({
     if (!token || !isFcmConfigured) return;
     let unsubscribe: (() => void) | undefined;
     void onForegroundMessage((payload) => {
-      const title = payload.notification?.title ?? 'Evilia';
+      const title = payload.notification?.title ?? 'Evilla';
       const body = payload.notification?.body;
       toast(title, { description: body });
       qc.invalidateQueries({ queryKey: ['auth', 'notifications'] });
@@ -91,7 +91,7 @@ export function AuthGuard({
         <div className="flex flex-col items-center gap-4">
           <BrandMark size={56} />
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          <p className="text-xs text-muted-foreground">Evilia</p>
+          <p className="text-xs text-muted-foreground">Evilla</p>
         </div>
       </div>
     );

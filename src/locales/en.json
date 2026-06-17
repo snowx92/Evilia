@@ -1,7 +1,7 @@
 {
   "app": {
-    "title": "Evilia — Admin Panel",
-    "shortName": "Evilia"
+    "title": "Evilla — Admin Panel",
+    "shortName": "Evilla"
   },
   "common": {
     "search": "Search",
@@ -84,7 +84,7 @@
     "loginTitle": "Sign in",
     "loginSubtitle": "Enter your credentials to access the admin panel",
     "emailLabel": "Email",
-    "emailPlaceholder": "name@evilia.com",
+    "emailPlaceholder": "name@Evilla.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
     "showPassword": "Show password",
@@ -207,6 +207,14 @@
     "onGoingOrders": "Ongoing orders",
     "totalEarned": "Total earned",
     "totalWithdrawn": "Total withdrawn",
+    "explain": {
+      "balance": "Total credit in the wallet, including any amount currently locked for a pending withdrawal.",
+      "available": "Amount the seller can actually withdraw right now (balance minus pending withdrawal).",
+      "pendingWithdrawal": "Locked while a withdrawal request is awaiting review or payout.",
+      "onGoingOrders": "Earnings from orders not yet delivered. Moves into the balance once each order is marked delivered.",
+      "totalEarned": "Lifetime total of every credit ever added to this wallet.",
+      "totalWithdrawn": "Lifetime total of every withdrawal that has been paid out."
+    },
     "lastUpdated": "Last updated",
     "transactions": "Transactions",
     "adjust": "Adjust wallet",

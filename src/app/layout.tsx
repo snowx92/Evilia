@@ -17,8 +17,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Evilia — لوحة الإدارة',
-  description: 'Modern admin control plane for Evilia — sales, commissions, wallets, and access.',
+  title: 'Evilla — لوحة الإدارة',
+  description: 'Modern admin control plane for Evilla — sales, commissions, wallets, and access.',
   icons: {
     icon: [{ url: '/favicon.jpeg', type: 'image/jpeg' }],
     shortcut: '/favicon.jpeg',
