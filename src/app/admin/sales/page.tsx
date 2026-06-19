@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { SaleRow } from '@/features/sales/sale-row';
 import { useSalesQuery } from '@/hooks/queries/use-sales';
+import { useUsersQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -40,8 +41,17 @@ export default function SalesPage() {
   const locale = useLocaleStore((s) => s.locale);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<SaleStatus | undefined>(undefined);
+  const [sellerId, setSellerId] = useState<string | undefined>(undefined);
 
-  const params = { page, limit: DEFAULT_PAGE_SIZE, ...(status ? { status } : {}) };
+  const sellers = useUsersQuery({ role: 'seller', limit: 200 });
+  const sellerList = sellers.data?.items ?? [];
+
+  const params = {
+    page,
+    limit: DEFAULT_PAGE_SIZE,
+    ...(status ? { status } : {}),
+    ...(sellerId ? { sellerId } : {}),
+  };
   const query = useSalesQuery(params);
   const data = query.data;
   const items = data?.items ?? [];
@@ -86,25 +96,47 @@ export default function SalesPage() {
         title={t('sales.title')}
         description={t('analytics.daily')}
         actions={
-          <Select
-            value={status ?? ALL}
-            onValueChange={(v) => {
-              setStatus(v === ALL ? undefined : (v as SaleStatus));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-52">
-              <SelectValue placeholder={t('sales.filterByStatus')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>{t('common.all')}</SelectItem>
-              {SALE_STATUSES.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {t(`status.${s}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={sellerId ?? ALL}
+              onValueChange={(v) => {
+                setSellerId(v === ALL ? undefined : v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-52">
+                <SelectValue placeholder={t('sales.seller')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>{t('common.all')}</SelectItem>
+                {sellerList.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.displayName}
+                    {u.sellerCode ? ` · ${u.sellerCode}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={status ?? ALL}
+              onValueChange={(v) => {
+                setStatus(v === ALL ? undefined : (v as SaleStatus));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-52">
+                <SelectValue placeholder={t('sales.filterByStatus')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>{t('common.all')}</SelectItem>
+                {SALE_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {t(`status.${s}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         }
       />
 
