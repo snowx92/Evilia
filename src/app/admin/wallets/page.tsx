@@ -112,6 +112,11 @@ function WalletCard({ row }: { row: WalletListRow }) {
           <p className="text-2xl font-semibold tabular-nums">
             {formatCurrency(wallet.balance, locale)}
           </p>
+          {onGoing > 0 ? (
+            <p className="text-[11px] font-medium tabular-nums text-amber-600">
+              <WalletStatLabel stat="onGoingOrders" />: {formatCurrency(onGoing, locale)}
+            </p>
+          ) : null}
           <p className="text-[11px] text-muted-foreground">
             {t('wallets.lastUpdated')}: {formatDateTime(wallet.updatedAt, locale)}
           </p>
