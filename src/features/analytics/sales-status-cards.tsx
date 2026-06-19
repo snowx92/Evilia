@@ -117,13 +117,7 @@ function asInt(n: number | undefined | null): number {
   return Math.round(n);
 }
 
-function defaultFrom(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 29);
-  return format(d, 'yyyy-MM-dd');
-}
-
-function defaultTo(): string {
+function today(): string {
   return format(new Date(), 'yyyy-MM-dd');
 }
 
@@ -153,8 +147,8 @@ export function SalesStatusCards({
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const [from, setFrom] = useState<string>(defaultFrom);
-  const [to, setTo] = useState<string>(defaultTo);
+  const [from, setFrom] = useState<string>(today);
+  const [to, setTo] = useState<string>(today);
   const [sellerId, setSellerId] = useState<string | undefined>(lockedSellerId);
 
   const safe = from > to ? { from: to, to: from } : { from, to };

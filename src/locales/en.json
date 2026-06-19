@@ -113,10 +113,7 @@
     "deliveredSales": "Delivered sales",
     "pendingPipeline": "Pending pipeline",
     "newSellers": "New sellers",
-    "salesByStatusTrend": "Sales funnel over time",
-    "salesByStatusTitle": "Orders by status",
-    "salesByStatusDesc": "Orders, sales and commissions broken down by status",
-    "heldCommissions": "Held commissions"
+    "salesByStatusTrend": "Sales funnel over time"
   },
   "users": {
     "title": "Users",
@@ -356,7 +353,10 @@
       "last30": "Last 30 days",
       "thisMonth": "This month",
       "last3m": "Last 90 days"
-    }
+    },
+    "salesByStatusTitle": "Orders by status",
+    "salesByStatusDesc": "Orders, sales and commissions broken down by status",
+    "heldCommissions": "Held commissions"
   },
   "access": {
     "title": "Access",

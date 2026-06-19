@@ -57,6 +57,8 @@ export default function AnalyticsPage() {
         description={t('analytics.subtitle')}
       />
 
+      <SalesStatusCards />
+
       {/* ───── Section 1: Today's pulse ──────────────────────────────── */}
       <SectionHeader
         icon={Calendar}
@@ -117,8 +119,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       )}
-
-      <SalesStatusCards />
 
       {/* ───── Section 3: Monthly performance ────────────────────────── */}
       <SectionHeader

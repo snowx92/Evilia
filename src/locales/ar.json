@@ -113,10 +113,7 @@
     "deliveredSales": "المبيعات المُوصلة",
     "pendingPipeline": "أوامر قيد التنفيذ",
     "newSellers": "بائعون جدد",
-    "salesByStatusTrend": "مسار المبيعات عبر الزمن",
-    "salesByStatusTitle": "الطلبات حسب الحالة",
-    "salesByStatusDesc": "الطلبات والمبيعات والعمولات مُفصّلة حسب الحالة",
-    "heldCommissions": "العمولات المُعلّقة"
+    "salesByStatusTrend": "مسار المبيعات عبر الزمن"
   },
   "users": {
     "title": "المستخدمون",
@@ -356,7 +353,10 @@
       "last30": "آخر 30 يومًا",
       "thisMonth": "هذا الشهر",
       "last3m": "آخر 90 يومًا"
-    }
+    },
+    "salesByStatusTitle": "الطلبات حسب الحالة",
+    "salesByStatusDesc": "الطلبات والمبيعات والعمولات مُفصّلة حسب الحالة",
+    "heldCommissions": "العمولات المُعلّقة"
   },
   "access": {
     "title": "إدارة الصلاحيات",
