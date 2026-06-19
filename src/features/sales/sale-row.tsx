@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/components/ui/sonner';
 import { StatusBadge } from '@/components/shared/status-badge';
-import { useUpdateSaleStatusMutation } from '@/hooks/queries/use-sales';
+import { useSaleQuery, useUpdateSaleStatusMutation } from '@/hooks/queries/use-sales';
 import { ApiError } from '@/types/api';
 import { SALE_STATUSES } from '@/constants/admin';
 import type { SaleStatus } from '@/types/admin/sales';
@@ -52,7 +52,13 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const seller = useUserQuery(sale.sellerId ?? '');
   const sellerUser = seller.data;
 
-  const meta = parseSaleMetadata(sale.metadata);
+  // The list endpoint returns lean rows — full product / customer / payment
+  // metadata only ships through the single-sale endpoint, so we lazily fetch
+  // it when the operator opens the panel. The hook stays disabled until then.
+  const detail = useSaleQuery(open ? sale.id : '');
+  const richSale = detail.data ?? sale;
+
+  const meta = parseSaleMetadata(richSale.metadata);
   const orderRef = prettyOrderRef(sale.externalId, meta);
 
   // The API stopped sending commissions inline until the order is delivered.
@@ -220,12 +226,20 @@ export function SaleRow({ sale }: { sale: Sale }) {
               >
                 <div className="grid gap-5 px-6 py-5 lg:grid-cols-3">
                   <div className="lg:col-span-2">
-                    <SaleOrderDetails meta={meta} currency={sale.currency} />
+                    {detail.isLoading && !detail.data ? (
+                      <div className="space-y-3">
+                        <Skeleton className="h-32 w-full rounded-xl" />
+                        <Skeleton className="h-20 w-full rounded-xl" />
+                        <Skeleton className="h-28 w-full rounded-xl" />
+                      </div>
+                    ) : (
+                      <SaleOrderDetails meta={meta} currency={sale.currency} />
+                    )}
                   </div>
 
                   <div className="space-y-5">
-                    {sale.commissions.length > 0 ? (
-                      <CommissionBreakdown sale={sale} />
+                    {richSale.commissions.length > 0 ? (
+                      <CommissionBreakdown sale={richSale} />
                     ) : null}
 
                     <div className="space-y-3 rounded-xl border border-border/70 bg-surface p-4">
@@ -279,12 +293,12 @@ export function SaleRow({ sale }: { sale: Sale }) {
                             <CopyButton value={orderRef} />
                           </dd>
                         </div>
-                        {sale.paymentType ? (
+                        {richSale.paymentType ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">{t('sales.paymentType')}</dt>
                             <dd>
                               <Badge variant="outline" className="text-[10px] uppercase">
-                                {sale.paymentType}
+                                {richSale.paymentType}
                               </Badge>
                             </dd>
                           </div>
@@ -301,24 +315,24 @@ export function SaleRow({ sale }: { sale: Sale }) {
                             <dd>{meta.country}</dd>
                           </div>
                         ) : null}
-                        {sale.processedAt ? (
+                        {richSale.processedAt ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">{t('sales.processedAt')}</dt>
-                            <dd>{formatDateTime(sale.processedAt, locale)}</dd>
+                            <dd>{formatDateTime(richSale.processedAt, locale)}</dd>
                           </div>
                         ) : null}
-                        {sale.deliveredAt ? (
+                        {richSale.deliveredAt ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">{t('sales.deliveredAt')}</dt>
-                            <dd>{formatDateTime(sale.deliveredAt, locale)}</dd>
+                            <dd>{formatDateTime(richSale.deliveredAt, locale)}</dd>
                           </div>
                         ) : null}
-                        {sale.commissionsCreditedAt ? (
+                        {richSale.commissionsCreditedAt ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">
                               {t('sales.commissionsCreditedAt')}
                             </dt>
-                            <dd>{formatDateTime(sale.commissionsCreditedAt, locale)}</dd>
+                            <dd>{formatDateTime(richSale.commissionsCreditedAt, locale)}</dd>
                           </div>
                         ) : null}
                       </dl>
