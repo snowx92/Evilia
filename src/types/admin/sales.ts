@@ -42,4 +42,6 @@ export type Sale = {
 
 export type SalesListParams = PaginationParams & {
   status?: SaleStatus;
+  /** Filter by seller user ID — maps to `sellerId` query param. */
+  sellerId?: string;
 };

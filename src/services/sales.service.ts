@@ -10,6 +10,7 @@ export const salesService = {
           page: params.page ?? 1,
           limit: params.limit ?? 20,
           ...(params.status ? { status: params.status } : {}),
+          ...(params.sellerId ? { sellerId: params.sellerId } : {}),
         },
       }),
     ),

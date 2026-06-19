@@ -163,7 +163,8 @@
       "salesCount": "Sales count",
       "networkCount": "Network sales count",
       "noSocial": "Not provided",
-      "noPhone": "Not provided"
+      "noPhone": "Not provided",
+      "sales": "Sales"
     }
   },
   "targets": {

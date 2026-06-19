@@ -163,7 +163,8 @@
       "salesCount": "عدد المبيعات",
       "networkCount": "عدد مبيعات الشبكة",
       "noSocial": "غير مُحدد",
-      "noPhone": "غير مُحدد"
+      "noPhone": "غير مُحدد",
+      "sales": "المبيعات"
     }
   },
   "targets": {

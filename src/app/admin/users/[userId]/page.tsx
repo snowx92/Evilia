@@ -19,6 +19,7 @@ import {
   Mail,
   Pencil,
   Phone,
+  ScrollText,
   ShieldCheck,
   ShieldOff,
   TrendingUp,
@@ -56,6 +57,24 @@ import {
 } from '@/hooks/queries/use-users';
 import { EditUserDialog } from '@/features/users/edit-user-dialog';
 import { ResetPasswordDialog } from '@/features/users/reset-password-dialog';
+import { SaleRow } from '@/features/sales/sale-row';
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useSalesQuery } from '@/hooks/queries/use-sales';
+import { DEFAULT_PAGE_SIZE, SALE_STATUSES } from '@/constants/admin';
+import type { SaleStatus } from '@/types/admin/sales';
 import {
   useUserMonthlyAnalyticsQuery,
   useUserMonthlyHistoryQuery,
@@ -688,6 +707,119 @@ function AnalyticsSection({ userId }: { userId: string }) {
   );
 }
 
+// ─── Sales ───────────────────────────────────────────────────────────────────
+
+const ALL_STATUS = '__all__';
+
+function SalesSection({ userId }: { userId: string }) {
+  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<SaleStatus | undefined>(undefined);
+
+  const params = {
+    sellerId: userId,
+    page,
+    limit: DEFAULT_PAGE_SIZE,
+    ...(status ? { status } : {}),
+  };
+  const query = useSalesQuery(params);
+  const data = query.data;
+  const items = data?.items ?? [];
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4 text-primary" />
+            {t('users.detail.sales')}
+          </CardTitle>
+          {data && (
+            <CardDescription>
+              {t('sales.pageTotals', {
+                count: String(items.length),
+                total: String(data.totalItems),
+              })}
+            </CardDescription>
+          )}
+        </div>
+        <Select
+          value={status ?? ALL_STATUS}
+          onValueChange={(v) => {
+            setStatus(v === ALL_STATUS ? undefined : (v as SaleStatus));
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={t('sales.filterByStatus')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_STATUS}>{t('common.all')}</SelectItem>
+            {SALE_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {t(`status.${s}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </CardHeader>
+      <CardContent className="p-0">
+        {query.isError ? (
+          <div className="p-6">
+            <ErrorState onRetry={() => query.refetch()} />
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-b-2xl">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10" />
+                  <TableHead>{t('sales.trafficSource')}</TableHead>
+                  <TableHead>{t('sales.seller')}</TableHead>
+                  <TableHead>{t('sales.products')}</TableHead>
+                  <TableHead>{t('common.amount')}</TableHead>
+                  <TableHead>{t('commissions.title')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead className="text-end">{t('common.date')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {query.isLoading
+                  ? Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={`sk-${i}`} className="border-b border-border/60">
+                        {Array.from({ length: 8 }).map((__, j) => (
+                          <td key={j} className="px-5 py-4">
+                            <Skeleton className="h-4 w-full max-w-[120px]" />
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  : items.map((s) => <SaleRow key={s.id} sale={s} />)}
+              </TableBody>
+            </Table>
+            {!query.isLoading && items.length === 0 && (
+              <div className="p-6">
+                <EmptyState title={t('common.noResults')} />
+              </div>
+            )}
+          </div>
+        )}
+        {data && data.totalPages > 1 && (
+          <div className="p-4">
+            <PaginationBar
+              currentPage={data.currentPage}
+              totalPages={data.totalPages}
+              totalItems={data.totalItems}
+              onChange={setPage}
+              disabled={query.isFetching}
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function Stat({
   label,
   primary,
@@ -737,6 +869,7 @@ export default function AdminUserDetailPage({
       <ContactCard userId={userId} />
       <WalletSection userId={userId} />
       <AnalyticsSection userId={userId} />
+      <SalesSection userId={userId} />
     </div>
   );
 }
