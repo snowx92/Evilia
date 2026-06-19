@@ -80,7 +80,10 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const productSummary = saleProductSummary(meta);
   const orderStatus = meta.orderStatus;
   const trafficSource = meta.utmData?.source;
-  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode);
+  // Two signals tell us the seller couldn't be linked to a user record:
+  //   1. legacy `metadata.unmatchedSellerCode` (older payloads)
+  //   2. the lean API now simply omits `sellerId` for unknown sellers
+  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode) || !sale.sellerId;
 
   return (
     <>
@@ -115,7 +118,12 @@ export function SaleRow({ sale }: { sale: Sale }) {
 
         {/* Seller — photo + display name from the user record */}
         <TableCell>
-          <SellerCell sellerCode={sale.sellerCode} user={sellerUser} isLoading={seller.isLoading} />
+          <SellerCell
+            sellerCode={sale.sellerCode}
+            user={sellerUser}
+            isLoading={seller.isLoading}
+            isUnmatched={isUnmatchedSeller}
+          />
         </TableCell>
 
         {/* Product summary (customer PII hidden). Falls back to the order
@@ -411,20 +419,34 @@ function SellerCell({
   sellerCode,
   user,
   isLoading,
+  isUnmatched,
 }: {
   sellerCode: string;
   user: { displayName: string; profileImageUrl?: string | null } | undefined;
   isLoading: boolean;
+  isUnmatched?: boolean;
 }) {
+  const { t } = useTranslation();
   const displayName = user?.displayName ?? sellerCode;
 
   return (
     <div className="flex items-center gap-3">
-      <Avatar className="h-9 w-9">
+      <Avatar
+        className={cn(
+          'h-9 w-9',
+          isUnmatched && 'ring-2 ring-warning/40',
+        )}
+      >
         {user?.profileImageUrl && (
           <AvatarImage src={user.profileImageUrl} alt={displayName} />
         )}
-        <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+        <AvatarFallback
+          className={cn(
+            isUnmatched && 'bg-warning-soft text-warning-foreground',
+          )}
+        >
+          {getInitials(displayName)}
+        </AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col leading-tight">
         {isLoading ? (
@@ -435,6 +457,15 @@ function SellerCell({
         {sellerCode && (
           <span className="truncate text-[11px] text-muted-foreground">{sellerCode}</span>
         )}
+        {isUnmatched ? (
+          <span
+            className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-full bg-warning-soft px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-warning-foreground"
+            title={t('sales.unmatchedSeller')}
+          >
+            <AlertTriangle className="h-3 w-3" aria-hidden />
+            {t('sales.unmatched')}
+          </span>
+        ) : null}
       </div>
     </div>
   );
