@@ -43,7 +43,7 @@ export default function SalesPage() {
   const [status, setStatus] = useState<SaleStatus | undefined>(undefined);
   const [sellerId, setSellerId] = useState<string | undefined>(undefined);
 
-  const sellers = useUsersQuery({ role: 'seller', limit: 200 });
+  const sellers = useUsersQuery({ limit: 100 });
   const sellerList = sellers.data?.items ?? [];
 
   const params = {

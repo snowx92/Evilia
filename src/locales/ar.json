@@ -113,7 +113,10 @@
     "deliveredSales": "المبيعات المُوصلة",
     "pendingPipeline": "أوامر قيد التنفيذ",
     "newSellers": "بائعون جدد",
-    "salesByStatusTrend": "مسار المبيعات عبر الزمن"
+    "salesByStatusTrend": "مسار المبيعات عبر الزمن",
+    "salesByStatusTitle": "الطلبات حسب الحالة",
+    "salesByStatusDesc": "الطلبات والمبيعات والعمولات مُفصّلة حسب الحالة",
+    "heldCommissions": "العمولات المُعلّقة"
   },
   "users": {
     "title": "المستخدمون",
@@ -276,6 +279,7 @@
     "filterByStatus": "تصفية حسب الحالة",
     "source": "المصدر",
     "seller": "البائع",
+    "orders": "الطلبات",
     "order": "الطلب",
     "avgOrder": "متوسط الطلب",
     "changeStatus": "تغيير الحالة",

@@ -20,6 +20,7 @@ import { SalesFunnelTrend } from '@/features/analytics/sales-funnel-trend';
 import { TopPerformers } from '@/features/analytics/top-performers';
 import { TodaySnapshot } from '@/features/analytics/today-snapshot';
 import { UserMonthlyCard } from '@/features/analytics/user-monthly-card';
+import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
 import { useAnalyticsDashboardQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -116,6 +117,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
       )}
+
+      <SalesStatusCards />
 
       {/* ───── Section 3: Monthly performance ────────────────────────── */}
       <SectionHeader

@@ -58,6 +58,7 @@ import {
 import { EditUserDialog } from '@/features/users/edit-user-dialog';
 import { ResetPasswordDialog } from '@/features/users/reset-password-dialog';
 import { SaleRow } from '@/features/sales/sale-row';
+import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
 import {
   Table,
   TableBody,
@@ -869,6 +870,7 @@ export default function AdminUserDetailPage({
       <ContactCard userId={userId} />
       <WalletSection userId={userId} />
       <AnalyticsSection userId={userId} />
+      <SalesStatusCards lockedSellerId={userId} />
       <SalesSection userId={userId} />
     </div>
   );

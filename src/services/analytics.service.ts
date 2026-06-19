@@ -7,6 +7,8 @@ import type {
   DashboardRangeParams,
   LeaderboardParams,
   LeaderboardResponse,
+  SalesAnalyticsParams,
+  SalesAnalyticsResponse,
   UserMonthlyAnalytics,
   UserMonthlyAnalyticsParams,
   UserMonthlyHistoryEntry,
@@ -19,6 +21,18 @@ export const analyticsService = {
     unwrap(
       api.get<ApiResponse<AnalyticsDashboardResponse>>('/v1/admin/analytics/dashboard', {
         params,
+      }),
+    ),
+
+  /** GET /v1/admin/analytics/sales?from&to&sellerId — per-status breakdown. */
+  sales: (params: SalesAnalyticsParams) =>
+    unwrap(
+      api.get<ApiResponse<SalesAnalyticsResponse>>('/v1/admin/analytics/sales', {
+        params: {
+          from: params.from,
+          to: params.to,
+          ...(params.sellerId ? { sellerId: params.sellerId } : {}),
+        },
       }),
     ),
 

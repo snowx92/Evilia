@@ -8,6 +8,7 @@ import type {
   DailyAnalyticsSummary,
   DashboardRangeParams,
   LeaderboardParams,
+  SalesAnalyticsParams,
   UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
 
@@ -17,6 +18,18 @@ export function useAnalyticsDashboardQuery(params: DashboardRangeParams) {
   return useQuery({
     queryKey: queryKeys.analytics.dashboard(params),
     queryFn: () => analyticsService.dashboard(params),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+/* ── /v1/admin/analytics/sales ────────────────────────────────────────────── */
+
+export function useSalesAnalyticsQuery(params: SalesAnalyticsParams, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.analytics.sales(params),
+    queryFn: () => analyticsService.sales(params),
+    enabled: enabled && Boolean(params.from) && Boolean(params.to),
     staleTime: 60_000,
     placeholderData: (prev) => prev,
   });

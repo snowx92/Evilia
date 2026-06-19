@@ -155,6 +155,38 @@ export type AnalyticsDashboardResponse = {
   withdrawalsByStatus: DashboardWithdrawalsByStatus;
 };
 
+// ─── /v1/admin/analytics/sales ───────────────────────────────────────────────
+
+export type SalesAnalyticsParams = {
+  /** Inclusive ISO date YYYY-MM-DD */
+  from: string;
+  /** Inclusive ISO date YYYY-MM-DD */
+  to: string;
+  /** Optional — when omitted the API returns aggregates across every seller. */
+  sellerId?: string;
+};
+
+export type SalesAnalyticsBucket = {
+  ordersCount: number;
+  totalSales: number;
+  totalCommission: number;
+  totalHoldedCommission: number;
+};
+
+export type SalesAnalyticsStatus =
+  | 'pending'
+  | 'processing'
+  | 'delivered'
+  | 'failed'
+  | 'deleted'
+  | (string & {});
+
+export type SalesAnalyticsResponse = {
+  sellerId: string | null;
+  range: { from: string; to: string };
+  totals: SalesAnalyticsBucket;
+} & Partial<Record<SalesAnalyticsStatus, SalesAnalyticsBucket>>;
+
 // ─── /v1/admin/analytics/daily ───────────────────────────────────────────────
 
 export type DailyAnalyticsParams = {
