@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Loader2, Wallet, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Loader2, Wallet, AlertTriangle, CreditCard } from 'lucide-react';
 import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
@@ -47,12 +47,28 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const locale = useLocaleStore((s) => s.locale);
   const [open, setOpen] = useState(false);
 
+  // Fetch the seller once at the top so both the cell and the commission
+  // estimate can reuse it without re-fetching.
+  const seller = useUserQuery(sale.sellerId ?? '');
+  const sellerUser = seller.data;
+
   const meta = parseSaleMetadata(sale.metadata);
   const orderRef = prettyOrderRef(sale.externalId, meta);
-  const totalCommissions = saleCommissionTotal(
+
+  // The API stopped sending commissions inline until the order is delivered.
+  // When the list is empty we compute the *expected* commission from the
+  // seller's configured direct rate so the row doesn't show a misleading 0.
+  const actualCommissions = saleCommissionTotal(
     sale.commissions,
     meta.payment?.affiliateCommission,
   );
+  const directRate =
+    sellerUser?.directCommissionPercentage ?? sellerUser?.commissionPercentage ?? 0;
+  const expectedCommission = (sale.amount * directRate) / 100;
+  const isExpectedCommission =
+    actualCommissions === 0 && directRate > 0 && sale.status !== 'delivered';
+  const totalCommissions = isExpectedCommission ? expectedCommission : actualCommissions;
+
   const commissionRatio = sale.amount > 0 ? (totalCommissions / sale.amount) * 100 : 0;
   const net = sale.amount - totalCommissions;
   const productSummary = saleProductSummary(meta);
@@ -93,15 +109,24 @@ export function SaleRow({ sale }: { sale: Sale }) {
 
         {/* Seller — photo + display name from the user record */}
         <TableCell>
-          <SellerCell sellerId={sale.sellerId} sellerCode={sale.sellerCode} />
+          <SellerCell sellerCode={sale.sellerCode} user={sellerUser} isLoading={seller.isLoading} />
         </TableCell>
 
-        {/* Product summary (customer PII hidden) */}
+        {/* Product summary (customer PII hidden). Falls back to the order
+            ref + paymentType chip when the API didn't send any metadata. */}
         <TableCell className="max-w-[240px]">
           {productSummary ? (
             <span className="block truncate text-sm">{productSummary}</span>
           ) : (
-            <span className="text-sm text-muted-foreground">{t('common.none')}</span>
+            <div className="flex flex-col gap-1">
+              <span className="font-mono text-xs text-muted-foreground">{orderRef}</span>
+              {sale.paymentType ? (
+                <Badge variant="outline" className="w-fit gap-1 text-[10px] uppercase">
+                  <CreditCard className="h-3 w-3" />
+                  {sale.paymentType}
+                </Badge>
+              ) : null}
+            </div>
           )}
         </TableCell>
 
@@ -116,9 +141,22 @@ export function SaleRow({ sale }: { sale: Sale }) {
         <TableCell className="min-w-[180px]">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-medium tabular-nums">
+              <span
+                className={cn(
+                  'text-sm font-medium tabular-nums',
+                  isExpectedCommission && 'text-amber-600',
+                )}
+              >
                 {formatCurrency(totalCommissions, locale, sale.currency)}
               </span>
+              {isExpectedCommission ? (
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wide text-amber-600"
+                  title={t('sales.expectedCommission')}
+                >
+                  {t('sales.expectedCommission')}
+                </span>
+              ) : null}
               {isUnmatchedSeller ? (
                 <span
                   className="inline-flex items-center gap-0.5 text-warning-foreground"
@@ -202,9 +240,19 @@ export function SaleRow({ sale }: { sale: Sale }) {
                           </dd>
                         </div>
                         <div className="flex items-center justify-between">
-                          <dt className="text-muted-foreground">{t('commissions.title')}</dt>
-                          <dd className="font-medium tabular-nums text-destructive">
-                            − {formatCurrency(totalCommissions, locale, sale.currency)}
+                          <dt className="text-muted-foreground">
+                            {isExpectedCommission
+                              ? t('sales.expectedCommission')
+                              : t('commissions.title')}
+                          </dt>
+                          <dd
+                            className={cn(
+                              'font-medium tabular-nums',
+                              isExpectedCommission ? 'text-amber-600' : 'text-destructive',
+                            )}
+                          >
+                            {isExpectedCommission ? '' : '− '}
+                            {formatCurrency(totalCommissions, locale, sale.currency)}
                           </dd>
                         </div>
                         <div className="flex items-center justify-between border-t border-border/60 pt-2">
@@ -231,6 +279,16 @@ export function SaleRow({ sale }: { sale: Sale }) {
                             <CopyButton value={orderRef} />
                           </dd>
                         </div>
+                        {sale.paymentType ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.paymentType')}</dt>
+                            <dd>
+                              <Badge variant="outline" className="text-[10px] uppercase">
+                                {sale.paymentType}
+                              </Badge>
+                            </dd>
+                          </div>
+                        ) : null}
                         {meta.pickupMethod ? (
                           <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">{t('sales.pickupMethod')}</dt>
@@ -243,10 +301,26 @@ export function SaleRow({ sale }: { sale: Sale }) {
                             <dd>{meta.country}</dd>
                           </div>
                         ) : null}
-                        <div className="flex items-center justify-between">
-                          <dt className="text-muted-foreground">{t('sales.processedAt')}</dt>
-                          <dd>{formatDateTime(sale.processedAt, locale)}</dd>
-                        </div>
+                        {sale.processedAt ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.processedAt')}</dt>
+                            <dd>{formatDateTime(sale.processedAt, locale)}</dd>
+                          </div>
+                        ) : null}
+                        {sale.deliveredAt ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">{t('sales.deliveredAt')}</dt>
+                            <dd>{formatDateTime(sale.deliveredAt, locale)}</dd>
+                          </div>
+                        ) : null}
+                        {sale.commissionsCreditedAt ? (
+                          <div className="flex items-center justify-between">
+                            <dt className="text-muted-foreground">
+                              {t('sales.commissionsCreditedAt')}
+                            </dt>
+                            <dd>{formatDateTime(sale.commissionsCreditedAt, locale)}</dd>
+                          </div>
+                        ) : null}
                       </dl>
                     </div>
                   </div>
@@ -316,13 +390,18 @@ function SaleStatusChanger({ sale }: { sale: Sale }) {
 
 /**
  * Seller cell — shows the seller's real profile photo + display name with
- * the sellerCode as a secondary line. Falls back to sellerCode-initials
- * while loading or if the user record can't be resolved (e.g. an
- * unmatched seller code on an imported sale).
+ * the sellerCode as a secondary line. Receives the user record from the
+ * parent so we don't re-fetch per cell.
  */
-function SellerCell({ sellerId, sellerCode }: { sellerId: string; sellerCode: string }) {
-  const seller = useUserQuery(sellerId);
-  const user = seller.data;
+function SellerCell({
+  sellerCode,
+  user,
+  isLoading,
+}: {
+  sellerCode: string;
+  user: { displayName: string; profileImageUrl?: string | null } | undefined;
+  isLoading: boolean;
+}) {
   const displayName = user?.displayName ?? sellerCode;
 
   return (
@@ -334,7 +413,7 @@ function SellerCell({ sellerId, sellerCode }: { sellerId: string; sellerCode: st
         <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col leading-tight">
-        {seller.isLoading ? (
+        {isLoading ? (
           <Skeleton className="h-3.5 w-24" />
         ) : (
           <span className="truncate text-sm font-medium">{displayName}</span>

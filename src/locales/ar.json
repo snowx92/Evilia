@@ -324,6 +324,10 @@
     "externalId": "المعرّف الخارجي",
     "internalId": "المعرّف الداخلي",
     "processedAt": "تاريخ المعالجة",
+    "deliveredAt": "تاريخ التوصيل",
+    "commissionsCreditedAt": "تاريخ إضافة العمولة",
+    "paymentType": "نوع الدفع",
+    "expectedCommission": "العمولة المتوقعة",
     "unmatchedSeller": "كود بائع غير مطابق",
     "unmatched": "غير مطابق"
   },

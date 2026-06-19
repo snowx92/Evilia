@@ -324,6 +324,10 @@
     "externalId": "External ID",
     "internalId": "Internal ID",
     "processedAt": "Processed at",
+    "deliveredAt": "Delivered at",
+    "commissionsCreditedAt": "Commissions credited at",
+    "paymentType": "Payment type",
+    "expectedCommission": "Expected commission",
     "unmatchedSeller": "Unmatched seller code",
     "unmatched": "Unmatched"
   },
