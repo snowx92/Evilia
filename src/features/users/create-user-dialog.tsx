@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, UserPlus, ShieldPlus, ChevronsUpDown, Check } from 'lucide-react';
 import {
   Dialog,
@@ -228,8 +228,20 @@ export function CreateSellerDialog() {
   const [affiliateLinks, setAffiliateLinks] = useState<string[]>([]);
   const { t } = useTranslation();
   const create = useCreateSellerMutation();
+
+  // Debounce the search so we don't fire a request on every keystroke.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(parentSearch), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [parentSearch]);
+
   // Sellers can be parented under admins or other sellers.
-  const usersQuery = useUsersQuery({ page: 1, limit: 100 });
+  // When the user types in the picker we pass `search` to the API so we're not
+  // limited to the first 100 results (important when there are 100+ sellers).
+  const usersQuery = useUsersQuery({ page: 1, limit: 100, ...(debouncedSearch ? { search: debouncedSearch } : {}) });
   const users = usersQuery.data?.items ?? [];
 
   const {
@@ -256,13 +268,8 @@ export function CreateSellerDialog() {
 
   const parentId = watch('parentId');
   const selectedParent = users.find((u) => u.id === parentId);
-  const filteredParents = parentSearch
-    ? users.filter(
-        (u) =>
-          u.displayName.toLowerCase().includes(parentSearch.toLowerCase()) ||
-          u.email.toLowerCase().includes(parentSearch.toLowerCase()),
-      )
-    : users;
+  // Server already filters by `search`; no extra client-side filter needed.
+  const filteredParents = users;
 
   const onSubmit = handleSubmit(async (values) => {
     try {

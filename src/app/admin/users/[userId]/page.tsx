@@ -795,7 +795,7 @@ function SalesSection({ userId }: { userId: string }) {
                         ))}
                       </tr>
                     ))
-                  : items.map((s) => <SaleRow key={s.id} sale={s} />)}
+                  : items.map((s) => <SaleRow key={s.id} sale={s} knownSellerId={userId} />)}
               </TableBody>
             </Table>
             {!query.isLoading && items.length === 0 && (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Download, ExternalLink, Link as LinkIcon, Search } from 'lucide-react';
+import { Download, ExternalLink, LayoutDashboard, Link as LinkIcon, Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type Column } from '@/components/shared/data-table';
 import { PaginationBar } from '@/components/shared/pagination-bar';
@@ -140,41 +140,58 @@ export default function UsersPage() {
     {
       key: 'links',
       header: t('users.fields.affiliateLinks'),
-      cell: (u) => (
-        <div className="flex flex-col gap-1.5">
-          {u.socialMediaLink && (
-            <a
-              href={u.socialMediaLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 truncate text-xs text-primary hover:underline max-w-[160px]"
-              title={u.socialMediaLink}
-            >
-              <LinkIcon className="h-3 w-3 shrink-0" />
-              <span className="truncate">{u.socialMediaLink.replace(/^https?:\/\//, '')}</span>
-            </a>
-          )}
-          {u.affiliateLinks && u.affiliateLinks.length > 0 ? (
-            <div className="flex flex-col gap-0.5">
-              {u.affiliateLinks.map((link, i) => (
-                <a
-                  key={i}
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 truncate text-xs text-muted-foreground hover:text-primary hover:underline max-w-[160px]"
-                  title={link}
-                >
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
-                </a>
-              ))}
-            </div>
-          ) : !u.socialMediaLink ? (
-            <span className="text-xs text-muted-foreground/50">—</span>
-          ) : null}
-        </div>
-      ),
+      cell: (u) => {
+        const oldDashboardUrl = u.sellerCode
+          ? `https://affliate.vondera.app?link=evillapharma.com?aff=${u.sellerCode}`
+          : null;
+        return (
+          <div className="flex flex-col gap-1.5">
+            {oldDashboardUrl && (
+              <a
+                href={oldDashboardUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 truncate text-xs font-medium text-primary hover:underline max-w-[160px]"
+                title={oldDashboardUrl}
+              >
+                <LayoutDashboard className="h-3 w-3 shrink-0" />
+                <span className="truncate">Old Dashboard</span>
+              </a>
+            )}
+            {u.socialMediaLink && (
+              <a
+                href={u.socialMediaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 truncate text-xs text-primary hover:underline max-w-[160px]"
+                title={u.socialMediaLink}
+              >
+                <LinkIcon className="h-3 w-3 shrink-0" />
+                <span className="truncate">{u.socialMediaLink.replace(/^https?:\/\//, '')}</span>
+              </a>
+            )}
+            {u.affiliateLinks && u.affiliateLinks.length > 0 ? (
+              <div className="flex flex-col gap-0.5">
+                {u.affiliateLinks.map((link, i) => (
+                  <a
+                    key={i}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 truncate text-xs text-muted-foreground hover:text-primary hover:underline max-w-[160px]"
+                    title={link}
+                  >
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
+                  </a>
+                ))}
+              </div>
+            ) : !u.socialMediaLink && !oldDashboardUrl ? (
+              <span className="text-xs text-muted-foreground/50">—</span>
+            ) : null}
+          </div>
+        );
+      },
     },
     {
       key: 'actions',

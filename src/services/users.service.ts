@@ -19,6 +19,7 @@ export const usersService = {
           limit: params.limit ?? 20,
           ...(params.role ? { role: params.role } : {}),
           ...(params.status ? { status: params.status } : {}),
+          ...(params.search ? { search: params.search } : {}),
         },
       }),
     ),

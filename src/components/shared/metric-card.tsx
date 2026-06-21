@@ -67,8 +67,8 @@ export function MetricCard({
             <>
               <p
                 className={cn(
-                  'truncate font-semibold tracking-tight tabular-nums',
-                  compact ? 'text-lg' : 'text-3xl',
+                  'font-semibold tracking-tight tabular-nums break-words',
+                  compact ? 'text-lg' : 'text-2xl',
                 )}
                 title={value}
               >

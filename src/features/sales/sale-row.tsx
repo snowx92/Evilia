@@ -42,14 +42,16 @@ import {
 } from '@/lib/sale-metadata';
 import type { Sale } from '@/types/admin/sales';
 
-export function SaleRow({ sale }: { sale: Sale }) {
+export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: string }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const [open, setOpen] = useState(false);
 
   // Fetch the seller once at the top so both the cell and the commission
   // estimate can reuse it without re-fetching.
-  const seller = useUserQuery(sale.sellerId ?? '');
+  // `knownSellerId` is provided when rendering inside a seller's profile page —
+  // the lean list API sometimes omits sellerId even for attributed orders.
+  const seller = useUserQuery(sale.sellerId ?? knownSellerId ?? '');
   const sellerUser = seller.data;
 
   // The list endpoint returns lean rows — full product / customer / payment
@@ -80,10 +82,11 @@ export function SaleRow({ sale }: { sale: Sale }) {
   const productSummary = saleProductSummary(meta);
   const orderStatus = meta.orderStatus;
   const trafficSource = meta.utmData?.source;
-  // Two signals tell us the seller couldn't be linked to a user record:
-  //   1. legacy `metadata.unmatchedSellerCode` (older payloads)
-  //   2. the lean API now simply omits `sellerId` for unknown sellers
-  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode) || !sale.sellerId;
+  // Only the server-set `unmatchedSellerCode` marker tells us the seller code
+  // couldn't be resolved to any registered user. Absence of `sellerId` from the
+  // lean list response is not a reliable signal — the API routinely omits it for
+  // attributed orders (including all rows on a seller profile page).
+  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode);
 
   return (
     <>

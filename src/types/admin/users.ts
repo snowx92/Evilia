@@ -8,6 +8,8 @@ export type UsersListParams = PaginationParams & {
   role?: UserRole;
   /** API enum: active | inactive | suspended */
   status?: UserStatus;
+  /** Server-side full-text search on displayName / email / sellerCode. */
+  search?: string;
 };
 
 /** Create Admin / Sub-Admin (super admin only). */
