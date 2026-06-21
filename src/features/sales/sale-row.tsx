@@ -82,14 +82,12 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
   const productSummary = saleProductSummary(meta);
   const orderStatus = meta.orderStatus;
   const trafficSource = meta.utmData?.source;
-  // `unmatchedSellerCode` is a server flag frozen at ingest time. If the seller
-  // was registered AFTER the sale was imported, the flag stays stale even
-  // though the code now resolves to a real user. So we trust a live user
-  // lookup as the source of truth: if `sellerUser` resolves, we treat the
-  // sale as matched, regardless of what the metadata says.
-  const sellerLookupResolved = Boolean(sellerUser);
-  const isUnmatchedSeller =
-    Boolean(meta.unmatchedSellerCode) && !sellerLookupResolved && !seller.isLoading;
+  // `unmatchedSellerCode` is a server flag frozen at ingest time and is
+  // unreliable — it stays set even after the seller is later registered. We
+  // treat a sale as unmatched only when it has no sellerCode at all (i.e.
+  // truly anonymous traffic). If the row has a sellerCode, we consider it
+  // attributed; the seller lookup result just changes how we render the name.
+  const isUnmatchedSeller = !sale.sellerCode;
 
   return (
     <>

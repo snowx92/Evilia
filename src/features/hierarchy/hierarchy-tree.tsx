@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,7 @@ import {
   Eye,
   Loader2,
   Maximize2,
+  Network,
   Plus,
   RotateCcw,
   UserPlus,
@@ -292,6 +293,26 @@ function NodeCard({
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
 
+  // The synthetic "Hierarchy" node sits above the real users; it isn't a real
+  // user record so its card should be a slim, non-interactive marker.
+  if (node.id === VIRTUAL_ROOT_ID) {
+    return (
+      <div className="group/node relative flex w-[220px] items-center gap-3 rounded-2xl border-2 border-primary/50 bg-gradient-to-br from-primary-soft/80 to-card p-3 shadow-card">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+          <Network className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="truncate text-[13px] font-semibold">
+            {t('hierarchy_ext.allSellers') || 'All sellers'}
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">
+            {node.children.length} {t('users.title').toLowerCase()}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // When this node belongs to a coloured branch, paint the whole card so the
   // sub-tree visually clusters together (matches the reference org-chart).
   // `branchColor` is a hex string from BRANCH_PALETTE — we append alpha hex
@@ -505,24 +526,63 @@ const ZOOM_MIN = 0.4;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.1;
 
+/** Synthetic root node that gives the tree a single visible "start" when the
+    backend returns many independent top-level users (admins not in the data,
+    orphaned sellers, etc.). Rendered as a slim marker by NodeCard. */
+const VIRTUAL_ROOT_ID = '__hierarchy_virtual_root__';
+
+/** Clone a tree with every node's depth shifted by `delta`. Needed so that
+    after we wrap real roots under the synthetic root, the synthetic node sits
+    at depth 0 and the original roots become depth 1 (eligible for branch
+    colouring). */
+function shiftDepth(node: TreeNode, delta: number): TreeNode {
+  return {
+    ...node,
+    depth: node.depth + delta,
+    children: node.children.map((c) => shiftDepth(c, delta)),
+  };
+}
+
 export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
   const { t } = useTranslation();
+
+  // When the backend returns several disconnected top-level users, wrap them
+  // under a single synthetic node so the tree has a clear "start" and each
+  // real root becomes a distinctly coloured branch under it.
+  const displayRoots = useMemo<TreeNode[]>(() => {
+    if (roots.length <= 1) return roots;
+    const shifted = roots.map((r) => shiftDepth(r, 1));
+    const virtualRoot: TreeNode = {
+      id: VIRTUAL_ROOT_ID,
+      displayName: 'Hierarchy',
+      email: '',
+      role: 'admin',
+      status: 'active',
+      language: 'en',
+      parentId: null,
+      createdAt: '' as TreeNode['createdAt'],
+      children: shifted,
+      depth: 0,
+      descendantCount: shifted.reduce((sum, r) => sum + r.descendantCount + 1, 0),
+    };
+    return [virtualRoot];
+  }, [roots]);
 
   const allIds = (): Set<string> => {
     const ids = new Set<string>();
     const walk = (n: TreeNode) => { ids.add(n.id); n.children.forEach(walk); };
-    roots.forEach(walk);
+    displayRoots.forEach(walk);
     return ids;
   };
 
-  // Default: expand only the first two levels so large trees start manageable.
-  // Users can click any node's toggle to drill deeper, or hit "Expand All".
+  // Default: expand only the synthetic root + the team-lead row beneath it
+  // (depth 0 and 1). That keeps a ~50-node tree manageable on first paint.
   const defaultOpen = (): Set<string> => {
     const ids = new Set<string>();
     const walk = (n: TreeNode) => {
       if (n.depth < 2) { ids.add(n.id); n.children.forEach(walk); }
     };
-    roots.forEach(walk);
+    displayRoots.forEach(walk);
     return ids;
   };
 
@@ -544,7 +604,7 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
     const walk = (n: TreeNode) => {
       if (n.depth < upTo) { ids.add(n.id); n.children.forEach(walk); }
     };
-    roots.forEach(walk);
+    displayRoots.forEach(walk);
     setOpen(ids);
   };
 
@@ -637,7 +697,7 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
           }}
         >
           <ul className="org-tree">
-            {roots.map((r) => (
+            {displayRoots.map((r) => (
               <Branch
                 key={r.id}
                 node={r}

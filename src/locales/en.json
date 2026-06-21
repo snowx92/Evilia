@@ -502,7 +502,8 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "zoomReset": "Reset zoom",
-    "zoomFit": "Fit to view"
+    "zoomFit": "Fit to view",
+    "allSellers": "All sellers"
   },
   "backend": {
     "pending": "Pending backend"
