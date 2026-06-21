@@ -12,14 +12,16 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { HierarchyTree } from '@/features/hierarchy/hierarchy-tree';
 import { buildTree, countAll } from '@/features/hierarchy/build-tree';
-import { useUsersQuery } from '@/hooks/queries/use-users';
+import { useAllUsersQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { stagger } from '@/lib/motion';
 
 export default function HierarchyPage() {
   const { t } = useTranslation();
-  // Pull a generous slab — for orgs > 100 users we'll add an explicit fetch-all later.
-  const usersQuery = useUsersQuery({ page: 1, limit: 100 });
+  // The hierarchy needs every user so parent->child links resolve correctly.
+  // `useAllUsersQuery` walks every page of /v1/admin/users so we don't silently
+  // truncate the tree at the 100-row API page cap.
+  const usersQuery = useAllUsersQuery();
   const [search, setSearch] = useState('');
 
   const allUsers = usersQuery.data?.items ?? [];

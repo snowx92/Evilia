@@ -26,6 +26,33 @@ export function useUserQuery(userId: string) {
   });
 }
 
+/**
+ * Fetches every user across all pages by walking the cursor sequentially.
+ * Use this only when the consumer truly needs the full list (e.g. the
+ * hierarchy tree builds parent->child links across the whole org). The first
+ * page is capped at the API's per-page limit (~100), so a paginated tree
+ * would otherwise silently drop sellers past row 100.
+ */
+export function useAllUsersQuery(filters: Omit<UsersListParams, 'page' | 'limit'> = {}) {
+  return useQuery({
+    queryKey: ['users', 'list', 'all', filters],
+    queryFn: async () => {
+      const PAGE_SIZE = 100;
+      const first = await usersService.list({ ...filters, page: 1, limit: PAGE_SIZE });
+      const totalPages = first.totalPages ?? 1;
+      if (totalPages <= 1) return first;
+      const rest = await Promise.all(
+        Array.from({ length: totalPages - 1 }, (_, i) =>
+          usersService.list({ ...filters, page: i + 2, limit: PAGE_SIZE }),
+        ),
+      );
+      const items = [first.items, ...rest.map((p) => p.items)].flat();
+      return { ...first, items, currentPage: 1, totalItems: items.length };
+    },
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useCreateAdminMutation() {
   const qc = useQueryClient();
   return useMutation({

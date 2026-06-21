@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Loader2, Wallet, AlertTriangle, CreditCard } from 'lucide-react';
+import { ChevronDown, Loader2, Wallet, AlertTriangle, CreditCard, ExternalLink } from 'lucide-react';
 import { TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
@@ -124,6 +125,7 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
         <TableCell>
           <SellerCell
             sellerCode={sale.sellerCode}
+            sellerId={sellerUser?.id ?? sale.sellerId ?? knownSellerId}
             user={sellerUser}
             isLoading={seller.isLoading}
             isUnmatched={isUnmatchedSeller}
@@ -416,29 +418,35 @@ function SaleStatusChanger({ sale }: { sale: Sale }) {
 
 /**
  * Seller cell — shows the seller's real profile photo + display name with
- * the sellerCode as a secondary line. Receives the user record from the
- * parent so we don't re-fetch per cell.
+ * the sellerCode as a secondary line. When the seller resolves to a real
+ * user, the whole cell becomes a link into that user's admin profile.
  */
 function SellerCell({
   sellerCode,
+  sellerId,
   user,
   isLoading,
   isUnmatched,
 }: {
   sellerCode: string;
+  sellerId?: string;
   user: { displayName: string; profileImageUrl?: string | null } | undefined;
   isLoading: boolean;
   isUnmatched?: boolean;
 }) {
   const { t } = useTranslation();
   const displayName = user?.displayName ?? sellerCode;
+  // Only build a profile link when we have a real user id AND the row is
+  // matched — clicking an unmatched seller would 404.
+  const profileHref = sellerId && !isUnmatched ? `/admin/users/${encodeURIComponent(sellerId)}` : null;
 
-  return (
+  const body = (
     <div className="flex items-center gap-3">
       <Avatar
         className={cn(
-          'h-9 w-9',
+          'h-9 w-9 shrink-0',
           isUnmatched && 'ring-2 ring-warning/40',
+          profileHref && 'ring-2 ring-border/30 transition-all group-hover/seller:ring-primary/50',
         )}
       >
         {user?.profileImageUrl && (
@@ -456,10 +464,20 @@ function SellerCell({
         {isLoading ? (
           <Skeleton className="h-3.5 w-24" />
         ) : (
-          <span className="truncate text-sm font-medium">{displayName}</span>
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 truncate text-sm font-medium',
+              profileHref && 'transition-colors group-hover/seller:text-primary',
+            )}
+          >
+            <span className="truncate">{displayName}</span>
+            {profileHref && (
+              <ExternalLink className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover/seller:opacity-100" />
+            )}
+          </span>
         )}
         {sellerCode && (
-          <span className="truncate text-[11px] text-muted-foreground">{sellerCode}</span>
+          <span className="truncate font-mono text-[11px] text-muted-foreground">{sellerCode}</span>
         )}
         {isUnmatched ? (
           <span
@@ -472,5 +490,18 @@ function SellerCell({
         ) : null}
       </div>
     </div>
+  );
+
+  if (!profileHref) return body;
+
+  return (
+    <Link
+      href={profileHref}
+      onClick={(e) => e.stopPropagation()}
+      className="group/seller block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      title={t('users.actions.viewProfile')}
+    >
+      {body}
+    </Link>
   );
 }
