@@ -19,14 +19,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { Search } from 'lucide-react';
 import { LinksListEditor } from '@/components/shared/links-list-editor';
 import {
   useCreateAdminMutation,
@@ -268,8 +261,17 @@ export function CreateSellerDialog() {
 
   const parentId = watch('parentId');
   const selectedParent = users.find((u) => u.id === parentId);
-  // Server already filters by `search`; no extra client-side filter needed.
-  const filteredParents = users;
+  // We pass `search` to the server, but also fall back to client-side
+  // filtering in case the backend doesn't yet support the param.
+  const q = parentSearch.trim().toLowerCase();
+  const filteredParents = q
+    ? users.filter(
+        (u) =>
+          u.displayName.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          (u.sellerCode ?? '').toLowerCase().includes(q),
+      )
+    : users;
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -436,41 +438,67 @@ export function CreateSellerDialog() {
                   side="bottom"
                   sideOffset={4}
                   collisionPadding={16}
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  onWheel={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
                 >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      value={parentSearch}
-                      onValueChange={setParentSearch}
-                      placeholder={t('common.search')}
-                    />
-                    <CommandList className="max-h-[260px] overflow-y-auto overscroll-contain">
-                      <CommandEmpty>{t('common.noResults')}</CommandEmpty>
-                      <CommandGroup>
-                        <CommandItem
-                          value=""
-                          onSelect={() => {
-                            setValue('parentId', '', { shouldValidate: true });
-                            setParentPopoverOpen(false);
-                            setParentSearch('');
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              'h-4 w-4 shrink-0',
-                              !parentId ? 'opacity-100' : 'opacity-0',
-                            )}
-                          />
-                          <span className="text-muted-foreground">{t('common.none')}</span>
-                        </CommandItem>
-                        {filteredParents.map((u) => (
-                          <CommandItem
+                  <div className="flex flex-col">
+                    {/* Search input — plain controlled input, no cmdk to fight with */}
+                    <div className="relative border-b border-border/60 p-2">
+                      <Search className="pointer-events-none absolute start-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        value={parentSearch}
+                        onChange={(e) => setParentSearch(e.target.value)}
+                        placeholder={t('common.search')}
+                        className="h-8 ps-7 text-sm"
+                        autoFocus
+                      />
+                    </div>
+                    {/* Scrollable list. Wheel/touch are stopped above so the
+                        outer Dialog never steals scroll. */}
+                    <div
+                      className="max-h-[260px] overflow-y-auto overscroll-contain p-1"
+                      role="listbox"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setValue('parentId', '', { shouldValidate: true });
+                          setParentPopoverOpen(false);
+                          setParentSearch('');
+                        }}
+                        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                      >
+                        <Check
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            !parentId ? 'opacity-100' : 'opacity-0',
+                          )}
+                        />
+                        <span className="text-muted-foreground">{t('common.none')}</span>
+                      </button>
+                      {usersQuery.isLoading ? (
+                        <div className="grid place-items-center py-6 text-xs text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : filteredParents.length === 0 ? (
+                        <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+                          {t('common.noResults')}
+                        </div>
+                      ) : (
+                        filteredParents.map((u) => (
+                          <button
+                            type="button"
                             key={u.id}
-                            value={u.id}
-                            onSelect={() => {
+                            onClick={() => {
                               setValue('parentId', u.id, { shouldValidate: true });
                               setParentPopoverOpen(false);
                               setParentSearch('');
                             }}
+                            className={cn(
+                              'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent',
+                              parentId === u.id && 'bg-primary-soft/40',
+                            )}
                           >
                             <Check
                               className={cn(
@@ -478,17 +506,18 @@ export function CreateSellerDialog() {
                                 parentId === u.id ? 'opacity-100' : 'opacity-0',
                               )}
                             />
-                            <div className="flex min-w-0 flex-col">
+                            <div className="flex min-w-0 flex-col text-start">
                               <span className="truncate text-sm">{u.displayName}</span>
                               <span className="truncate text-[11px] text-muted-foreground">
                                 {u.email}
+                                {u.sellerCode ? ` · ${u.sellerCode}` : ''}
                               </span>
                             </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>

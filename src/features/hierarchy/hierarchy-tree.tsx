@@ -17,7 +17,6 @@ import {
   Users2,
   ZoomIn,
   ZoomOut,
-  Focus,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -149,7 +148,6 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
             <UserPlus className="h-4 w-4" />
             {t('users.create')}
           </DialogTitle>
-          {/* Parent context */}
           <p className="text-[13px] text-muted-foreground">
             {t('users.fields.parentId')}:{' '}
             <span className="font-medium text-foreground">{parentNode.displayName}</span>
@@ -286,29 +284,35 @@ function NodeCard({
   node,
   isRoot,
   branchColor,
-  onFocus,
 }: {
   node: TreeNode;
   isRoot: boolean;
   branchColor: string | null;
-  onFocus?: () => void;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
 
+  // When this node belongs to a coloured branch, paint the whole card so the
+  // sub-tree visually clusters together (matches the reference org-chart).
+  // `branchColor` is a hex string from BRANCH_PALETTE — we append alpha hex
+  // values to derive a soft background tint and a saturated border in one step.
+  const branchStyle: React.CSSProperties | undefined =
+    branchColor && !isRoot
+      ? {
+          backgroundColor: `${branchColor}1a`, // ~10% alpha tint
+          borderColor: branchColor,
+        }
+      : undefined;
+
   return (
     <div
       className={cn(
-        'group/node relative flex w-[200px] flex-col gap-2 overflow-hidden rounded-2xl border bg-card p-3 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
+        'group/node relative flex w-[200px] flex-col gap-2 overflow-hidden rounded-2xl border-2 bg-card p-3 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
         isRoot
-          ? 'border-primary/30 bg-gradient-to-br from-primary-soft/40 to-card'
-          : 'border-border/70',
+          ? 'border-primary/40 bg-gradient-to-br from-primary-soft/40 to-card'
+          : !branchColor && 'border-border/70',
       )}
-      style={
-        branchColor && !isRoot
-          ? { boxShadow: `inset 4px 0 0 0 ${branchColor}` }
-          : undefined
-      }
+      style={branchStyle}
     >
       {/* Top row: avatar + add button */}
       <div className="flex items-start justify-between gap-1">
@@ -386,7 +390,7 @@ function NodeCard({
         </span>
       </div>
 
-      {/* Hover-revealed actions: view profile + focus + reassign parent */}
+      {/* Hover-revealed actions: view profile + reassign parent */}
       <div className="absolute bottom-2 end-2 flex items-center gap-1 opacity-0 transition-opacity group-hover/node:opacity-100">
         <Button
           asChild
@@ -399,17 +403,6 @@ function NodeCard({
             <Eye className="h-3.5 w-3.5" />
           </Link>
         </Button>
-        {onFocus && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            title="Focus on this branch"
-            onClick={(e) => { e.preventDefault(); onFocus(); }}
-          >
-            <Focus className="h-3.5 w-3.5" />
-          </Button>
-        )}
         <ReassignParentDialog userId={node.id} />
       </div>
     </div>
@@ -423,14 +416,12 @@ function Branch({
   open,
   onToggle,
   branchColor,
-  onFocus,
 }: {
   node: TreeNode;
   open: Set<string>;
   onToggle: (id: string) => void;
   /** Colour for this whole sub-tree. Null for the root. */
   branchColor: string | null;
-  onFocus: (node: TreeNode) => void;
 }) {
   const expanded = open.has(node.id);
   const hasChildren = node.children.length > 0;
@@ -446,7 +437,7 @@ function Branch({
     <li style={liStyle}>
       {/* Node card + collapse toggle */}
       <div className="relative inline-block">
-        <NodeCard node={node} isRoot={isRoot} branchColor={branchColor} onFocus={isRoot ? undefined : () => onFocus(node)} />
+        <NodeCard node={node} isRoot={isRoot} branchColor={branchColor} />
         {hasChildren && (
           <button
             type="button"
@@ -498,7 +489,6 @@ function Branch({
                   open={open}
                   onToggle={onToggle}
                   branchColor={childColor ?? null}
-                  onFocus={onFocus}
                 />
               );
             })}
@@ -518,20 +508,26 @@ const ZOOM_STEP = 0.1;
 export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
   const { t } = useTranslation();
 
-  // Start with all nodes expanded
   const allIds = (): Set<string> => {
     const ids = new Set<string>();
+    const walk = (n: TreeNode) => { ids.add(n.id); n.children.forEach(walk); };
+    roots.forEach(walk);
+    return ids;
+  };
+
+  // Default: expand only the first two levels so large trees start manageable.
+  // Users can click any node's toggle to drill deeper, or hit "Expand All".
+  const defaultOpen = (): Set<string> => {
+    const ids = new Set<string>();
     const walk = (n: TreeNode) => {
-      ids.add(n.id);
-      n.children.forEach(walk);
+      if (n.depth < 2) { ids.add(n.id); n.children.forEach(walk); }
     };
     roots.forEach(walk);
     return ids;
   };
 
-  const [open, setOpen] = useState<Set<string>>(() => allIds());
+  const [open, setOpen] = useState<Set<string>>(defaultOpen);
   const [zoom, setZoom] = useState(1);
-  const [focusedId, setFocusedId] = useState<string | null>(null);
 
   const toggle = (id: string) => {
     setOpen((prev) => {
@@ -542,40 +538,15 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
     });
   };
 
-  // Collapse all nodes at or below `maxDepth` (inclusive level = 0-based depth).
-  const collapseToLevel = (maxDepth: number) => {
+  // Expand only nodes whose depth is strictly less than `upTo`.
+  const expandToLevel = (upTo: number) => {
     const ids = new Set<string>();
     const walk = (n: TreeNode) => {
-      if (n.depth < maxDepth) {
-        ids.add(n.id);
-        n.children.forEach(walk);
-      }
+      if (n.depth < upTo) { ids.add(n.id); n.children.forEach(walk); }
     };
     roots.forEach(walk);
     setOpen(ids);
-    setFocusedId(null);
   };
-
-  // Expand only the subtree rooted at `target` plus its ancestor chain.
-  const focusNode = (target: TreeNode) => {
-    const ids = new Set<string>();
-    // Collect all descendants of the target
-    const addSubtree = (n: TreeNode) => { ids.add(n.id); n.children.forEach(addSubtree); };
-    addSubtree(target);
-    // Also walk the whole tree to find ancestors of `target`
-    const addAncestors = (n: TreeNode): boolean => {
-      if (n.id === target.id) return true;
-      for (const child of n.children) {
-        if (addAncestors(child)) { ids.add(n.id); return true; }
-      }
-      return false;
-    };
-    roots.forEach(addAncestors);
-    setOpen(ids);
-    setFocusedId(target.id);
-  };
-
-  const clearFocus = () => { setOpen(allIds()); setFocusedId(null); };
 
   const zoomPct = Math.round(zoom * 100);
 
@@ -583,25 +554,26 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
     <div className="space-y-4">
       {/* Controls — expand/collapse on the left, zoom on the right */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Button variant="ghost" size="sm" onClick={() => { setOpen(allIds()); setFocusedId(null); }}>
+        <div className="flex items-center gap-1.5">
+          <Button variant="ghost" size="sm" onClick={() => setOpen(allIds())}>
             {t('hierarchy_ext.expandAll')}
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => { setOpen(new Set()); setFocusedId(null); }}>
+          <Button variant="ghost" size="sm" onClick={() => setOpen(new Set())}>
             {t('hierarchy_ext.collapseAll')}
           </Button>
-          <span className="text-muted-foreground/40 select-none">|</span>
-          {[1, 2, 3].map((lvl) => (
-            <Button key={lvl} variant="outline" size="sm" className="h-7 px-2 text-[11px]" onClick={() => collapseToLevel(lvl)}>
+          <span className="select-none text-muted-foreground/30">|</span>
+          {([1, 2, 3] as const).map((lvl) => (
+            <Button
+              key={lvl}
+              variant="outline"
+              size="sm"
+              className="h-7 px-2.5 text-[11px]"
+              onClick={() => expandToLevel(lvl)}
+              title={`Show ${lvl} level${lvl > 1 ? 's' : ''}`}
+            >
               L{lvl}
             </Button>
           ))}
-          {focusedId && (
-            <Button variant="outline" size="sm" className="h-7 gap-1 px-2 text-[11px] border-primary/40 text-primary" onClick={clearFocus}>
-              <Focus className="h-3 w-3" />
-              Clear focus
-            </Button>
-          )}
         </div>
         <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card p-1 shadow-sm">
           <Button
@@ -672,7 +644,6 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
                 open={open}
                 onToggle={toggle}
                 branchColor={null}
-                onFocus={focusNode}
               />
             ))}
           </ul>

@@ -82,11 +82,14 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
   const productSummary = saleProductSummary(meta);
   const orderStatus = meta.orderStatus;
   const trafficSource = meta.utmData?.source;
-  // Only the server-set `unmatchedSellerCode` marker tells us the seller code
-  // couldn't be resolved to any registered user. Absence of `sellerId` from the
-  // lean list response is not a reliable signal — the API routinely omits it for
-  // attributed orders (including all rows on a seller profile page).
-  const isUnmatchedSeller = Boolean(meta.unmatchedSellerCode);
+  // `unmatchedSellerCode` is a server flag frozen at ingest time. If the seller
+  // was registered AFTER the sale was imported, the flag stays stale even
+  // though the code now resolves to a real user. So we trust a live user
+  // lookup as the source of truth: if `sellerUser` resolves, we treat the
+  // sale as matched, regardless of what the metadata says.
+  const sellerLookupResolved = Boolean(sellerUser);
+  const isUnmatchedSeller =
+    Boolean(meta.unmatchedSellerCode) && !sellerLookupResolved && !seller.isLoading;
 
   return (
     <>
