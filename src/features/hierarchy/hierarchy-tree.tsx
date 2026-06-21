@@ -500,7 +500,14 @@ function Branch({
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             {node.children.map((child, idx) => {
-              const childColor = isRoot
+              // Reset the palette at every *branch point*: any node with more
+              // than one child becomes a fork in the tree, and each branch
+              // gets its own colour so teams visually separate. Single-child
+              // chains keep inheriting their ancestor's colour — useful for
+              // pass-through "manager of managers" rows where colouring every
+              // node would just add noise.
+              const isForkPoint = isRoot || node.children.length > 1;
+              const childColor = isForkPoint
                 ? BRANCH_PALETTE[idx % BRANCH_PALETTE.length]
                 : branchColor;
               return (
