@@ -89,7 +89,9 @@ export function CreateTargetDialog() {
     ? users.filter(
         (u) =>
           u.displayName.toLowerCase().includes(userSearch.toLowerCase()) ||
-          u.email.toLowerCase().includes(userSearch.toLowerCase()),
+          u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+          (u.sellerCode ?? '').toLowerCase().includes(userSearch.toLowerCase()) ||
+          (u.phone ?? '').toLowerCase().includes(userSearch.toLowerCase()),
       )
     : users;
 
@@ -162,7 +164,7 @@ export function CreateTargetDialog() {
                       onValueChange={setUserSearch}
                       placeholder={t('common.search')}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-48 overflow-y-auto">
                       <CommandEmpty>{t('common.noResults')}</CommandEmpty>
                       <CommandGroup>
                         {filteredUsers.map((u) => (
