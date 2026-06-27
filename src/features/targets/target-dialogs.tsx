@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Check, ChevronsUpDown, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -24,14 +24,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import {
   useCreateTargetMutation,
   useDeleteTargetMutation,
@@ -158,62 +150,59 @@ export function CreateTargetDialog() {
                     <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className="w-[--radix-popover-trigger-width] p-0"
-                  align="start"
-                  style={{ maxHeight: '260px', display: 'flex', flexDirection: 'column' }}
-                >
-                  <Command shouldFilter={false} className="flex flex-col overflow-hidden">
-                    <CommandInput
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  {/* Search input */}
+                  <div className="flex items-center gap-2 border-b border-border/70 px-3">
+                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <input
                       value={userSearch}
-                      onValueChange={setUserSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
                       placeholder={t('common.search')}
+                      className="flex h-10 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
                     />
-                    <CommandList className="flex-1 overflow-y-auto">
-                      {usersQuery.isFetching ? (
-                        <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          {t('common.loading')}
+                    {usersQuery.isFetching && (
+                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
+                  {/* Scrollable list */}
+                  <div className="max-h-52 overflow-y-auto p-1">
+                    {!usersQuery.isFetching && users.length === 0 && (
+                      <p className="py-6 text-center text-xs text-muted-foreground">
+                        {t('common.noResults')}
+                      </p>
+                    )}
+                    {users.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => {
+                          setValue('userId', u.id, { shouldValidate: true });
+                          setUserPopoverOpen(false);
+                          setUserSearch('');
+                          setDebouncedSearch('');
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-start text-sm transition-colors hover:bg-primary-soft hover:text-accent-foreground"
+                      >
+                        <Check
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            selectedUserId === u.id ? 'opacity-100' : 'opacity-0',
+                          )}
+                        />
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium">{u.displayName}</span>
+                          <span className="truncate text-[11px] text-muted-foreground">
+                            {u.email}
+                            {u.sellerCode && (
+                              <span className="ms-1 font-mono text-primary/70">
+                                #{u.sellerCode}
+                              </span>
+                            )}
+                          </span>
                         </div>
-                      ) : (
-                        <>
-                          <CommandEmpty>{t('common.noResults')}</CommandEmpty>
-                          <CommandGroup>
-                            {users.map((u) => (
-                              <CommandItem
-                                key={u.id}
-                                value={u.id}
-                                onSelect={() => {
-                                  setValue('userId', u.id, { shouldValidate: true });
-                                  setUserPopoverOpen(false);
-                                  setUserSearch('');
-                                  setDebouncedSearch('');
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'h-4 w-4 shrink-0',
-                                    selectedUserId === u.id ? 'opacity-100' : 'opacity-0',
-                                  )}
-                                />
-                                <div className="flex min-w-0 flex-col">
-                                  <span className="truncate text-sm">{u.displayName}</span>
-                                  <span className="truncate text-[11px] text-muted-foreground">
-                                    {u.email}
-                                    {u.sellerCode && (
-                                      <span className="ms-1 font-mono text-primary/70">
-                                        #{u.sellerCode}
-                                      </span>
-                                    )}
-                                  </span>
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </>
-                      )}
-                    </CommandList>
-                  </Command>
+                      </button>
+                    ))}
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
