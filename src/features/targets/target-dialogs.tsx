@@ -53,6 +53,7 @@ export function CreateTargetDialog() {
   const [userPopoverOpen, setUserPopoverOpen] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedUserLabel, setSelectedUserLabel] = useState<{ name: string; email: string; sellerCode?: string | null } | null>(null);
   const create = useCreateTargetMutation();
 
   useEffect(() => {
@@ -86,7 +87,6 @@ export function CreateTargetDialog() {
   });
 
   const selectedUserId = watch('userId');
-  const selectedUser = users.find((u) => u.id === selectedUserId);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -95,6 +95,8 @@ export function CreateTargetDialog() {
       setOpen(false);
       reset();
       setUserSearch('');
+      setDebouncedSearch('');
+      setSelectedUserLabel(null);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t('common.error'));
     }
@@ -140,12 +142,12 @@ export function CreateTargetDialog() {
                     aria-invalid={Boolean(errors.userId)}
                     className={cn(
                       'w-full justify-between font-normal',
-                      !selectedUser && 'text-muted-foreground',
+                      !selectedUserLabel && 'text-muted-foreground',
                       errors.userId && 'border-destructive',
                     )}
                   >
                     <span className="truncate">
-                      {selectedUser ? selectedUser.displayName : t('targets.fields.selectUser')}
+                      {selectedUserLabel ? selectedUserLabel.name : t('targets.fields.selectUser')}
                     </span>
                     <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -177,6 +179,7 @@ export function CreateTargetDialog() {
                         type="button"
                         onClick={() => {
                           setValue('userId', u.id, { shouldValidate: true });
+                          setSelectedUserLabel({ name: u.displayName, email: u.email, sellerCode: u.sellerCode });
                           setUserPopoverOpen(false);
                           setUserSearch('');
                           setDebouncedSearch('');
