@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, ExternalLink, LayoutDashboard, Link as LinkIcon, Search } from 'lucide-react';
+import { Download, ExternalLink, LayoutDashboard, Link as LinkIcon, Loader2, Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type Column } from '@/components/shared/data-table';
 import { PaginationBar } from '@/components/shared/pagination-bar';
@@ -20,7 +20,9 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatDate, formatPercent } from '@/lib/utils';
 import { downloadCsv, type CsvColumn } from '@/lib/csv-export';
+import { usersService } from '@/services/users.service';
 import { DEFAULT_PAGE_SIZE } from '@/constants/admin';
+import { toast } from '@/components/ui/sonner';
 import type { User } from '@/types/auth';
 
 export default function UsersPage() {
@@ -30,6 +32,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<UsersFilters>({});
   const [search, setSearch] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   const params = {
     page,
@@ -41,28 +44,54 @@ export default function UsersPage() {
   const data = query.data;
   const rows = data?.items ?? [];
 
-  const exportRows = () => {
-    const cols: CsvColumn<User>[] = [
-      { header: 'ID', value: (u) => u.id },
-      { header: t('users.fields.displayName'), value: (u) => u.displayName },
-      { header: t('common.email'), value: (u) => u.email },
-      { header: t('common.phone'), value: (u) => u.phone ?? '' },
-      { header: t('users.fields.sellerCode'), value: (u) => u.sellerCode ?? '' },
-      { header: t('common.role'), value: (u) => u.role },
-      { header: t('common.status'), value: (u) => u.status },
-      {
-        header: t('users.fields.directCommissionPercentage'),
-        value: (u) =>
-          u.directCommissionPercentage ?? u.commissionPercentage ?? 0,
-      },
-      {
-        header: t('users.fields.networkCommissionPercentage'),
-        value: (u) => u.networkCommissionPercentage ?? 0,
-      },
-      { header: t('users.fields.parentId'), value: (u) => u.parentId ?? '' },
-      { header: t('users.fields.createdAt'), value: (u) => String(u.createdAt) },
-    ];
-    downloadCsv(`users-page-${page}`, rows, cols);
+  const exportAllSellers = async () => {
+    setExporting(true);
+    try {
+      const PAGE_SIZE = 100;
+      const first = await usersService.list({ role: 'seller', page: 1, limit: PAGE_SIZE });
+      const totalPages = first.totalPages ?? 1;
+      let allUsers = first.items;
+      if (totalPages > 1) {
+        const rest = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, i) =>
+            usersService.list({ role: 'seller', page: i + 2, limit: PAGE_SIZE }),
+          ),
+        );
+        allUsers = [first.items, ...rest.map((p) => p.items)].flat();
+      }
+
+      const cols: CsvColumn<User>[] = [
+        { header: 'ID', value: (u) => u.id },
+        { header: t('users.fields.displayName'), value: (u) => u.displayName },
+        { header: t('common.email'), value: (u) => u.email },
+        { header: t('common.phone'), value: (u) => u.phone ?? '' },
+        { header: t('users.fields.sellerCode'), value: (u) => u.sellerCode ?? '' },
+        { header: t('common.status'), value: (u) => u.status },
+        {
+          header: t('users.fields.directCommissionPercentage'),
+          value: (u) => formatPercent(u.directCommissionPercentage ?? u.commissionPercentage ?? 0, locale),
+        },
+        {
+          header: t('users.fields.networkCommissionPercentage'),
+          value: (u) => formatPercent(u.networkCommissionPercentage ?? 0, locale),
+        },
+        { header: t('users.fields.parentId'), value: (u) => u.parentId ?? '' },
+        { header: t('users.fields.socialMediaLink'), value: (u) => u.socialMediaLink ?? '' },
+        {
+          header: t('users.fields.affiliateLinks'),
+          value: (u) => (u.affiliateLinks ?? []).join(' | '),
+        },
+        { header: t('users.fields.createdAt'), value: (u) => formatDate(u.createdAt, locale) },
+      ];
+
+      const date = new Date().toISOString().slice(0, 10);
+      downloadCsv(`sellers-export-${date}`, allUsers, cols);
+      toast.success(`${t('common.exportCsv')} — ${allUsers.length} sellers`);
+    } catch {
+      toast.error(t('common.error'));
+    } finally {
+      setExporting(false);
+    }
   };
 
   const onFiltersChange = (next: UsersFilters) => {
@@ -212,11 +241,13 @@ export default function UsersPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={exportRows}
-              disabled={!rows.length}
+              onClick={exportAllSellers}
+              disabled={exporting}
               aria-label={t('common.exportCsv')}
             >
-              <Download className="h-4 w-4" />
+              {exporting
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Download className="h-4 w-4" />}
               {t('common.exportCsv')}
             </Button>
             <CreateAdminDialog />
