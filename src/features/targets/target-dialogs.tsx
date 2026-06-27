@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Pencil, ChevronsUpDown, Check, Trash2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -60,8 +60,19 @@ export function CreateTargetDialog() {
   const [open, setOpen] = useState(false);
   const [userPopoverOpen, setUserPopoverOpen] = useState(false);
   const [userSearch, setUserSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const create = useCreateTargetMutation();
-  const usersQuery = useUsersQuery({ page: 1, limit: 50 });
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(userSearch), 300);
+    return () => clearTimeout(t);
+  }, [userSearch]);
+
+  const usersQuery = useUsersQuery({
+    page: 1,
+    limit: 50,
+    ...(debouncedSearch.trim() ? { search: debouncedSearch.trim() } : {}),
+  });
   const users = usersQuery.data?.items ?? [];
   const {
     register,
@@ -84,16 +95,6 @@ export function CreateTargetDialog() {
 
   const selectedUserId = watch('userId');
   const selectedUser = users.find((u) => u.id === selectedUserId);
-
-  const filteredUsers = userSearch
-    ? users.filter(
-        (u) =>
-          u.displayName.toLowerCase().includes(userSearch.toLowerCase()) ||
-          u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-          (u.sellerCode ?? '').toLowerCase().includes(userSearch.toLowerCase()) ||
-          (u.phone ?? '').toLowerCase().includes(userSearch.toLowerCase()),
-      )
-    : users;
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -157,41 +158,60 @@ export function CreateTargetDialog() {
                     <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                  <Command shouldFilter={false}>
+                <PopoverContent
+                  className="w-[--radix-popover-trigger-width] p-0"
+                  align="start"
+                  style={{ maxHeight: '260px', display: 'flex', flexDirection: 'column' }}
+                >
+                  <Command shouldFilter={false} className="flex flex-col overflow-hidden">
                     <CommandInput
                       value={userSearch}
                       onValueChange={setUserSearch}
                       placeholder={t('common.search')}
                     />
-                    <CommandList className="max-h-48 overflow-y-auto">
-                      <CommandEmpty>{t('common.noResults')}</CommandEmpty>
-                      <CommandGroup>
-                        {filteredUsers.map((u) => (
-                          <CommandItem
-                            key={u.id}
-                            value={u.id}
-                            onSelect={() => {
-                              setValue('userId', u.id, { shouldValidate: true });
-                              setUserPopoverOpen(false);
-                              setUserSearch('');
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                'h-4 w-4 shrink-0',
-                                selectedUserId === u.id ? 'opacity-100' : 'opacity-0',
-                              )}
-                            />
-                            <div className="flex min-w-0 flex-col">
-                              <span className="truncate text-sm">{u.displayName}</span>
-                              <span className="truncate text-[11px] text-muted-foreground">
-                                {u.email}
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
+                    <CommandList className="flex-1 overflow-y-auto">
+                      {usersQuery.isFetching ? (
+                        <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          {t('common.loading')}
+                        </div>
+                      ) : (
+                        <>
+                          <CommandEmpty>{t('common.noResults')}</CommandEmpty>
+                          <CommandGroup>
+                            {users.map((u) => (
+                              <CommandItem
+                                key={u.id}
+                                value={u.id}
+                                onSelect={() => {
+                                  setValue('userId', u.id, { shouldValidate: true });
+                                  setUserPopoverOpen(false);
+                                  setUserSearch('');
+                                  setDebouncedSearch('');
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'h-4 w-4 shrink-0',
+                                    selectedUserId === u.id ? 'opacity-100' : 'opacity-0',
+                                  )}
+                                />
+                                <div className="flex min-w-0 flex-col">
+                                  <span className="truncate text-sm">{u.displayName}</span>
+                                  <span className="truncate text-[11px] text-muted-foreground">
+                                    {u.email}
+                                    {u.sellerCode && (
+                                      <span className="ms-1 font-mono text-primary/70">
+                                        #{u.sellerCode}
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
                     </CommandList>
                   </Command>
                 </PopoverContent>
