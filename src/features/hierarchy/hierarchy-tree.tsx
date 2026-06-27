@@ -14,6 +14,7 @@ import {
   Network,
   Plus,
   RotateCcw,
+  Trash2,
   UserPlus,
   Users2,
   ZoomIn,
@@ -44,12 +45,13 @@ import {
 } from '@/components/ui/command';
 import { LinksListEditor } from '@/components/shared/links-list-editor';
 import { ReassignParentDialog } from './reassign-parent-dialog';
-import { useCreateSellerMutation } from '@/hooks/queries/use-users';
+import { useCreateSellerMutation, useDeleteUserMutation } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { toast } from '@/components/ui/sonner';
 import { cn, formatPercent } from '@/lib/utils';
 import { ApiError } from '@/types/api';
+import { useAuthStore } from '@/store/auth';
 import { type TreeNode } from './build-tree';
 
 // ─── Role colours ─────────────────────────────────────────────────────────────
@@ -261,6 +263,64 @@ function AddChildDialog({ parentNode }: { parentNode: TreeNode }) {
   );
 }
 
+// ─── Delete node button ───────────────────────────────────────────────────────
+
+function DeleteNodeButton({ node }: { node: TreeNode }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const deleteMutation = useDeleteUserMutation();
+
+  const onConfirm = async () => {
+    try {
+      await deleteMutation.mutateAsync(node.id);
+      toast.success(t('users.actions.deleted'));
+      setOpen(false);
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : t('common.error'));
+    }
+  };
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+        title={t('users.actions.deleteUser')}
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('users.actions.deleteUser')}</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{node.displayName}</span>
+              {' — '}
+              {t('users.confirmDelete')}
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={onConfirm}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t('common.delete')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 // ─── Branch colour palette ───────────────────────────────────────────────────
 // Each top-level child of the root is assigned the next colour in this list
 // (looping if there are more branches than colours). Descendants inherit
@@ -292,6 +352,8 @@ function NodeCard({
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
+  const currentUserId = useAuthStore((s) => s.user?.id);
+  const canDelete = node.role === 'seller' && node.id !== currentUserId && node.id !== VIRTUAL_ROOT_ID;
 
   // The synthetic "Hierarchy" node sits above the real users; it isn't a real
   // user record so its card should be a slim, non-interactive marker.
@@ -411,7 +473,7 @@ function NodeCard({
         </span>
       </div>
 
-      {/* Hover-revealed actions: view profile + reassign parent */}
+      {/* Hover-revealed actions: view profile + reassign parent + delete */}
       <div className="absolute bottom-2 end-2 flex items-center gap-1 opacity-0 transition-opacity group-hover/node:opacity-100">
         <Button
           asChild
@@ -425,6 +487,7 @@ function NodeCard({
           </Link>
         </Button>
         <ReassignParentDialog userId={node.id} />
+        {canDelete && <DeleteNodeButton node={node} />}
       </div>
     </div>
   );
