@@ -121,6 +121,22 @@
     "createSubAdmin": "Add admin",
     "filterByRole": "Role",
     "filterByStatus": "Status",
+    "filterBySellerCode": "Seller code",
+    "filterByParentId": "Upline ID",
+    "sortBy": "Sort by",
+    "sortDir": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "sortByOptions": {
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "displayName": "Name",
+      "email": "Email",
+      "sellerCode": "Seller code",
+      "lastActive": "Last active",
+      "status": "Status"
+    },
     "fields": {
       "displayName": "Display name",
       "sellerCode": "Seller code",
@@ -149,10 +165,13 @@
       "resetPassword": "Reset password",
       "resetPasswordDesc": "Set a new password for this user. They'll need it for their next sign-in.",
       "passwordReset": "Password reset",
-      "editPermissions": "Edit permissions"
+      "editPermissions": "Edit permissions",
+      "deleteUser": "Delete seller",
+      "deleted": "Seller account deleted"
     },
     "confirmSuspend": "Suspend this user?",
     "confirmActivate": "Activate this user?",
+    "confirmDelete": "Delete this seller account? Their downline will be reassigned to their upline. This cannot be undone.",
     "detail": {
       "overview": "Overview",
       "contact": "Contact",

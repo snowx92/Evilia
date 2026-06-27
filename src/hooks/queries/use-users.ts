@@ -134,3 +134,14 @@ export function useChangeUserPasswordMutation() {
       usersService.changePassword(userId, password),
   });
 }
+
+export function useDeleteUserMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => usersService.delete(userId),
+    onSuccess: (_, userId) => {
+      qc.removeQueries({ queryKey: queryKeys.users.detail(userId) });
+      qc.invalidateQueries({ queryKey: ['users', 'list'] });
+    },
+  });
+}

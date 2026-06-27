@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { KeyRound, MoreHorizontal, Pencil, ShieldCheck, ShieldOff, UserCircle } from 'lucide-react';
+import {
+  KeyRound,
+  MoreHorizontal,
+  Pencil,
+  ShieldCheck,
+  ShieldOff,
+  Trash2,
+  UserCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 import {
   DropdownMenu,
@@ -10,22 +18,43 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { EditUserDialog } from './edit-user-dialog';
 import { ResetPasswordDialog } from './reset-password-dialog';
-import { useActivateUserMutation, useSuspendUserMutation } from '@/hooks/queries/use-users';
+import {
+  useActivateUserMutation,
+  useDeleteUserMutation,
+  useSuspendUserMutation,
+} from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { toast } from '@/components/ui/sonner';
 import { ApiError } from '@/types/api';
+import { useAuthStore } from '@/store/auth';
 import type { User } from '@/types/auth';
 
 export function UserRowActions({ user }: { user: User }) {
   const { t } = useTranslation();
   const suspend = useSuspendUserMutation();
   const activate = useActivateUserMutation();
+  const deleteMutation = useDeleteUserMutation();
+  const currentUserId = useAuthStore((s) => s.user?.id);
+
   const [editOpen, setEditOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const isActive = user.status === 'active';
+  const isSeller = user.role === 'seller';
+  const isSelf = user.id === currentUserId;
+  const canDelete = isSeller && !isSelf;
 
   const onToggleStatus = async () => {
     if (!user?.id) return;
@@ -35,6 +64,15 @@ export function UserRowActions({ user }: { user: User }) {
       if (isActive) await suspend.mutateAsync(user.id);
       else await activate.mutateAsync(user.id);
       toast.success(t('common.save'));
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : t('common.error'));
+    }
+  };
+
+  const onConfirmDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync(user.id);
+      toast.success(t('users.actions.deleted'));
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t('common.error'));
     }
@@ -58,7 +96,6 @@ export function UserRowActions({ user }: { user: User }) {
           <DropdownMenuItem
             className="gap-2"
             onSelect={(e) => {
-              // Defer opening the dialog so Radix can finish closing the menu first.
               e.preventDefault();
               setTimeout(() => setEditOpen(true), 0);
             }}
@@ -86,10 +123,24 @@ export function UserRowActions({ user }: { user: User }) {
             {isActive ? <ShieldOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
             {isActive ? t('users.actions.suspend') : t('users.actions.activate')}
           </DropdownMenuItem>
+          {canDelete && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="gap-2 text-destructive focus:text-destructive"
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setTimeout(() => setDeleteOpen(true), 0);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                {t('users.actions.deleteUser')}
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Controlled edit dialog — opened via the menu item above. */}
       {editOpen && (
         <EditUserDialog
           user={user}
@@ -106,6 +157,27 @@ export function UserRowActions({ user }: { user: User }) {
           onOpenChange={setResetOpen}
         />
       )}
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('users.actions.deleteUser')}</DialogTitle>
+            <DialogDescription>{t('users.confirmDelete')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={onConfirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {t('common.delete')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

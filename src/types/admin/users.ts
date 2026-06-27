@@ -3,13 +3,28 @@
 import type { Locale, User, UserRole, UserStatus } from '@/types/auth';
 import type { PaginationParams } from '@/types/api';
 
+export type UserSortBy =
+  | 'createdAt'
+  | 'updatedAt'
+  | 'displayName'
+  | 'email'
+  | 'sellerCode'
+  | 'lastActive'
+  | 'status';
+
 export type UsersListParams = PaginationParams & {
   /** API enum: admin | seller */
   role?: UserRole;
   /** API enum: active | inactive | suspended */
   status?: UserStatus;
-  /** Server-side full-text search on displayName / email / sellerCode. */
+  /** Server-side full-text search on displayName / email / sellerCode / Firebase uid. */
   search?: string;
+  /** Filter to direct downline of a specific parent. */
+  parentId?: string;
+  /** Exact seller code (case-insensitive). */
+  sellerCode?: string;
+  sortBy?: UserSortBy;
+  sortDir?: 'asc' | 'desc';
 };
 
 /** Create Admin / Sub-Admin (super admin only). */

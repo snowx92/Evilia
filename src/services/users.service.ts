@@ -10,7 +10,7 @@ import type {
 } from '@/types/admin/users';
 
 export const usersService = {
-  /** GET /v1/admin/users?page&limit&role&status */
+  /** GET /v1/admin/users?page&limit&role&status&search&parentId&sellerCode&sortBy&sortDir */
   list: (params: UsersListParams = {}) =>
     unwrap(
       api.get<ApiResponse<PaginatedResponse<User>>>('/v1/admin/users', {
@@ -20,6 +20,10 @@ export const usersService = {
           ...(params.role ? { role: params.role } : {}),
           ...(params.status ? { status: params.status } : {}),
           ...(params.search ? { search: params.search } : {}),
+          ...(params.parentId ? { parentId: params.parentId } : {}),
+          ...(params.sellerCode ? { sellerCode: params.sellerCode } : {}),
+          ...(params.sortBy ? { sortBy: params.sortBy } : {}),
+          ...(params.sortDir ? { sortDir: params.sortDir } : {}),
         },
       }),
     ),
@@ -63,6 +67,16 @@ export const usersService = {
       api.patch<ApiResponse<{ success: boolean }>>(
         `/v1/admin/users/${encodeURIComponent(userId)}/password`,
         { password },
+      ),
+    );
+  },
+
+  /** DELETE /v1/admin/users/{userId} — seller only; downline reassigned to parent. */
+  delete: (userId: string) => {
+    if (!userId) throw new Error('delete: userId is required');
+    return unwrap(
+      api.delete<ApiResponse<{ success: boolean }>>(
+        `/v1/admin/users/${encodeURIComponent(userId)}`,
       ),
     );
   },

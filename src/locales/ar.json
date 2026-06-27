@@ -121,6 +121,22 @@
     "createSubAdmin": "إضافة مدير",
     "filterByRole": "تصفية حسب الدور",
     "filterByStatus": "تصفية حسب الحالة",
+    "filterBySellerCode": "كود البائع",
+    "filterByParentId": "معرف الأعلى",
+    "sortBy": "ترتيب حسب",
+    "sortDir": {
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "sortByOptions": {
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "تاريخ التعديل",
+      "displayName": "الاسم",
+      "email": "البريد الإلكتروني",
+      "sellerCode": "كود البائع",
+      "lastActive": "آخر نشاط",
+      "status": "الحالة"
+    },
     "fields": {
       "displayName": "الاسم الظاهر",
       "sellerCode": "رمز البائع",
@@ -149,10 +165,13 @@
       "resetPassword": "إعادة تعيين كلمة المرور",
       "resetPasswordDesc": "حدد كلمة مرور جديدة لهذا المستخدم. سيستخدمها في تسجيل الدخول التالي.",
       "passwordReset": "تم تعديل كلمة المرور",
-      "editPermissions": "تحرير الصلاحيات"
+      "editPermissions": "تحرير الصلاحيات",
+      "deleteUser": "حذف البائع",
+      "deleted": "تم حذف حساب البائع"
     },
     "confirmSuspend": "هل تريد تعليق هذا المستخدم؟",
     "confirmActivate": "هل تريد تفعيل هذا المستخدم؟",
+    "confirmDelete": "هل تريد حذف حساب البائع هذا؟ سيتم إعادة تعيين شبكته إلى المشرف الأعلى. لا يمكن التراجع عن هذا الإجراء.",
     "detail": {
       "overview": "نظرة عامة",
       "contact": "معلومات الاتصال",

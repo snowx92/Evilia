@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Download, ExternalLink, LayoutDashboard, Link as LinkIcon, Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type Column } from '@/components/shared/data-table';
@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { UsersFilterBar } from '@/features/users/users-filter-bar';
+import { UsersFilterBar, type UsersFilters } from '@/features/users/users-filter-bar';
 import { CreateSellerDialog, CreateAdminDialog } from '@/features/users/create-user-dialog';
 import { UserRowActions } from '@/features/users/user-row-actions';
 import { useUsersQuery } from '@/hooks/queries/use-users';
@@ -21,36 +21,27 @@ import { useLocaleStore } from '@/store/locale';
 import { formatDate, formatPercent } from '@/lib/utils';
 import { downloadCsv, type CsvColumn } from '@/lib/csv-export';
 import { DEFAULT_PAGE_SIZE } from '@/constants/admin';
-import type { User, UserRole, UserStatus } from '@/types/auth';
+import type { User } from '@/types/auth';
 
 export default function UsersPage() {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   useDocumentTitle(t('users.title'));
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<{ role?: UserRole; status?: UserStatus }>({});
+  const [filters, setFilters] = useState<UsersFilters>({});
   const [search, setSearch] = useState('');
 
-  const params = { page, limit: DEFAULT_PAGE_SIZE, ...filters };
+  const params = {
+    page,
+    limit: DEFAULT_PAGE_SIZE,
+    ...(search.trim() ? { search: search.trim() } : {}),
+    ...filters,
+  };
   const query = useUsersQuery(params);
   const data = query.data;
-
-  // Client-side narrowing on the current page — fast, doesn't replace server filters.
-  const filtered = useMemo(() => {
-    const items = data?.items ?? [];
-    const q = search.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      (u) =>
-        u.displayName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        (u.sellerCode ?? '').toLowerCase().includes(q) ||
-        (u.phone ?? '').toLowerCase().includes(q),
-    );
-  }, [data, search]);
+  const rows = data?.items ?? [];
 
   const exportRows = () => {
-    const rows = filtered;
     const cols: CsvColumn<User>[] = [
       { header: 'ID', value: (u) => u.id },
       { header: t('users.fields.displayName'), value: (u) => u.displayName },
@@ -72,6 +63,16 @@ export default function UsersPage() {
       { header: t('users.fields.createdAt'), value: (u) => String(u.createdAt) },
     ];
     downloadCsv(`users-page-${page}`, rows, cols);
+  };
+
+  const onFiltersChange = (next: UsersFilters) => {
+    setFilters(next);
+    setPage(1);
+  };
+
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
   };
 
   const columns: Column<User>[] = [
@@ -212,7 +213,7 @@ export default function UsersPage() {
               variant="outline"
               size="sm"
               onClick={exportRows}
-              disabled={!filtered.length}
+              disabled={!rows.length}
               aria-label={t('common.exportCsv')}
             >
               <Download className="h-4 w-4" />
@@ -231,25 +232,18 @@ export default function UsersPage() {
             <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => onSearchChange(e.target.value)}
               placeholder={t('common.search')}
               className="ps-10"
               aria-label={t('common.search')}
             />
           </div>
-          <UsersFilterBar
-            role={filters.role}
-            status={filters.status}
-            onChange={(next) => {
-              setFilters(next);
-              setPage(1);
-            }}
-          />
+          <UsersFilterBar filters={filters} onChange={onFiltersChange} />
         </CardContent>
       </Card>
 
       <DataTable
-        data={filtered}
+        data={rows}
         columns={columns}
         isLoading={query.isLoading}
         isError={query.isError}
