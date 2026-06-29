@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "إيفيليا — لوحة الإدارة",
+    "title": "Luna Care — لوحة الإدارة",
     "shortName": "Luna Care"
   },
   "common": {
@@ -84,7 +84,7 @@
     "loginTitle": "تسجيل الدخول",
     "loginSubtitle": "أدخل بيانات الاعتماد للوصول إلى لوحة الإدارة",
     "emailLabel": "البريد الإلكتروني",
-    "emailPlaceholder": "name@Luna Care.com",
+    "emailPlaceholder": "name@lunacaree.com",
     "passwordLabel": "كلمة المرور",
     "passwordPlaceholder": "••••••••",
     "showPassword": "إظهار كلمة المرور",
