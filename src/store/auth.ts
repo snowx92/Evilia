@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
       reset: () => set({ ...initial, firebaseReady: true }),
     }),
     {
-      name: 'Evilla-auth',
+      name: 'Luna Care-auth',
       storage: createJSONStorage(() => localStorage),
       // The Bearer token is a Firebase ID token (~1h TTL) refreshed at runtime
       // via onIdTokenChanged. We persist `user` only — the token re-derives from

@@ -64,7 +64,7 @@ api.interceptors.response.use(
 );
 
 /**
- * Most Evilla responses wrap their payload as `{ status, message, data }`.
+ * Most Luna Care responses wrap their payload as `{ status, message, data }`.
  * This helper unwraps `data` while keeping the raw envelope for debugging.
  */
 export async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> {

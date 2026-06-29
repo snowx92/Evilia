@@ -14,7 +14,7 @@ function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>)
 }
 
 /* keyframes are defined inline via @keyframes for portability */
-const styleId = 'Evilla-skeleton-keyframes';
+const styleId = 'Luna Care-skeleton-keyframes';
 if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
   const style = document.createElement('style');
   style.id = styleId;

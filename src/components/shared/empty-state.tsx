@@ -12,12 +12,12 @@ function DefaultIllustration() {
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="Evilla-empty-grad" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="Luna Care-empty-grad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#a5b4fc" stopOpacity="0.6" />
           <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.1" />
         </linearGradient>
       </defs>
-      <rect x="14" y="14" width="92" height="56" rx="14" fill="url(#Evilla-empty-grad)" />
+      <rect x="14" y="14" width="92" height="56" rx="14" fill="url(#Luna Care-empty-grad)" />
       <rect x="24" y="26" width="42" height="6" rx="3" fill="white" opacity="0.9" />
       <rect x="24" y="38" width="62" height="4" rx="2" fill="white" opacity="0.65" />
       <rect x="24" y="46" width="50" height="4" rx="2" fill="white" opacity="0.45" />

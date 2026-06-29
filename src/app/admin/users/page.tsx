@@ -172,7 +172,7 @@ export default function UsersPage() {
       header: t('users.fields.affiliateLinks'),
       cell: (u) => {
         const oldDashboardUrl = u.sellerCode
-          ? `https://affliate.vondera.app?link=evillapharma.com?aff=${u.sellerCode}`
+          ? `https://affliate.vondera.app?link=lunacaree.com?aff=${u.sellerCode}`
           : null;
         return (
           <div className="flex flex-col gap-1.5">

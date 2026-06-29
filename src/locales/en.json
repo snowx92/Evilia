@@ -1,7 +1,7 @@
 {
   "app": {
-    "title": "Evilla — Admin Panel",
-    "shortName": "Evilla"
+    "title": "Luna Care — Admin Panel",
+    "shortName": "Luna Care"
   },
   "common": {
     "search": "Search",
@@ -84,7 +84,7 @@
     "loginTitle": "Sign in",
     "loginSubtitle": "Enter your credentials to access the admin panel",
     "emailLabel": "Email",
-    "emailPlaceholder": "name@Evilla.com",
+    "emailPlaceholder": "name@Luna Care.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
     "showPassword": "Show password",
