@@ -181,11 +181,11 @@ export default function UsersPage() {
                 href={oldDashboardUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 truncate text-xs font-medium text-primary hover:underline max-w-[160px]"
+                className="inline-flex items-center gap-1 truncate text-[10px] text-primary hover:underline max-w-[160px]"
                 title={oldDashboardUrl}
               >
                 <LayoutDashboard className="h-3 w-3 shrink-0" />
-                <span className="truncate">Old Dashboard</span>
+                <span className="truncate">aff · {u.sellerCode?.toLowerCase()}</span>
               </a>
             )}
             {u.socialMediaLink && (
@@ -193,11 +193,11 @@ export default function UsersPage() {
                 href={u.socialMediaLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 truncate text-xs text-primary hover:underline max-w-[160px]"
+                className="inline-flex items-center gap-1 truncate text-[10px] text-primary hover:underline max-w-[160px]"
                 title={u.socialMediaLink}
               >
                 <LinkIcon className="h-3 w-3 shrink-0" />
-                <span className="truncate">{u.socialMediaLink.replace(/^https?:\/\//, '')}</span>
+                <span className="truncate">{u.socialMediaLink.replace(/^https?:\/\//, '').toLowerCase()}</span>
               </a>
             )}
             {u.affiliateLinks && u.affiliateLinks.length > 0 ? (
@@ -208,11 +208,11 @@ export default function UsersPage() {
                     href={link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 truncate text-xs text-muted-foreground hover:text-primary hover:underline max-w-[160px]"
+                    className="inline-flex items-center gap-1 truncate text-[10px] text-muted-foreground hover:text-primary hover:underline max-w-[160px]"
                     title={link}
                   >
                     <ExternalLink className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
+                    <span className="truncate">{link.replace(/^https?:\/\//, '').toLowerCase()}</span>
                   </a>
                 ))}
               </div>
