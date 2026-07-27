@@ -14,6 +14,7 @@ import {
   Calendar,
   Coins,
   Crown,
+  ExternalLink,
   Link as LinkIcon,
   KeyRound,
   Mail,
@@ -91,6 +92,8 @@ import { fadeUp, stagger } from '@/lib/motion';
 import { getSafeTxDescription } from '@/lib/transaction-description';
 import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { ApiError } from '@/types/api';
+
+const BASE_AFFILIATE_URL = 'https://affliate.vondera.app?link=lunacaree.com?aff=';
 
 // ─── Identity card ───────────────────────────────────────────────────────────
 
@@ -270,6 +273,15 @@ function ContactCard({ userId }: { userId: string }) {
               value={formatPercent(u.networkCommissionPercentage ?? 0, locale)}
             />
             {u.parentId && <ParentInfoRow parentId={u.parentId} />}
+            {u.sellerCode && (
+              <InfoRow
+                icon={ExternalLink}
+                label={t('users.fields.affiliateLinks')}
+                value={`aff · ${u.sellerCode.toLowerCase()}`}
+                href={`${BASE_AFFILIATE_URL}${u.sellerCode.toLowerCase()}`}
+                ltr
+              />
+            )}
             {u.affiliateLinks && u.affiliateLinks.length > 0 && (
               <div className="sm:col-span-2">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
