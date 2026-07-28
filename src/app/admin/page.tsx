@@ -1,11 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { TrendingUp, ScrollText, Users, Wallet, Sparkles } from 'lucide-react';
+import { TrendingUp, ScrollText, Users, Sparkles, AlertCircle, Banknote, ChevronLeft } from 'lucide-react';
 import { MetricCard } from '@/components/shared/metric-card';
 import { ExplainLabel } from '@/components/shared/explain-label';
-import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { useDailyAnalyticsQuery } from '@/hooks/queries/use-analytics';
+import { useWithdrawalsQuery } from '@/hooks/queries/use-withdrawals';
 import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
 import { useAuthStore } from '@/store/auth';
@@ -13,6 +14,7 @@ import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 import { stagger } from '@/lib/motion';
 import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function SectionHeader({
   title,
@@ -35,10 +37,12 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   useDocumentTitle(t('nav.dashboard'));
   const user = useAuthStore((s) => s.user);
-  const wallet = useAuthStore((s) => s.wallet);
   const locale = useLocaleStore((s) => s.locale);
   const daily = useDailyAnalyticsQuery();
   const data = daily.data;
+  const pendingWithdrawals = useWithdrawalsQuery({ status: 'pending', page: 1, limit: 1 });
+  const pendingCount = pendingWithdrawals.data?.totalItems ?? 0;
+  const showAttention = pendingWithdrawals.isLoading || pendingCount > 0;
 
   return (
     <div className="space-y-8">
@@ -67,6 +71,37 @@ export default function DashboardPage() {
         </div>
       </motion.section>
 
+      {showAttention ? (
+        <section className="rounded-2xl border border-amber-500/25 bg-amber-50/60 px-4 py-3 dark:bg-amber-950/20">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-amber-950 dark:text-amber-100">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+              {t('dashboard.needsAttention')}
+            </div>
+            {pendingWithdrawals.isLoading ? (
+              <Skeleton className="h-8 w-48 rounded-lg" />
+            ) : pendingCount > 0 ? (
+              <Link
+                href="/admin/withdrawals?status=pending"
+                className="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-white/80 px-3 py-1.5 text-sm font-medium text-amber-950 transition-colors hover:bg-white dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-950/60"
+              >
+                <Banknote className="h-4 w-4 text-amber-700" />
+                <span>
+                  {t('dashboard.pendingWithdrawals')}
+                  <span className="ms-1.5 tabular-nums text-amber-800 dark:text-amber-200">
+                    ({formatNumber(pendingCount, locale)})
+                  </span>
+                </span>
+                <span className="ms-1 text-[11px] font-medium uppercase tracking-wide text-amber-700/80">
+                  {t('dashboard.reviewNow')}
+                </span>
+                <ChevronLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+              </Link>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       <section className="space-y-4">
         <SectionHeader
           title={t('dashboard.section.today')}
@@ -76,7 +111,7 @@ export default function DashboardPage() {
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
           <MetricCard
             label={
@@ -127,13 +162,6 @@ export default function DashboardPage() {
             icon={Users}
             isLoading={daily.isLoading}
             accent="amber"
-          />
-          <MetricCard
-            label={<WalletStatLabel stat="balance" />}
-            value={wallet ? formatCurrency(wallet.balance, locale) : '—'}
-            sublabel={t('dashboard.yourAdminWallet')}
-            icon={Wallet}
-            accent="rose"
           />
         </motion.div>
       </section>

@@ -104,13 +104,19 @@ function WalletCard({ row }: { row: WalletListRow }) {
           </div>
         </div>
 
-        {/* Balance */}
+        {/* Available / held emphasis */}
         <div className="leading-tight">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            {t('wallets.balance')}
+            <WalletStatLabel stat="available" />
           </p>
-          <p className="text-2xl font-semibold tabular-nums">
-            {formatCurrency(wallet.balance, locale)}
+          <p className="text-2xl font-semibold tabular-nums text-success">
+            {formatCurrency(wallet.available, locale)}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {t('wallets.balance')}:{' '}
+            <span className="tabular-nums text-foreground/80">
+              {formatCurrency(wallet.balance, locale)}
+            </span>
           </p>
           {onGoing > 0 ? (
             <p className="text-[11px] font-medium tabular-nums text-amber-600">
@@ -229,14 +235,6 @@ export default function WalletsPage() {
         />
         <MetricCard
           compact
-          label={<WalletStatLabel stat="totalEarned" />}
-          value={formatCurrency(s?.totalEarned, locale)}
-          icon={TrendingUp}
-          accent="emerald"
-          isLoading={summary.isLoading}
-        />
-        <MetricCard
-          compact
           label={<WalletStatLabel stat="pendingWithdrawal" />}
           value={formatCurrency(s?.totalPendingWithdrawal, locale)}
           icon={Coins}
@@ -248,7 +246,15 @@ export default function WalletsPage() {
           label={<WalletStatLabel stat="onGoingOrders" />}
           value={formatCurrency(s?.totalOnGoingOrdersBalance, locale)}
           icon={ShoppingCart}
-          accent="indigo"
+          accent="amber"
+          isLoading={summary.isLoading}
+        />
+        <MetricCard
+          compact
+          label={<WalletStatLabel stat="totalEarned" />}
+          value={formatCurrency(s?.totalEarned, locale)}
+          icon={TrendingUp}
+          accent="emerald"
           isLoading={summary.isLoading}
         />
         <MetricCard

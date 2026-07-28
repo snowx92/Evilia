@@ -65,7 +65,8 @@
     "activate": "Activate",
     "dangerZone": "Danger zone",
     "by": "by",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "pageScopedHint": "This page — visible results only"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -78,7 +79,10 @@
     "expenses": "Expenses",
     "analytics": "Analytics",
     "hierarchy": "Hierarchy",
-    "access": "Access"
+    "access": "Access",
+    "sectionOverview": "Overview",
+    "sectionMoney": "Money",
+    "sectionPeople": "People"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -120,6 +124,10 @@
     "pendingPipeline": "Pending pipeline",
     "newSellers": "New sellers",
     "salesByStatusTrend": "Sales funnel over time",
+    "needsAttention": "Needs attention",
+    "pendingWithdrawals": "Pending withdrawals",
+    "pendingWithdrawalsCount": "{count} pending",
+    "reviewNow": "Review",
     "section": {
       "today": "Today's pulse",
       "todayDesc": "Platform-wide numbers for the current calendar day",
@@ -236,6 +244,9 @@
   "targets": {
     "title": "Targets",
     "create": "Add target",
+    "pageDesc": "Seller goals and progress. KPI cards reflect targets visible on this page only.",
+    "emptyTitle": "No targets yet",
+    "emptyDesc": "Create a target to track a seller’s progress toward a goal.",
     "fields": {
       "type": "Type",
       "userId": "User",
@@ -248,10 +259,10 @@
     },
     "confirmDelete": "Delete this target?",
     "explain": {
-      "title": "Number of targets matching the current filters.",
-      "achieved": "Targets that have already met their goal amount.",
-      "targetAmount": "Sum of all target goal amounts on this page.",
-      "currentAmount": "Sum of progress amounts toward those targets on this page."
+      "title": "Number of targets on this page of results.",
+      "achieved": "Targets on this page that have already met their goal amount.",
+      "targetAmount": "Sum of target goal amounts on this page only.",
+      "currentAmount": "Sum of progress amounts on this page only."
     }
   },
   "expenses": {
@@ -315,6 +326,9 @@
   },
   "withdrawals": {
     "title": "Withdrawals",
+    "pageDesc": "Review and pay seller withdrawal requests. KPI cards sum only the rows visible on this page.",
+    "emptyTitle": "No withdrawals found",
+    "emptyDesc": "Try another status filter, or check back when sellers submit requests.",
     "filterByStatus": "Status",
     "fields": {
       "amount": "Amount",
@@ -335,14 +349,15 @@
     },
     "identifierHelp": "Phone number for IPN, or e-wallet number",
     "explain": {
-      "paid": "Withdrawal amounts that have already been paid out (current page filters).",
-      "pending": "Withdrawal amounts still awaiting review or payout.",
-      "rejected": "Withdrawal amounts that were rejected.",
-      "title": "Count of paid withdrawals matching the current filters."
+      "paid": "Paid amounts among visible rows on this page (not platform-wide).",
+      "pending": "Pending amounts among visible rows on this page.",
+      "rejected": "Rejected amounts among visible rows on this page.",
+      "title": "Count of paid withdrawals among visible rows on this page."
     }
   },
   "commissions": {
     "title": "Commissions",
+    "pageDesc": "Commission ledger entries. Seller and status filters apply only to the currently loaded page.",
     "bySale": "Commissions by sale",
     "fields": {
       "saleId": "Sale ID",
@@ -358,12 +373,17 @@
     "filters": {
       "seller": "Seller",
       "sellerPlaceholder": "Filter by seller…",
-      "clientSideNote": "Showing {shown} of {loaded} loaded — filtered in this view only"
+      "clientSideBanner": "Filters run in this browser on the loaded page only — not across the full commissions ledger. Use pagination to load another page, then filter again.",
+      "clientSideNote": "Showing {shown} of {loaded} from this loaded page"
     },
     "soldBy": "sold by"
   },
   "sales": {
     "title": "Sales",
+    "pageDesc": "Store orders and attribution. KPI cards total only the orders visible on this page.",
+    "emptyTitle": "No orders found",
+    "emptyDesc": "Try another status or seller filter.",
+    "orderNet": "After commissions",
     "filterByStatus": "Status",
     "source": "Source",
     "seller": "Seller",

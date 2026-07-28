@@ -9,7 +9,6 @@ import { NAV_ITEMS } from './nav-config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { BrandMark } from './brand-mark';
 import { Avatar, AvatarFallback, getInitials } from '@/components/ui/avatar';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type SidebarProps = {
   /** When true, render in inline mode (no sticky/lg-only wrapper) — for use inside a drawer. */
@@ -42,9 +41,21 @@ export function Sidebar({ variant = 'desktop', onNavigate }: SidebarProps) {
   });
 
   const sections = [
-    { key: 'overview', label: t('nav.dashboard'), items: allowed.filter((i) => OVERVIEW_HREFS.has(i.href)) },
-    { key: 'commerce', label: t('sales.title'), items: allowed.filter((i) => COMMERCE_HREFS.has(i.href)) },
-    { key: 'org', label: t('users.title'), items: allowed.filter((i) => ORG_HREFS.has(i.href)) },
+    {
+      key: 'overview',
+      label: t('nav.sectionOverview'),
+      items: allowed.filter((i) => OVERVIEW_HREFS.has(i.href)),
+    },
+    {
+      key: 'commerce',
+      label: t('nav.sectionMoney'),
+      items: allowed.filter((i) => COMMERCE_HREFS.has(i.href)),
+    },
+    {
+      key: 'org',
+      label: t('nav.sectionPeople'),
+      items: allowed.filter((i) => ORG_HREFS.has(i.href)),
+    },
   ].filter((s) => s.items.length > 0);
 
   return (
@@ -99,19 +110,7 @@ export function Sidebar({ variant = 'desktop', onNavigate }: SidebarProps) {
                           )}
                         />
                         <span className="flex-1 truncate text-start">{t(item.labelKey)}</span>
-                        {item.needsBackend ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span
-                                className="inline-flex h-2 w-2 shrink-0 items-center justify-center rounded-full bg-warning ring-2 ring-warning/30"
-                                aria-label={t('backend.pending')}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="text-[11px]">
-                              {t('backend.pending')}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : active ? (
+                        {active ? (
                           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                         ) : null}
                       </Link>

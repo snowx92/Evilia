@@ -136,12 +136,14 @@ export default function TargetsPage() {
     return { total, achieved, targetSum, currentSum };
   }, [items]);
 
+  const pageHint = t('common.pageScopedHint');
+
   return (
     <div className="space-y-8">
       <PageHeader
         eyebrow={t('nav.targets')}
         title={t('targets.title')}
-        description={t('analytics.daily')}
+        description={t('targets.pageDesc')}
         actions={<CreateTargetDialog />}
       />
 
@@ -152,20 +154,25 @@ export default function TargetsPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="targets.title" explainKey="targets.explain.title" />}
           value={String(kpis.total)}
+          sublabel={pageHint}
           icon={TargetIcon}
           accent="indigo"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="status.achieved" explainKey="targets.explain.achieved" />}
           value={String(kpis.achieved)}
+          sublabel={pageHint}
           icon={CheckCircle2}
           accent="emerald"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={
             <ExplainLabel
               labelKey="targets.fields.targetAmount"
@@ -173,11 +180,13 @@ export default function TargetsPage() {
             />
           }
           value={formatCurrency(kpis.targetSum, locale)}
+          sublabel={pageHint}
           icon={TrendingUp}
           accent="amber"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={
             <ExplainLabel
               labelKey="targets.fields.currentAmount"
@@ -185,6 +194,7 @@ export default function TargetsPage() {
             />
           }
           value={formatCurrency(kpis.currentSum, locale)}
+          sublabel={pageHint}
           icon={TrendingUp}
           accent="rose"
           isLoading={query.isLoading}
@@ -202,7 +212,10 @@ export default function TargetsPage() {
       ) : items.length === 0 ? (
         <Card>
           <CardContent className="py-10">
-            <EmptyState title={t('common.noResults')} description={t('targets.title')} />
+            <EmptyState
+              title={t('targets.emptyTitle')}
+              description={t('targets.emptyDesc')}
+            />
           </CardContent>
         </Card>
       ) : (

@@ -157,7 +157,7 @@ export default function CommissionsPage() {
       <PageHeader
         eyebrow={t('nav.commissions')}
         title={t('commissions.title')}
-        description={t('analytics.daily')}
+        description={t('commissions.pageDesc')}
       />
 
       {/* Filter bar */}
@@ -207,16 +207,25 @@ export default function CommissionsPage() {
         </CardContent>
       </Card>
 
-      {/* Active-filter banner — only when client-side filtered */}
-      {hasFilter && data && filtered.length < data.items.length && (
-        <p className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          <Filter className="h-3 w-3" />
-          {t('commissions.filters.clientSideNote', {
-            shown: String(filtered.length),
-            loaded: String(data.items.length),
-          })}
-        </p>
-      )}
+      {hasFilter ? (
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-50/70 px-4 py-3 text-sm text-amber-950 dark:bg-amber-950/25 dark:text-amber-50"
+        >
+          <Filter className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+          <div className="min-w-0 space-y-1">
+            <p className="font-medium leading-snug">{t('commissions.filters.clientSideBanner')}</p>
+            {data ? (
+              <p className="text-[12px] text-amber-900/80 dark:text-amber-100/80">
+                {t('commissions.filters.clientSideNote', {
+                  shown: String(filtered.length),
+                  loaded: String(data.items.length),
+                })}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <DataTable
         data={filtered}
@@ -227,15 +236,25 @@ export default function CommissionsPage() {
         getRowKey={(c) => c.id}
       />
 
-      {data && !hasFilter && (
-        <PaginationBar
-          currentPage={data.currentPage}
-          totalPages={data.totalPages}
-          totalItems={data.totalItems}
-          onChange={setPage}
-          disabled={query.isFetching}
-        />
-      )}
+      {data && data.totalPages > 1 ? (
+        <div className="space-y-2">
+          {hasFilter ? (
+            <p className="text-[11px] text-muted-foreground">
+              {t('commissions.filters.clientSideNote', {
+                shown: String(filtered.length),
+                loaded: String(data.items.length),
+              })}
+            </p>
+          ) : null}
+          <PaginationBar
+            currentPage={data.currentPage}
+            totalPages={data.totalPages}
+            totalItems={data.totalItems}
+            onChange={setPage}
+            disabled={query.isFetching}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

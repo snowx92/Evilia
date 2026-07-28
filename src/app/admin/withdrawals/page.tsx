@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Banknote,
@@ -70,11 +70,14 @@ const STATUS_META: Record<
 };
 
 function StatusPill({ status }: { status: WithdrawalStatus }) {
+  const { t } = useTranslation();
   const meta = STATUS_META[status] ?? STATUS_META.pending;
+  const labelKey = `status.${status}`;
+  const label = t(labelKey);
   return (
     <Badge variant={meta.tone} className="gap-1 px-2 py-0.5">
       <meta.Icon className="h-3 w-3" />
-      <span className="capitalize">{status}</span>
+      <span>{label === labelKey ? status : label}</span>
     </Badge>
   );
 }
@@ -366,16 +369,30 @@ function WithdrawalCard({ w }: { w: Withdrawal }) {
   );
 }
 
+function initialStatusFromSearch(raw: string | null): WithdrawalStatus | undefined {
+  if (!raw) return undefined;
+  return (WITHDRAWAL_STATUSES as readonly string[]).includes(raw)
+    ? (raw as WithdrawalStatus)
+    : undefined;
+}
+
 export default function WithdrawalsPage() {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<WithdrawalStatus | undefined>(undefined);
 
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('status');
+    const next = initialStatusFromSearch(raw);
+    if (next) setStatus(next);
+  }, []);
+
   const params = { page, limit: DEFAULT_PAGE_SIZE, ...(status ? { status } : {}) };
   const query = useWithdrawalsQuery(params);
   const data = query.data;
   const items = data?.items ?? [];
+  const pageHint = t('common.pageScopedHint');
 
   const kpis = useMemo(() => {
     const stats = { paid: 0, pending: 0, rejected: 0, paidCount: 0 };
@@ -397,7 +414,7 @@ export default function WithdrawalsPage() {
       <PageHeader
         eyebrow={t('nav.withdrawals')}
         title={t('withdrawals.title')}
-        description={t('analytics.daily')}
+        description={t('withdrawals.pageDesc')}
         actions={
           <Select
             value={status ?? ALL}
@@ -428,29 +445,37 @@ export default function WithdrawalsPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="status.paid" explainKey="withdrawals.explain.paid" />}
           value={formatCurrency(kpis.paid, locale)}
+          sublabel={pageHint}
           icon={CheckCircle2}
           accent="emerald"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="status.pending" explainKey="withdrawals.explain.pending" />}
           value={formatCurrency(kpis.pending, locale)}
+          sublabel={pageHint}
           icon={Clock}
           accent="amber"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="status.rejected" explainKey="withdrawals.explain.rejected" />}
           value={formatCurrency(kpis.rejected, locale)}
+          sublabel={pageHint}
           icon={XCircle}
           accent="rose"
           isLoading={query.isLoading}
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="withdrawals.title" explainKey="withdrawals.explain.title" />}
           value={String(kpis.paidCount)}
+          sublabel={pageHint}
           icon={Banknote}
           accent="indigo"
           isLoading={query.isLoading}
@@ -468,7 +493,10 @@ export default function WithdrawalsPage() {
       ) : items.length === 0 ? (
         <Card>
           <CardContent className="py-10">
-            <EmptyState title={t('common.noResults')} description={t('withdrawals.title')} />
+            <EmptyState
+              title={t('withdrawals.emptyTitle')}
+              description={t('withdrawals.emptyDesc')}
+            />
           </CardContent>
         </Card>
       ) : (

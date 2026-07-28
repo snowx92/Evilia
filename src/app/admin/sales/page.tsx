@@ -105,14 +105,14 @@ export default function SalesPage() {
           count: formatNumber(items.length, locale),
           total: formatNumber(data.totalItems, locale),
         })
-      : t('seller.totalsThisPage');
+      : t('common.pageScopedHint');
 
   return (
     <div className="space-y-8">
       <PageHeader
         eyebrow={t('nav.sales')}
         title={t('sales.title')}
-        description={t('analytics.daily')}
+        description={t('sales.pageDesc')}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Select
@@ -165,6 +165,7 @@ export default function SalesPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
           value={formatCurrency(kpis.gross, locale, kpis.currency)}
           sublabel={pageSublabel}
@@ -173,6 +174,7 @@ export default function SalesPage() {
           accent="indigo"
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
           value={formatCurrency(kpis.commissions, locale, kpis.currency)}
           sublabel={pageSublabel}
@@ -181,6 +183,7 @@ export default function SalesPage() {
           accent="emerald"
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="sales.avgOrder" explainKey="sales.explain.avgOrder" />}
           value={formatCurrency(kpis.avgOrder, locale, kpis.currency)}
           sublabel={pageSublabel}
@@ -189,6 +192,7 @@ export default function SalesPage() {
           accent="amber"
         />
         <MetricCard
+          compact
           label={<ExplainLabel labelKey="sales.sellersOnPage" explainKey="sales.explain.sellersOnPage" />}
           value={formatNumber(kpis.sellers, locale)}
           sublabel={pageSublabel}
@@ -207,9 +211,9 @@ export default function SalesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10" />
-                <TableHead>{t('sales.trafficSource')}</TableHead>
+                <TableHead>{t('sales.order')}</TableHead>
                 <TableHead>{t('sales.seller')}</TableHead>
-                <TableHead>{t('sales.products')}</TableHead>
+                <TableHead>{t('sales.trafficSource')}</TableHead>
                 <TableHead>{t('common.amount')}</TableHead>
                 <TableHead>{t('commissions.title')}</TableHead>
                 <TableHead>{t('common.status')}</TableHead>
@@ -232,7 +236,10 @@ export default function SalesPage() {
           </Table>
           {!query.isLoading && items.length === 0 && (
             <div className="p-6">
-              <EmptyState title={t('common.noResults')} />
+              <EmptyState
+                title={t('sales.emptyTitle')}
+                description={t('sales.emptyDesc')}
+              />
             </div>
           )}
         </div>

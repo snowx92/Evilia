@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Download, ExternalLink, LayoutDashboard, Link as LinkIcon, Loader2, Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type Column } from '@/components/shared/data-table';
@@ -28,6 +29,7 @@ import type { User } from '@/types/auth';
 export default function UsersPage() {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
+  const router = useRouter();
   useDocumentTitle(t('users.title'));
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<UsersFilters>({});
@@ -104,6 +106,10 @@ export default function UsersPage() {
     setPage(1);
   };
 
+  const stopRowNav = (e: MouseEvent) => {
+    e.stopPropagation();
+  };
+
   const columns: Column<User>[] = [
     {
       key: 'displayName',
@@ -117,7 +123,7 @@ export default function UsersPage() {
             <AvatarFallback className="text-xs">{getInitials(u.displayName)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium">{u.displayName}</span>
+            <span className="font-medium text-primary">{u.displayName}</span>
             <span className="text-xs text-muted-foreground">{u.email}</span>
           </div>
         </div>
@@ -175,7 +181,7 @@ export default function UsersPage() {
           ? `https://affliate.vondera.app?link=lunacaree.com?aff=${u.sellerCode.toLowerCase()}`
           : null;
         return (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5" onClick={stopRowNav}>
             {oldDashboardUrl && (
               <a
                 href={oldDashboardUrl}
@@ -227,7 +233,11 @@ export default function UsersPage() {
       key: 'actions',
       header: '',
       headClassName: 'w-12',
-      cell: (u) => <UserRowActions user={u} />,
+      cell: (u) => (
+        <div onClick={stopRowNav}>
+          <UserRowActions user={u} />
+        </div>
+      ),
       className: 'text-end',
     },
   ];
@@ -280,6 +290,7 @@ export default function UsersPage() {
         isError={query.isError}
         onRetry={() => query.refetch()}
         getRowKey={(u) => u.id}
+        onRowClick={(u) => router.push(`/admin/users/${encodeURIComponent(u.id)}`)}
       />
       {data && (
         <PaginationBar

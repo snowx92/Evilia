@@ -111,15 +111,19 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
           </motion.span>
         </TableCell>
 
-        {/* Traffic source — order id moved to the expanded panel below */}
-        <TableCell>
-          {trafficSource ? (
-            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
-              {trafficSource}
-            </Badge>
-          ) : (
-            <span className="text-sm text-muted-foreground">{t('common.none')}</span>
-          )}
+        {/* Order — lead with order ID + product; traffic source is a later column */}
+        <TableCell className="max-w-[220px]">
+          <div className="flex min-w-0 flex-col gap-0.5 leading-tight">
+            <span className="truncate font-mono text-xs font-medium">{orderRef}</span>
+            {productSummary ? (
+              <span className="truncate text-sm">{productSummary}</span>
+            ) : sale.paymentType ? (
+              <Badge variant="outline" className="w-fit gap-1 text-[10px] uppercase">
+                <CreditCard className="h-3 w-3" />
+                {sale.paymentType}
+              </Badge>
+            ) : null}
+          </div>
         </TableCell>
 
         {/* Seller — photo + display name from the user record */}
@@ -133,21 +137,14 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
           />
         </TableCell>
 
-        {/* Product summary (customer PII hidden). Falls back to the order
-            ref + paymentType chip when the API didn't send any metadata. */}
-        <TableCell className="max-w-[240px]">
-          {productSummary ? (
-            <span className="block truncate text-sm">{productSummary}</span>
+        {/* Traffic source (secondary) */}
+        <TableCell>
+          {trafficSource ? (
+            <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-wider">
+              {trafficSource}
+            </Badge>
           ) : (
-            <div className="flex flex-col gap-1">
-              <span className="font-mono text-xs text-muted-foreground">{orderRef}</span>
-              {sale.paymentType ? (
-                <Badge variant="outline" className="w-fit gap-1 text-[10px] uppercase">
-                  <CreditCard className="h-3 w-3" />
-                  {sale.paymentType}
-                </Badge>
-              ) : null}
-            </div>
+            <span className="text-sm text-muted-foreground">{t('common.none')}</span>
           )}
         </TableCell>
 
@@ -287,7 +284,7 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
                         <div className="flex items-center justify-between border-t border-border/60 pt-2">
                           <dt className="flex items-center gap-1.5 font-medium">
                             <Wallet className="h-3.5 w-3.5 text-primary" />
-                            {t('wallets.available')}
+                            {t('sales.orderNet')}
                           </dt>
                           <dd className="font-semibold tabular-nums text-success">
                             {formatCurrency(net, locale, sale.currency)}

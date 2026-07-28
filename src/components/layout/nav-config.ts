@@ -19,8 +19,6 @@ export type NavItem = {
   labelKey: string;
   icon: LucideIcon;
   permission?: string;
-  /** Page depends on a proposed endpoint that the backend hasn't shipped yet. */
-  needsBackend?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -38,7 +36,6 @@ export const NAV_ITEMS: NavItem[] = [
     labelKey: 'nav.wallets',
     icon: Wallet,
     permission: PERMISSIONS.WALLETS_READ,
-    needsBackend: true,
   },
   {
     href: '/admin/withdrawals',
@@ -63,7 +60,6 @@ export const NAV_ITEMS: NavItem[] = [
     labelKey: 'nav.analytics',
     icon: BarChart3,
     permission: PERMISSIONS.ANALYTICS_READ,
-    needsBackend: true,
   },
   {
     href: '/admin/hierarchy',
