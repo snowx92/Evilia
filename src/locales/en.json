@@ -113,7 +113,16 @@
     "deliveredSales": "Delivered sales",
     "pendingPipeline": "Pending pipeline",
     "newSellers": "New sellers",
-    "salesByStatusTrend": "Sales funnel over time"
+    "salesByStatusTrend": "Sales funnel over time",
+    "explain": {
+      "totalSales": "Gross order value for the selected period (or today on the home dashboard).",
+      "totalCommissions": "Commission amount credited in the selected period from the commissions ledger.",
+      "activeUsers": "Sellers who were active during the selected period.",
+      "deliveredSales": "Value of orders marked delivered in the selected range.",
+      "pendingPipeline": "Value of orders still pending or processing — not delivered yet.",
+      "newSellers": "Sellers who joined during the selected range.",
+      "withdrawals": "Total withdrawal amount in the selected range."
+    }
   },
   "users": {
     "title": "Users",
@@ -199,7 +208,13 @@
       "startDate": "Start date",
       "endDate": "End date"
     },
-    "confirmDelete": "Delete this target?"
+    "confirmDelete": "Delete this target?",
+    "explain": {
+      "title": "Number of targets matching the current filters.",
+      "achieved": "Targets that have already met their goal amount.",
+      "targetAmount": "Sum of all target goal amounts on this page.",
+      "currentAmount": "Sum of progress amounts toward those targets on this page."
+    }
   },
   "expenses": {
     "title": "Expenses",
@@ -270,7 +285,13 @@
       "WALLET": "E-wallet",
       "IPN": "Instant payment (IPN)"
     },
-    "identifierHelp": "Phone number for IPN, or e-wallet number"
+    "identifierHelp": "Phone number for IPN, or e-wallet number",
+    "explain": {
+      "paid": "Withdrawal amounts that have already been paid out (current page filters).",
+      "pending": "Withdrawal amounts still awaiting review or payout.",
+      "rejected": "Withdrawal amounts that were rejected.",
+      "title": "Count of paid withdrawals matching the current filters."
+    }
   },
   "commissions": {
     "title": "Commissions",
@@ -282,6 +303,9 @@
       "percentage": "Percentage",
       "saleAmount": "Sale amount",
       "amount": "Commission"
+    },
+    "explain": {
+      "title": "Commission already credited onto these orders (embedded on the sale once released)."
     },
     "filters": {
       "seller": "Seller",
@@ -313,6 +337,11 @@
     "content": "Content",
     "term": "Term",
     "sellersOnPage": "Sellers",
+    "explain": {
+      "orders": "Number of orders in this status (or total) for the selected date range.",
+      "avgOrder": "Average order value on this page (gross sales ÷ order count).",
+      "sellersOnPage": "Distinct sellers appearing in the current page of results."
+    },
     "customer": "Customer",
     "products": "Products",
     "payment": "Payment",
@@ -379,7 +408,11 @@
     },
     "salesByStatusTitle": "Orders by status",
     "salesByStatusDesc": "Orders, sales and commissions broken down by status",
-    "heldCommissions": "Held commissions"
+    "heldCommissions": "Held commissions",
+    "explain": {
+      "heldCommissions": "Commission reserved on orders that is not released yet (pending/processing holds). Not withdrawable until the order is delivered and commissions are credited.",
+      "networkSales": "Sales attributed to the seller's downline network for the selected month."
+    }
   },
   "access": {
     "title": "Access",
@@ -461,6 +494,11 @@
     "totalEarned": "Total earned",
     "networkRevenue": "Network revenue (month)",
     "networkSize": "Network size",
+    "explain": {
+      "totalEarned": "Lifetime total of every credit ever added to this wallet.",
+      "networkRevenue": "Sales from the seller's downline for the current month.",
+      "networkSize": "Number of people in the seller's downline network."
+    },
     "recentSales": "Your most recent sales",
     "recentCommissions": "Your most recent commissions",
     "commissionRates": "Commission rates",
@@ -522,7 +560,13 @@
     "zoomOut": "Zoom out",
     "zoomReset": "Reset zoom",
     "zoomFit": "Fit to view",
-    "allSellers": "All sellers"
+    "allSellers": "All sellers",
+    "explain": {
+      "totalMembers": "Everyone currently loaded in the hierarchy tree.",
+      "levels": "Deepest depth of the hierarchy from root to farthest seller.",
+      "admin": "Accounts with the admin role in this tree.",
+      "seller": "Accounts with the seller role in this tree."
+    }
   },
   "backend": {
     "pending": "Pending backend"

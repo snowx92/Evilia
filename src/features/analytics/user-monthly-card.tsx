@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { UserPicker } from '@/components/shared/user-picker';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUserMonthlyAnalyticsQuery } from '@/hooks/queries/use-analytics';
@@ -57,7 +58,10 @@ export function UserMonthlyCard() {
           <div className="grid gap-6 sm:grid-cols-3">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('dashboard.totalSales')}
+                <ExplainLabel
+                  labelKey="dashboard.totalSales"
+                  explainKey="dashboard.explain.totalSales"
+                />
               </p>
               <p className="mt-1 text-xl font-semibold tracking-tight">
                 {formatCurrency(m.salesAmount, locale)}
@@ -68,7 +72,10 @@ export function UserMonthlyCard() {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('dashboard.totalCommissions')}
+                <ExplainLabel
+                  labelKey="dashboard.totalCommissions"
+                  explainKey="dashboard.explain.totalCommissions"
+                />
               </p>
               <p className="mt-1 text-xl font-semibold tracking-tight">
                 {formatCurrency(m.commissionsEarned, locale)}
@@ -76,7 +83,10 @@ export function UserMonthlyCard() {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('analytics.networkSales')}
+                <ExplainLabel
+                  labelKey="analytics.networkSales"
+                  explainKey="analytics.explain.networkSales"
+                />
               </p>
               <p className="mt-1 text-xl font-semibold tracking-tight">
                 {formatCurrency(m.networkSalesAmount, locale)}

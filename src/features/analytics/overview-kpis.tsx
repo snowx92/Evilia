@@ -11,6 +11,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -35,7 +36,7 @@ export function OverviewKpis({
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <MetricCard
-        label={t('dashboard.totalSales')}
+        label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
         value={data ? formatCurrency(data.totalSales.amount, locale) : '—'}
         icon={TrendingUp}
         accent="indigo"
@@ -43,7 +44,12 @@ export function OverviewKpis({
         isLoading={isLoading}
       />
       <MetricCard
-        label={t('dashboard.totalCommissions')}
+        label={
+          <ExplainLabel
+            labelKey="dashboard.totalCommissions"
+            explainKey="dashboard.explain.totalCommissions"
+          />
+        }
         value={data ? formatCurrency(data.totalCommissions.amount, locale) : '—'}
         icon={ScrollText}
         accent="emerald"
@@ -51,7 +57,7 @@ export function OverviewKpis({
         isLoading={isLoading}
       />
       <MetricCard
-        label={t('dashboard.activeUsers')}
+        label={<ExplainLabel labelKey="dashboard.activeUsers" explainKey="dashboard.explain.activeUsers" />}
         value={data ? formatNumber(data.activeUsers.count, locale) : '—'}
         icon={Users}
         accent="amber"
@@ -59,7 +65,7 @@ export function OverviewKpis({
         isLoading={isLoading}
       />
       <MetricCard
-        label={t('withdrawals.title')}
+        label={<ExplainLabel labelKey="withdrawals.title" explainKey="dashboard.explain.withdrawals" />}
         value={data ? formatCurrency(data.withdrawals.amount, locale) : '—'}
         sublabel={
           data
@@ -77,7 +83,12 @@ export function OverviewKpis({
       {/* Secondary row — only renders when API returns these blocks. */}
       {data?.deliveredSales && (
         <MetricCard
-          label={t('dashboard.deliveredSales')}
+          label={
+            <ExplainLabel
+              labelKey="dashboard.deliveredSales"
+              explainKey="dashboard.explain.deliveredSales"
+            />
+          }
           value={formatCurrency(data.deliveredSales.amount, locale)}
           sublabel={t('dashboard.salesCount', {
             count: formatNumber(data.deliveredSales.count, locale),
@@ -90,7 +101,12 @@ export function OverviewKpis({
       )}
       {data?.pendingPipeline && (
         <MetricCard
-          label={t('dashboard.pendingPipeline')}
+          label={
+            <ExplainLabel
+              labelKey="dashboard.pendingPipeline"
+              explainKey="dashboard.explain.pendingPipeline"
+            />
+          }
           value={formatCurrency(data.pendingPipeline.amount, locale)}
           sublabel={t('dashboard.salesCount', {
             count: formatNumber(data.pendingPipeline.count, locale),
@@ -102,7 +118,7 @@ export function OverviewKpis({
       )}
       {data?.newSellers && (
         <MetricCard
-          label={t('dashboard.newSellers')}
+          label={<ExplainLabel labelKey="dashboard.newSellers" explainKey="dashboard.explain.newSellers" />}
           value={formatNumber(data.newSellers.count, locale)}
           icon={UserPlus}
           accent="indigo"

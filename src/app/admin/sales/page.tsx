@@ -6,6 +6,7 @@ import { TrendingUp, ScrollText, Users } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -147,7 +148,7 @@ export default function SalesPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
-          label={t('dashboard.totalSales')}
+          label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
           value={formatCurrency(kpis.gross, locale, kpis.currency)}
           sublabel={pageSublabel}
           icon={TrendingUp}
@@ -155,7 +156,7 @@ export default function SalesPage() {
           accent="indigo"
         />
         <MetricCard
-          label={t('commissions.title')}
+          label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
           value={formatCurrency(kpis.commissions, locale, kpis.currency)}
           sublabel={pageSublabel}
           icon={ScrollText}
@@ -163,7 +164,7 @@ export default function SalesPage() {
           accent="emerald"
         />
         <MetricCard
-          label={t('sales.avgOrder')}
+          label={<ExplainLabel labelKey="sales.avgOrder" explainKey="sales.explain.avgOrder" />}
           value={formatCurrency(kpis.avgOrder, locale, kpis.currency)}
           sublabel={pageSublabel}
           icon={TrendingUp}
@@ -171,7 +172,7 @@ export default function SalesPage() {
           accent="amber"
         />
         <MetricCard
-          label={t('sales.sellersOnPage')}
+          label={<ExplainLabel labelKey="sales.sellersOnPage" explainKey="sales.explain.sellersOnPage" />}
           value={formatNumber(kpis.sellers, locale)}
           sublabel={pageSublabel}
           icon={Users}

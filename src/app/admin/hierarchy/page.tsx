@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Users2, GitBranch, Crown, Search } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -77,28 +78,33 @@ export default function HierarchyPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
-          label={t('hierarchy_ext.totalMembers')}
+          label={
+            <ExplainLabel
+              labelKey="hierarchy_ext.totalMembers"
+              explainKey="hierarchy_ext.explain.totalMembers"
+            />
+          }
           value={String(allUsers.length)}
           icon={Users2}
           accent="indigo"
           isLoading={usersQuery.isLoading}
         />
         <MetricCard
-          label={t('hierarchy_ext.levels')}
+          label={<ExplainLabel labelKey="hierarchy_ext.levels" explainKey="hierarchy_ext.explain.levels" />}
           value={String(levels)}
           icon={GitBranch}
           accent="emerald"
           isLoading={usersQuery.isLoading}
         />
         <MetricCard
-          label={t('role.admin')}
+          label={<ExplainLabel labelKey="role.admin" explainKey="hierarchy_ext.explain.admin" />}
           value={String(adminCount)}
           icon={Crown}
           accent="amber"
           isLoading={usersQuery.isLoading}
         />
         <MetricCard
-          label={t('role.seller')}
+          label={<ExplainLabel labelKey="role.seller" explainKey="hierarchy_ext.explain.seller" />}
           value={String(sellerCount)}
           icon={Users2}
           accent="rose"

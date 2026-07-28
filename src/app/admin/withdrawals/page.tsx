@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
@@ -427,28 +428,28 @@ export default function WithdrawalsPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
-          label={t('status.paid')}
+          label={<ExplainLabel labelKey="status.paid" explainKey="withdrawals.explain.paid" />}
           value={formatCurrency(kpis.paid, locale)}
           icon={CheckCircle2}
           accent="emerald"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('status.pending')}
+          label={<ExplainLabel labelKey="status.pending" explainKey="withdrawals.explain.pending" />}
           value={formatCurrency(kpis.pending, locale)}
           icon={Clock}
           accent="amber"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('status.rejected')}
+          label={<ExplainLabel labelKey="status.rejected" explainKey="withdrawals.explain.rejected" />}
           value={formatCurrency(kpis.rejected, locale)}
           icon={XCircle}
           accent="rose"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('withdrawals.title')}
+          label={<ExplainLabel labelKey="withdrawals.title" explainKey="withdrawals.explain.title" />}
           value={String(kpis.paidCount)}
           icon={Banknote}
           accent="indigo"

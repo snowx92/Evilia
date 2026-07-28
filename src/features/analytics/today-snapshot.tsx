@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { useDailyAnalyticsQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -33,7 +34,10 @@ export function TodaySnapshot() {
           <>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('dashboard.totalSales')}
+                <ExplainLabel
+                  labelKey="dashboard.totalSales"
+                  explainKey="dashboard.explain.totalSales"
+                />
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">
                 {d ? formatCurrency(d.totalSalesAmount ?? 0, locale) : '—'}
@@ -48,7 +52,10 @@ export function TodaySnapshot() {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('dashboard.totalCommissions')}
+                <ExplainLabel
+                  labelKey="dashboard.totalCommissions"
+                  explainKey="dashboard.explain.totalCommissions"
+                />
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">
                 {d ? formatCurrency(d.totalCommissionsAmount ?? 0, locale) : '—'}
@@ -63,7 +70,10 @@ export function TodaySnapshot() {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                {t('dashboard.activeUsers')}
+                <ExplainLabel
+                  labelKey="dashboard.activeUsers"
+                  explainKey="dashboard.explain.activeUsers"
+                />
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">
                 {d ? formatNumber(d.activeUsers, locale) : '—'}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { format } from 'date-fns';
 import {
   Clock,
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { useSalesAnalyticsQuery } from '@/hooks/queries/use-analytics';
 import { useUsersQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
@@ -208,7 +209,7 @@ export function SalesStatusCards({
           <ErrorState onRetry={() => query.refetch()} />
         ) : (
           <>
-            <TotalsBanner totals={totals} isLoading={query.isLoading} locale={locale} t={t} />
+            <TotalsBanner totals={totals} isLoading={query.isLoading} locale={locale} />
 
             {query.isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -227,7 +228,6 @@ export function SalesStatusCards({
                     bucket={bucket}
                     maxOrders={maxOrders}
                     locale={locale}
-                    t={t}
                     meta={STATUS_META[status] ?? { icon: Package, tone: 'violet' }}
                   />
                 ))}
@@ -278,32 +278,39 @@ function TotalsBanner({
   totals,
   isLoading,
   locale,
-  t,
 }: {
   totals: SalesAnalyticsBucket | undefined;
   isLoading: boolean;
   locale: 'en' | 'ar';
-  t: (k: string) => string;
 }) {
   if (isLoading) return <Skeleton className="h-16 w-full rounded-2xl" />;
   if (!totals) return null;
   return (
     <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4 sm:grid-cols-4">
-      <TotalsStat label={t('sales.orders')} value={asInt(totals.ordersCount)} locale={locale} />
       <TotalsStat
-        label={t('dashboard.totalSales')}
+        label={<ExplainLabel labelKey="sales.orders" explainKey="sales.explain.orders" />}
+        value={asInt(totals.ordersCount)}
+        locale={locale}
+      />
+      <TotalsStat
+        label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
         value={asInt(totals.totalSales)}
         locale={locale}
         currency
       />
       <TotalsStat
-        label={t('commissions.title')}
+        label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
         value={asInt(totals.totalCommission)}
         locale={locale}
         currency
       />
       <TotalsStat
-        label={t('analytics.heldCommissions')}
+        label={
+          <ExplainLabel
+            labelKey="analytics.heldCommissions"
+            explainKey="analytics.explain.heldCommissions"
+          />
+        }
         value={asInt(totals.totalHoldedCommission)}
         locale={locale}
         currency
@@ -318,7 +325,7 @@ function TotalsStat({
   locale,
   currency,
 }: {
-  label: string;
+  label: ReactNode;
   value: number;
   locale: 'en' | 'ar';
   currency?: boolean;
@@ -341,14 +348,12 @@ function StatusCard({
   bucket,
   maxOrders,
   locale,
-  t,
   meta,
 }: {
   label: string;
   bucket: SalesAnalyticsBucket;
   maxOrders: number;
   locale: 'en' | 'ar';
-  t: (k: string) => string;
   meta: { icon: LucideIcon; tone: Tone };
 }) {
   const tone = TONE_CLASSES[meta.tone];
@@ -369,9 +374,12 @@ function StatusCard({
       </div>
 
       <dl className="mt-4 space-y-2 text-sm">
-        <StatRow label={t('sales.orders')} value={formatNumber(orders, locale)} />
         <StatRow
-          label={t('dashboard.totalSales')}
+          label={<ExplainLabel labelKey="sales.orders" explainKey="sales.explain.orders" />}
+          value={formatNumber(orders, locale)}
+        />
+        <StatRow
+          label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
           value={
             <>
               {formatNumber(sales, locale)}{' '}
@@ -380,7 +388,7 @@ function StatusCard({
           }
         />
         <StatRow
-          label={t('commissions.title')}
+          label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
           value={
             <span className="text-primary">
               {formatNumber(commission, locale)}{' '}
@@ -390,7 +398,12 @@ function StatusCard({
         />
         {held > 0 && (
           <StatRow
-            label={t('analytics.heldCommissions')}
+            label={
+              <ExplainLabel
+                labelKey="analytics.heldCommissions"
+                explainKey="analytics.explain.heldCommissions"
+              />
+            }
             value={
               <span className="text-amber-600">
                 {formatNumber(held, locale)}{' '}
@@ -408,7 +421,7 @@ function StatusCard({
   );
 }
 
-function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
+function StatRow({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
       <dt className="text-sm text-muted-foreground">{label}</dt>

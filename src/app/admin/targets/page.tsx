@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Target as TargetIcon, TrendingUp, CheckCircle2, Clock } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
@@ -151,28 +152,38 @@ export default function TargetsPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
-          label={t('targets.title')}
+          label={<ExplainLabel labelKey="targets.title" explainKey="targets.explain.title" />}
           value={String(kpis.total)}
           icon={TargetIcon}
           accent="indigo"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('status.achieved')}
+          label={<ExplainLabel labelKey="status.achieved" explainKey="targets.explain.achieved" />}
           value={String(kpis.achieved)}
           icon={CheckCircle2}
           accent="emerald"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('targets.fields.targetAmount')}
+          label={
+            <ExplainLabel
+              labelKey="targets.fields.targetAmount"
+              explainKey="targets.explain.targetAmount"
+            />
+          }
           value={formatCurrency(kpis.targetSum, locale)}
           icon={TrendingUp}
           accent="amber"
           isLoading={query.isLoading}
         />
         <MetricCard
-          label={t('targets.fields.currentAmount')}
+          label={
+            <ExplainLabel
+              labelKey="targets.fields.currentAmount"
+              explainKey="targets.explain.currentAmount"
+            />
+          }
           value={formatCurrency(kpis.currentSum, locale)}
           icon={TrendingUp}
           accent="rose"

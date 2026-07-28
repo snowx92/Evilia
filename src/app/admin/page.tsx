@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, ScrollText, Users, Wallet, Sparkles } from 'lucide-react';
 import { MetricCard } from '@/components/shared/metric-card';
+import { ExplainLabel } from '@/components/shared/explain-label';
+import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
 import { useDailyAnalyticsQuery } from '@/hooks/queries/use-analytics';
 import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
@@ -57,7 +59,7 @@ export default function DashboardPage() {
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <MetricCard
-          label={t('dashboard.totalSales')}
+          label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
           value={data ? formatCurrency(data.totalSalesAmount ?? 0, locale) : '—'}
           sublabel={
             data
@@ -71,7 +73,12 @@ export default function DashboardPage() {
           accent="indigo"
         />
         <MetricCard
-          label={t('dashboard.totalCommissions')}
+          label={
+            <ExplainLabel
+              labelKey="dashboard.totalCommissions"
+              explainKey="dashboard.explain.totalCommissions"
+            />
+          }
           value={data ? formatCurrency(data.totalCommissionsAmount ?? 0, locale) : '—'}
           sublabel={
             data
@@ -85,14 +92,14 @@ export default function DashboardPage() {
           accent="emerald"
         />
         <MetricCard
-          label={t('dashboard.activeUsers')}
+          label={<ExplainLabel labelKey="dashboard.activeUsers" explainKey="dashboard.explain.activeUsers" />}
           value={data ? formatNumber(data.activeUsers, locale) : '—'}
           icon={Users}
           isLoading={daily.isLoading}
           accent="amber"
         />
         <MetricCard
-          label={t('wallets.balance')}
+          label={<WalletStatLabel stat="balance" />}
           value={wallet ? formatCurrency(wallet.balance, locale) : '—'}
           icon={Wallet}
           accent="rose"
