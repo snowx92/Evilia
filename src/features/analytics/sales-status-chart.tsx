@@ -27,8 +27,11 @@ export function SalesStatusChart({
   const locale = useLocaleStore((s) => s.locale);
 
   const breakdown = data?.breakdown ?? [];
-  const total = data?.totalAmount ?? 0;
-  const chartData = breakdown.map((s) => ({ ...s, fill: COLORS[s.status] ?? '#a78bfa' }));
+  const chartData = breakdown
+    .filter((s) => s.status !== 'deleted')
+    .map((s) => ({ ...s, fill: COLORS[s.status] ?? '#a78bfa' }));
+  const total = data?.totalAmount ?? chartData.reduce((sum, s) => sum + s.amount, 0);
+  const deletedBucket = breakdown.find((s) => s.status === 'deleted');
 
   return (
     <Card>
@@ -90,6 +93,23 @@ export function SalesStatusChart({
                   </li>
                 );
               })}
+              {deletedBucket && deletedBucket.count > 0 ? (
+                <li className="flex items-center gap-3 text-muted-foreground">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ background: COLORS.deleted }}
+                    aria-hidden="true"
+                  />
+                  <span className="flex flex-1 flex-col leading-tight">
+                    <span className="font-medium">{t('status.deleted')}</span>
+                    <span>
+                      {formatNumber(deletedBucket.count, locale)} ·{' '}
+                      {formatCurrency(deletedBucket.amount, locale)} ·{' '}
+                      {t('analytics.excludedFromGmv')}
+                    </span>
+                  </span>
+                </li>
+              ) : null}
             </ul>
           </div>
         )}

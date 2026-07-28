@@ -272,8 +272,11 @@ export type UserMonthlyAnalytics = {
   salesCount: number;
   salesAmount: number;
   commissionsEarned: number;
+  directCommissionsEarned?: number;
+  networkCommissionsEarned?: number;
   networkSalesCount: number;
   networkSalesAmount: number;
+  teamSize?: number;
 };
 
 // ─── /v1/admin/analytics/users/{userId}/history ──────────────────────────────

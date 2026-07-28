@@ -590,21 +590,34 @@ function AnalyticsSection({ userId }: { userId: string }) {
               ))}
             </div>
           ) : m ? (
-            <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <Stat
                 label={t('users.detail.directSales')}
                 primary={formatCurrency(m.salesAmount, locale)}
                 secondary={`${m.salesCount} ${t('sales.title')}`}
               />
               <Stat
-                label={t('users.detail.commissionsEarned')}
-                primary={formatCurrency(m.commissionsEarned, locale)}
-                secondary={t('users.detail.commissionsEarnedHint')}
+                label={t('users.detail.directCommissions')}
+                primary={formatCurrency(
+                  m.directCommissionsEarned ?? m.commissionsEarned,
+                  locale,
+                )}
+                secondary={t('users.detail.directCommissionsHint')}
+              />
+              <Stat
+                label={t('users.detail.networkCommissions')}
+                primary={formatCurrency(m.networkCommissionsEarned ?? 0, locale)}
+                secondary={t('users.detail.networkCommissionsHint')}
               />
               <Stat
                 label={t('users.detail.networkSales')}
                 primary={formatCurrency(m.networkSalesAmount, locale)}
                 secondary={`${m.networkSalesCount} ${t('sales.title')}`}
+              />
+              <Stat
+                label={t('users.detail.teamSize')}
+                primary={String(m.teamSize ?? '—')}
+                secondary={t('users.detail.teamSizeHint')}
               />
               <Stat
                 label={t('users.detail.ordersThisMonth')}

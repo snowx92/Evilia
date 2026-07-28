@@ -55,7 +55,7 @@ export function UserMonthlyCard() {
         ) : monthly.isLoading ? (
           <Skeleton className="h-24 w-full" />
         ) : m ? (
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <ExplainLabel
@@ -72,13 +72,18 @@ export function UserMonthlyCard() {
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                <ExplainLabel
-                  labelKey="dashboard.totalCommissions"
-                  explainKey="dashboard.explain.totalCommissions"
-                />
+                {t('users.detail.directCommissions')}
               </p>
               <p className="mt-1 text-xl font-semibold tracking-tight">
-                {formatCurrency(m.commissionsEarned, locale)}
+                {formatCurrency(m.directCommissionsEarned ?? m.commissionsEarned, locale)}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                {t('users.detail.networkCommissions')}
+              </p>
+              <p className="mt-1 text-xl font-semibold tracking-tight">
+                {formatCurrency(m.networkCommissionsEarned ?? 0, locale)}
               </p>
             </div>
             <div>
@@ -93,6 +98,9 @@ export function UserMonthlyCard() {
               </p>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
                 {t('dashboard.salesCount', { count: formatNumber(m.networkSalesCount, locale) })}
+                {m.teamSize != null
+                  ? ` · ${t('users.detail.teamSize')}: ${formatNumber(m.teamSize, locale)}`
+                  : ''}
               </p>
             </div>
           </div>
