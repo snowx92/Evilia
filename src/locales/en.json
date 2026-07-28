@@ -150,7 +150,7 @@
       "today": "Today's pulse",
       "todayDesc": "Platform-wide numbers for the current calendar day",
       "pipeline": "Order pipeline",
-      "pipelineDesc": "All platform orders by status. Filter by seller or date range. Commission amounts are what sellers earn — not order profit.",
+      "pipelineDesc": "All platform orders by status. Filter by seller or date range. Pipeline dates use status entry times (processing/delivery), not import time alone.",
       "money": "Money in the system",
       "moneyDesc": "Withdrawable cash vs held earnings vs payouts waiting on you",
       "inFlight": "Pipeline in flight",
@@ -178,7 +178,7 @@
       "processingOrders": "Orders currently being fulfilled.",
       "expectedGmv": "Gross sales value of pending + processing orders still in flight.",
       "pipelineHeld": "Commissions reserved on pending + processing orders until delivery.",
-      "monthDelivered": "Delivered order GMV imported this calendar month.",
+      "monthDelivered": "Delivered order GMV this calendar month by delivery date (deliveredAt).",
       "monthCommissions": "Commissions credited to wallets this calendar month."
     }
   },
@@ -501,7 +501,7 @@
       "today": "Today's pulse",
       "todayDesc": "Live snapshot for the current day",
       "pipeline": "Order pipeline",
-      "pipelineDesc": "Orders, sales value, and commissions by status. Filter by seller or date. “On orders” is embedded sale commission; “Credited” is wallet ledger credits in the date range.",
+      "pipelineDesc": "Orders, sales value, and commissions by status. Filter by seller or date. Pipeline dates = when the order entered that status (processedAt / deliveredAt). “On orders” is embedded sale commission; “Credited” is wallet ledger credits by credit date — usually close for delivered.",
       "range": "Report range",
       "pnl": "P&L for range",
       "pnlDesc": "Gross sales, costs, and contribution after commissions & expenses",
@@ -553,8 +553,8 @@
     "commissionOnOrders": "On delivered orders",
     "explain": {
       "heldCommissions": "Commission reserved on pending/processing orders and not released yet. Not withdrawable until the order is delivered.",
-      "commissionCredited": "Commission written to the wallet ledger in the selected date range (by credit date). Can differ from “on orders” when dates don’t match.",
-      "commissionOnSales": "Your/sellers’ commission already attached to these orders after delivery (from sale.commissions).",
+      "commissionCredited": "Commission written to the wallet ledger in the selected date range (by credit date). Can differ slightly from “on delivered orders” with multi-recipient timing, but is usually close.",
+      "commissionOnSales": "Your/sellers’ commission already attached to these orders after delivery (from sale.commissions), bucketed by delivery date (deliveredAt).",
       "networkSales": "Sales attributed to the seller's downline network for the selected month.",
       "gmv": "Gross merchandise value of tracked orders imported in the range (pending, processing, delivered, failed).",
       "commissions": "Affiliate commissions credited to seller wallets in the range (ledger by credit date).",
