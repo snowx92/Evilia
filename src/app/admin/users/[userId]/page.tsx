@@ -9,10 +9,8 @@ import {
   ArrowLeft,
   ArrowUpRight,
   BadgeCheck,
-  Banknote,
   BarChart3,
   Calendar,
-  Coins,
   Crown,
   ExternalLink,
   Link as LinkIcon,
@@ -23,7 +21,6 @@ import {
   ScrollText,
   ShieldCheck,
   ShieldOff,
-  TrendingUp,
   Users2,
   Wallet as WalletIcon,
 } from 'lucide-react';
@@ -37,13 +34,13 @@ import {
   YAxis,
 } from 'recharts';
 import { PageHeader } from '@/components/shared/page-header';
-import { MetricCard } from '@/components/shared/metric-card';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { RoleBadge } from '@/components/shared/role-badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -88,9 +85,9 @@ import {
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatDate, formatDateTime, formatPercent } from '@/lib/utils';
-import { fadeUp, stagger } from '@/lib/motion';
+import { fadeUp } from '@/lib/motion';
 import { getSafeTxDescription } from '@/lib/transaction-description';
-import { WalletStatLabel } from '@/components/shared/wallet-stat-label';
+import { WalletSummary } from '@/features/wallets/wallet-summary';
 import { ApiError } from '@/types/api';
 
 const BASE_AFFILIATE_URL = 'https://affliate.vondera.app?link=lunacaree.com?aff=';
@@ -220,28 +217,32 @@ function IdentityCard({ userId }: { userId: string }) {
   );
 }
 
-// ─── Contact info ────────────────────────────────────────────────────────────
+// ─── Profile details (contact / rates / network — one job each) ──────────────
 
-function ContactCard({ userId }: { userId: string }) {
+function ProfileSection({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const user = useUserQuery(userId);
   const u = user.data;
 
+  if (user.isLoading || !u) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-36 w-full rounded-2xl" />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('users.detail.contact')}</CardTitle>
-        <CardDescription>{t('users.detail.overview')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {user.isLoading || !u ? (
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
-            ))}
-          </div>
-        ) : (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('users.detail.contact')}</CardTitle>
+          <CardDescription>{t('users.detail.contactDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent>
           <dl className="grid gap-5 sm:grid-cols-2">
             <InfoRow icon={Mail} label={t('common.email')} value={u.email} ltr />
             <InfoRow
@@ -260,6 +261,22 @@ function ContactCard({ userId }: { userId: string }) {
               muted={!u.socialMediaLink}
             />
             <InfoRow
+              icon={Calendar}
+              label={t('users.fields.createdAt')}
+              value={formatDate(u.createdAt, locale)}
+            />
+          </dl>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('users.detail.commissionRates')}</CardTitle>
+          <CardDescription>{t('users.detail.commissionRatesDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid gap-5 sm:grid-cols-2">
+            <InfoRow
               icon={BadgeCheck}
               label={t('users.fields.directCommissionPercentage')}
               value={formatPercent(
@@ -272,58 +289,82 @@ function ContactCard({ userId }: { userId: string }) {
               label={t('users.fields.networkCommissionPercentage')}
               value={formatPercent(u.networkCommissionPercentage ?? 0, locale)}
             />
-            {u.parentId && <ParentInfoRow parentId={u.parentId} />}
+          </dl>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('users.detail.network')}</CardTitle>
+          <CardDescription>{t('users.detail.networkDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <dl className="grid gap-5 sm:grid-cols-2">
+            {u.parentId ? (
+              <ParentInfoRow parentId={u.parentId} />
+            ) : (
+              <InfoRow
+                icon={Users2}
+                label={t('users.fields.parentId')}
+                value={t('users.detail.noUpline')}
+                muted
+              />
+            )}
             {u.sellerCode && (
               <InfoRow
                 icon={ExternalLink}
-                label={t('users.fields.affiliateLinks')}
+                label={t('users.detail.storefrontLink')}
                 value={`aff · ${u.sellerCode.toLowerCase()}`}
                 href={`${BASE_AFFILIATE_URL}${u.sellerCode.toLowerCase()}`}
                 ltr
               />
             )}
-            {u.affiliateLinks && u.affiliateLinks.length > 0 && (
-              <div className="sm:col-span-2">
-                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('users.fields.affiliateLinks')}
-                </p>
-                <ul className="flex flex-col gap-1.5">
-                  {u.affiliateLinks.map((link, i) => (
-                    <li key={i}>
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        dir="ltr"
-                        className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
-                        title={link}
-                      >
-                        <LinkIcon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {u.permissions && u.permissions.length > 0 && (
-              <div className="sm:col-span-2">
-                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('users.fields.permissions')}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {u.permissions.map((p) => (
-                    <Badge key={p} variant="muted" className="font-mono text-[10px]">
-                      {p}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </dl>
-        )}
-      </CardContent>
-    </Card>
+          {u.affiliateLinks && u.affiliateLinks.length > 0 && (
+            <div>
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                {t('users.fields.affiliateLinks')}
+              </p>
+              <ul className="flex flex-col gap-1.5">
+                {u.affiliateLinks.map((link, i) => (
+                  <li key={i}>
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      dir="ltr"
+                      className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
+                      title={link}
+                    >
+                      <LinkIcon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{link.replace(/^https?:\/\//, '')}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {u.permissions && u.permissions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('users.fields.permissions')}</CardTitle>
+            <CardDescription>{t('users.detail.permissionsDesc')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-1.5">
+              {u.permissions.map((p) => (
+                <Badge key={p} variant="muted" className="font-mono text-[10px]">
+                  {p}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
 
@@ -402,61 +443,20 @@ function WalletSection({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-5">
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
-      >
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="balance" />}
-          value={formatCurrency(w?.balance, locale)}
-          icon={WalletIcon}
-          accent="indigo"
-          isLoading={wallet.isLoading}
-        />
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="available" />}
-          value={formatCurrency(w?.available, locale)}
-          icon={Coins}
-          accent="emerald"
-          isLoading={wallet.isLoading}
-        />
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="pendingWithdrawal" />}
-          value={formatCurrency(w?.pendingWithdrawal, locale)}
-          icon={Banknote}
-          accent="amber"
-          isLoading={wallet.isLoading}
-        />
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="onGoingOrders" />}
-          value={formatCurrency(w?.onGoingOrdersBalance, locale)}
-          icon={TrendingUp}
-          accent="indigo"
-          isLoading={wallet.isLoading}
-        />
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="totalEarned" />}
-          value={formatCurrency(w?.totalEarned, locale)}
-          icon={TrendingUp}
-          accent="rose"
-          isLoading={wallet.isLoading}
-        />
-        <MetricCard
-          compact
-          label={<WalletStatLabel stat="totalWithdrawn" />}
-          value={formatCurrency(w?.totalWithdrawn, locale)}
-          icon={Banknote}
-          accent="indigo"
-          isLoading={wallet.isLoading}
-        />
-      </motion.div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 className="text-base font-semibold tracking-tight">{t('users.detail.wallet')}</h3>
+          <p className="text-sm text-muted-foreground">{t('users.detail.tabs.walletDesc')}</p>
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/admin/wallets/${encodeURIComponent(userId)}`}>
+            <WalletIcon className="h-4 w-4" />
+            {t('users.actions.viewWallet')}
+          </Link>
+        </Button>
+      </div>
+
+      <WalletSummary wallet={w} isLoading={wallet.isLoading} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -569,7 +569,7 @@ function AnalyticsSection({ userId }: { userId: string }) {
               <BarChart3 className="h-4 w-4 text-primary" />
               {t('users.detail.analytics')}
             </CardTitle>
-            <CardDescription>{t('analytics.monthly')}</CardDescription>
+            <CardDescription>{t('users.detail.tabs.performanceDesc')}</CardDescription>
           </div>
           <div className="space-y-1.5">
             <Label className="text-[11px]">{t('analytics.month')}</Label>
@@ -590,23 +590,24 @@ function AnalyticsSection({ userId }: { userId: string }) {
               ))}
             </div>
           ) : m ? (
-            <dl className="grid gap-6 sm:grid-cols-4">
+            <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <Stat
-                label={t('dashboard.totalSales')}
+                label={t('users.detail.directSales')}
                 primary={formatCurrency(m.salesAmount, locale)}
                 secondary={`${m.salesCount} ${t('sales.title')}`}
               />
               <Stat
-                label={t('dashboard.totalCommissions')}
+                label={t('users.detail.commissionsEarned')}
                 primary={formatCurrency(m.commissionsEarned, locale)}
+                secondary={t('users.detail.commissionsEarnedHint')}
               />
               <Stat
-                label={t('analytics.networkSales')}
+                label={t('users.detail.networkSales')}
                 primary={formatCurrency(m.networkSalesAmount, locale)}
                 secondary={`${m.networkSalesCount} ${t('sales.title')}`}
               />
               <Stat
-                label={t('users.detail.salesCount')}
+                label={t('users.detail.ordersThisMonth')}
                 primary={String(m.salesCount)}
                 secondary={`${t('users.detail.networkCount')}: ${m.networkSalesCount}`}
               />
@@ -863,6 +864,8 @@ export default function AdminUserDetailPage({
 }) {
   const { userId } = use(params);
   const { t } = useTranslation();
+  const user = useUserQuery(userId);
+  const u = user.data;
 
   return (
     <div className="space-y-6">
@@ -875,16 +878,45 @@ export default function AdminUserDetailPage({
 
       <PageHeader
         eyebrow={t('users.title')}
-        title={t('users.detail.overview')}
-        description={t('common.profile')}
+        title={u?.displayName ?? t('common.loading')}
+        description={
+          u
+            ? [u.email, u.sellerCode].filter(Boolean).join(' · ')
+            : t('users.detail.pageDesc')
+        }
       />
 
       <IdentityCard userId={userId} />
-      <ContactCard userId={userId} />
-      <WalletSection userId={userId} />
-      <AnalyticsSection userId={userId} />
-      <SalesStatusCards lockedSellerId={userId} />
-      <SalesSection userId={userId} />
+
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1 sm:inline-flex sm:h-9 sm:w-auto">
+          <TabsTrigger value="profile">{t('users.detail.tabs.profile')}</TabsTrigger>
+          <TabsTrigger value="wallet">{t('users.detail.tabs.wallet')}</TabsTrigger>
+          <TabsTrigger value="performance">{t('users.detail.tabs.performance')}</TabsTrigger>
+          <TabsTrigger value="sales">{t('users.detail.tabs.sales')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="mt-0 space-y-4">
+          <p className="text-sm text-muted-foreground">{t('users.detail.tabs.profileDesc')}</p>
+          <ProfileSection userId={userId} />
+        </TabsContent>
+
+        <TabsContent value="wallet" className="mt-0 space-y-4">
+          <p className="text-sm text-muted-foreground">{t('users.detail.tabs.walletDesc')}</p>
+          <WalletSection userId={userId} />
+        </TabsContent>
+
+        <TabsContent value="performance" className="mt-0 space-y-4">
+          <p className="text-sm text-muted-foreground">{t('users.detail.tabs.performanceDesc')}</p>
+          <AnalyticsSection userId={userId} />
+        </TabsContent>
+
+        <TabsContent value="sales" className="mt-0 space-y-4">
+          <p className="text-sm text-muted-foreground">{t('users.detail.tabs.salesDesc')}</p>
+          <SalesStatusCards lockedSellerId={userId} />
+          <SalesSection userId={userId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
