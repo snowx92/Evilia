@@ -34,6 +34,7 @@ import type {
   SalesAnalyticsBucket,
   SalesAnalyticsResponse,
   SalesAnalyticsStatus,
+  SalesAnalyticsTotals,
 } from '@/types/admin/analytics';
 
 const ALL = '__all__';
@@ -131,7 +132,7 @@ function bucketList(data: SalesAnalyticsResponse | undefined) {
   const empty: SalesAnalyticsBucket = {
     ordersCount: 0,
     totalSales: 0,
-    totalCommission: 0,
+    commissionOnSales: 0,
     totalHoldedCommission: 0,
   };
   return STATUS_ORDER.map((status) => ({
@@ -279,14 +280,14 @@ function TotalsBanner({
   isLoading,
   locale,
 }: {
-  totals: SalesAnalyticsBucket | undefined;
+  totals: SalesAnalyticsTotals | undefined;
   isLoading: boolean;
   locale: 'en' | 'ar';
 }) {
   if (isLoading) return <Skeleton className="h-16 w-full rounded-2xl" />;
   if (!totals) return null;
   return (
-    <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4 sm:grid-cols-4">
+    <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4 sm:grid-cols-2 lg:grid-cols-5">
       <TotalsStat
         label={<ExplainLabel labelKey="sales.orders" explainKey="sales.explain.orders" />}
         value={asInt(totals.ordersCount)}
@@ -299,8 +300,24 @@ function TotalsBanner({
         currency
       />
       <TotalsStat
-        label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
-        value={asInt(totals.totalCommission)}
+        label={
+          <ExplainLabel
+            labelKey="commissions.title"
+            explainKey="analytics.explain.commissionOnSales"
+          />
+        }
+        value={asInt(totals.commissionOnSales)}
+        locale={locale}
+        currency
+      />
+      <TotalsStat
+        label={
+          <ExplainLabel
+            labelKey="analytics.commissionCredited"
+            explainKey="analytics.explain.commissionCredited"
+          />
+        }
+        value={asInt(totals.commissionCredited)}
         locale={locale}
         currency
       />
@@ -360,7 +377,7 @@ function StatusCard({
   const Icon = meta.icon;
   const orders = asInt(bucket.ordersCount);
   const sales = asInt(bucket.totalSales);
-  const commission = asInt(bucket.totalCommission);
+  const commission = asInt(bucket.commissionOnSales);
   const held = asInt(bucket.totalHoldedCommission);
   const pct = Math.min(100, (orders / maxOrders) * 100);
 
@@ -388,7 +405,12 @@ function StatusCard({
           }
         />
         <StatRow
-          label={<ExplainLabel labelKey="commissions.title" explainKey="commissions.explain.title" />}
+          label={
+            <ExplainLabel
+              labelKey="commissions.title"
+              explainKey="analytics.explain.commissionOnSales"
+            />
+          }
           value={
             <span className="text-primary">
               {formatNumber(commission, locale)}{' '}

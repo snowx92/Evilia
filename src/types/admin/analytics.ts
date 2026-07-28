@@ -169,8 +169,14 @@ export type SalesAnalyticsParams = {
 export type SalesAnalyticsBucket = {
   ordersCount: number;
   totalSales: number;
-  totalCommission: number;
+  /** Credited commission embedded on sales (`sale.commissions`). */
+  commissionOnSales: number;
   totalHoldedCommission: number;
+};
+
+export type SalesAnalyticsTotals = SalesAnalyticsBucket & {
+  /** Ledger total from `commissions` collection (by `createdAt`). */
+  commissionCredited: number;
 };
 
 export type SalesAnalyticsStatus =
@@ -184,7 +190,7 @@ export type SalesAnalyticsStatus =
 export type SalesAnalyticsResponse = {
   sellerId: string | null;
   range: { from: string; to: string };
-  totals: SalesAnalyticsBucket;
+  totals: SalesAnalyticsTotals;
 } & Partial<Record<SalesAnalyticsStatus, SalesAnalyticsBucket>>;
 
 // ─── /v1/admin/analytics/daily ───────────────────────────────────────────────

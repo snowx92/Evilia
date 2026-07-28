@@ -409,8 +409,11 @@
     "salesByStatusTitle": "Orders by status",
     "salesByStatusDesc": "Orders, sales and commissions broken down by status",
     "heldCommissions": "Held commissions",
+    "commissionCredited": "Commissions credited",
     "explain": {
       "heldCommissions": "Commission reserved on orders that is not released yet (pending/processing holds). Not withdrawable until the order is delivered and commissions are credited.",
+      "commissionCredited": "Commission written to the commissions ledger in the selected date range (by credit date).",
+      "commissionOnSales": "Commission already credited onto these orders once released on the sale.",
       "networkSales": "Sales attributed to the seller's downline network for the selected month."
     }
   },
