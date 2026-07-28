@@ -123,6 +123,11 @@ function today(): string {
   return format(new Date(), 'yyyy-MM-dd');
 }
 
+function monthStart(): string {
+  const now = new Date();
+  return format(new Date(now.getFullYear(), now.getMonth(), 1), 'yyyy-MM-dd');
+}
+
 /**
  * Pulls the per-status buckets the API returned (regardless of order) and
  * normalises into a `STATUS_ORDER`-ordered list, falling back to zero buckets
@@ -144,12 +149,17 @@ function bucketList(data: SalesAnalyticsResponse | undefined) {
 export function SalesStatusCards({
   /** Locks the seller filter to a specific user — used in the profile page. */
   lockedSellerId,
+  /** Default date window. Home uses month so the ops breakdown is not empty-looking. */
+  defaultRange = 'today',
 }: {
   lockedSellerId?: string;
+  defaultRange?: 'today' | 'month';
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const [from, setFrom] = useState<string>(today);
+  const [from, setFrom] = useState<string>(
+    defaultRange === 'month' ? monthStart : today,
+  );
   const [to, setTo] = useState<string>(today);
   const [sellerId, setSellerId] = useState<string | undefined>(lockedSellerId);
 

@@ -17,6 +17,7 @@ import {
 import { MetricCard } from '@/components/shared/metric-card';
 import { ExplainLabel } from '@/components/shared/explain-label';
 import { ErrorState } from '@/components/shared/error-state';
+import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
 import { useOwnerOverviewQuery } from '@/hooks/queries/use-analytics';
 import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
@@ -413,6 +414,14 @@ export default function DashboardPage() {
             compact
           />
         </motion.div>
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeader
+          title={t('dashboard.section.pipeline')}
+          description={t('dashboard.section.pipelineDesc')}
+        />
+        <SalesStatusCards defaultRange="month" />
       </section>
     </div>
   );
