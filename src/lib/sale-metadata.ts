@@ -190,10 +190,43 @@ export function prettyOrderRef(externalId: string | undefined, meta: ParsedSaleM
 }
 
 export function saleCommissionTotal(
-  commissions: { amount: number }[],
+  commissions: { amount: number; userId?: string }[],
   affiliateCommission?: number,
+  recipientId?: string,
 ): number {
-  const fromCommissions = commissions.reduce((acc, c) => acc + c.amount, 0);
+  const scoped = recipientId
+    ? commissions.filter((c) => c.userId === recipientId)
+    : commissions;
+  const fromCommissions = scoped.reduce((acc, c) => acc + c.amount, 0);
   if (fromCommissions > 0) return fromCommissions;
+  if (recipientId) return 0;
   return affiliateCommission ?? 0;
+}
+
+/** Display commission for a sale row/KPI — credited amount, or expected direct rate before delivery. */
+export function saleDisplayCommission(
+  sale: {
+    amount: number;
+    status?: string | null;
+    commissions?: { amount: number; userId?: string }[];
+  },
+  options?: {
+    affiliateCommission?: number;
+    directCommissionPercentage?: number;
+    recipientId?: string;
+  },
+): number {
+  const actual = saleCommissionTotal(
+    sale.commissions ?? [],
+    options?.affiliateCommission,
+    options?.recipientId,
+  );
+  const rate = options?.directCommissionPercentage ?? 0;
+  const expected = (sale.amount * rate) / 100;
+  const isOpen =
+    sale.status !== 'delivered' && sale.status !== 'processed';
+  if (actual === 0 && rate > 0 && isOpen) {
+    return expected;
+  }
+  return actual;
 }

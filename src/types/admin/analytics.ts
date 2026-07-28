@@ -119,7 +119,13 @@ export type DashboardTrends = {
   salesByStatus?: DashboardSalesByStatusTrends;
 };
 
-export type SalesStatus = 'processed' | 'pending' | 'cancelled' | (string & {});
+export type SalesStatus =
+  | 'pending'
+  | 'processing'
+  | 'delivered'
+  | 'failed'
+  | 'deleted'
+  | (string & {});
 export type WithdrawalStatusLabel = 'paid' | 'approved' | 'pending' | 'rejected' | (string & {});
 
 export type SalesStatusBreakdownItem = {

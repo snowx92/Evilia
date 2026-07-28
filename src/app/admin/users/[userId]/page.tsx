@@ -481,7 +481,8 @@ function WalletSection({ userId }: { userId: string }) {
           ) : (
             <ul className="divide-y divide-border/40">
               {txs.data.items.map((tx) => {
-                const outflow = tx.type === 'withdrawal';
+                // Clawbacks/reversals are stored as negative-amount adjustments.
+                const outflow = tx.type === 'withdrawal' || tx.amount < 0;
                 const Arrow = outflow ? ArrowUpRight : ArrowDownLeft;
                 return (
                   <li key={tx.id} className="flex items-center gap-3 py-3">
@@ -511,7 +512,7 @@ function WalletSection({ userId }: { userId: string }) {
                           outflow ? 'text-destructive' : 'text-success',
                         )}
                       >
-                        {outflow ? '−' : '+'} {formatCurrency(tx.amount, locale)}
+                        {outflow ? '−' : '+'} {formatCurrency(Math.abs(tx.amount), locale)}
                       </p>
                       {tx.balanceAfter !== undefined && (
                         <p className="text-[10px] text-muted-foreground">

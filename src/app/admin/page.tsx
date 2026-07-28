@@ -14,6 +14,23 @@ import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 import { stagger } from '@/lib/motion';
 import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
 
+function SectionHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="space-y-0.5 border-b border-border/60 pb-3">
+      <h2 className="text-base font-semibold tracking-tight">{title}</h2>
+      {description ? (
+        <p className="text-[12px] text-muted-foreground">{description}</p>
+      ) : null}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   useDocumentTitle(t('nav.dashboard'));
@@ -25,7 +42,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Hero — greeting only, no quick-action CTAs. */}
       <motion.section
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,67 +63,88 @@ export default function DashboardPage() {
               ''
             )}
           </h2>
-          <p className="max-w-xl text-sm text-muted-foreground">{t('app.title')}</p>
+          <p className="max-w-xl text-sm text-muted-foreground">{t('dashboard.homeSubtitle')}</p>
         </div>
       </motion.section>
 
-      {/* Today KPIs — quick read on the day. */}
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        <MetricCard
-          label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
-          value={data ? formatCurrency(data.totalSalesAmount ?? 0, locale) : '—'}
-          sublabel={
-            data
-              ? t('dashboard.salesCount', {
-                  count: formatNumber(data.totalSales ?? 0, locale),
-                })
-              : undefined
-          }
-          icon={TrendingUp}
-          isLoading={daily.isLoading}
-          accent="indigo"
+      <section className="space-y-4">
+        <SectionHeader
+          title={t('dashboard.section.today')}
+          description={t('dashboard.section.todayDesc')}
         />
-        <MetricCard
-          label={
-            <ExplainLabel
-              labelKey="dashboard.totalCommissions"
-              explainKey="dashboard.explain.totalCommissions"
-            />
-          }
-          value={data ? formatCurrency(data.totalCommissionsAmount ?? 0, locale) : '—'}
-          sublabel={
-            data
-              ? t('dashboard.commissionsCount', {
-                  count: formatNumber(data.totalCommissions ?? 0, locale),
-                })
-              : undefined
-          }
-          icon={ScrollText}
-          isLoading={daily.isLoading}
-          accent="emerald"
-        />
-        <MetricCard
-          label={<ExplainLabel labelKey="dashboard.activeUsers" explainKey="dashboard.explain.activeUsers" />}
-          value={data ? formatNumber(data.activeUsers, locale) : '—'}
-          icon={Users}
-          isLoading={daily.isLoading}
-          accent="amber"
-        />
-        <MetricCard
-          label={<WalletStatLabel stat="balance" />}
-          value={wallet ? formatCurrency(wallet.balance, locale) : '—'}
-          icon={Wallet}
-          accent="rose"
-        />
-      </motion.div>
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <MetricCard
+            label={
+              <ExplainLabel
+                labelKey="dashboard.todaySales"
+                explainKey="dashboard.explain.todaySales"
+              />
+            }
+            value={data ? formatCurrency(data.totalSalesAmount ?? 0, locale) : '—'}
+            sublabel={
+              data
+                ? t('dashboard.salesCount', {
+                    count: formatNumber(data.totalSales ?? 0, locale),
+                  })
+                : undefined
+            }
+            icon={TrendingUp}
+            isLoading={daily.isLoading}
+            accent="indigo"
+          />
+          <MetricCard
+            label={
+              <ExplainLabel
+                labelKey="dashboard.todayCommissions"
+                explainKey="dashboard.explain.todayCommissions"
+              />
+            }
+            value={data ? formatCurrency(data.totalCommissionsAmount ?? 0, locale) : '—'}
+            sublabel={
+              data
+                ? t('dashboard.commissionsCount', {
+                    count: formatNumber(data.totalCommissions ?? 0, locale),
+                  })
+                : undefined
+            }
+            icon={ScrollText}
+            isLoading={daily.isLoading}
+            accent="emerald"
+          />
+          <MetricCard
+            label={
+              <ExplainLabel
+                labelKey="dashboard.activeSellersToday"
+                explainKey="dashboard.explain.activeUsers"
+              />
+            }
+            value={data ? formatNumber(data.activeUsers, locale) : '—'}
+            icon={Users}
+            isLoading={daily.isLoading}
+            accent="amber"
+          />
+          <MetricCard
+            label={<WalletStatLabel stat="balance" />}
+            value={wallet ? formatCurrency(wallet.balance, locale) : '—'}
+            sublabel={t('dashboard.yourAdminWallet')}
+            icon={Wallet}
+            accent="rose"
+          />
+        </motion.div>
+      </section>
 
-      {/* Quick analysis — per-status orders / sales / commissions, filterable */}
-      <SalesStatusCards />
+      <section className="space-y-4">
+        <SectionHeader
+          title={t('dashboard.section.pipeline')}
+          description={t('dashboard.section.pipelineDesc')}
+        />
+        <SalesStatusCards />
+      </section>
     </div>
   );
 }

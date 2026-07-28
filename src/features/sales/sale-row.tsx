@@ -39,6 +39,7 @@ import {
   parseSaleMetadata,
   prettyOrderRef,
   saleCommissionTotal,
+  saleDisplayCommission,
   saleProductSummary,
 } from '@/lib/sale-metadata';
 import type { Sale } from '@/types/admin/sales';
@@ -67,16 +68,16 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
   // The API stopped sending commissions inline until the order is delivered.
   // When the list is empty we compute the *expected* commission from the
   // seller's configured direct rate so the row doesn't show a misleading 0.
-  const actualCommissions = saleCommissionTotal(
-    sale.commissions,
-    meta.payment?.affiliateCommission,
-  );
   const directRate =
     sellerUser?.directCommissionPercentage ?? sellerUser?.commissionPercentage ?? 0;
-  const expectedCommission = (sale.amount * directRate) / 100;
+  const totalCommissions = saleDisplayCommission(sale, {
+    affiliateCommission: meta.payment?.affiliateCommission,
+    directCommissionPercentage: directRate,
+  });
   const isExpectedCommission =
-    actualCommissions === 0 && directRate > 0 && sale.status !== 'delivered';
-  const totalCommissions = isExpectedCommission ? expectedCommission : actualCommissions;
+    saleCommissionTotal(sale.commissions ?? [], meta.payment?.affiliateCommission) === 0 &&
+    directRate > 0 &&
+    sale.status !== 'delivered';
 
   const commissionRatio = sale.amount > 0 ? (totalCommissions / sale.amount) * 100 : 0;
   const net = sale.amount - totalCommissions;

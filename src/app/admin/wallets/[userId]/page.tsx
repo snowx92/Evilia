@@ -184,7 +184,8 @@ function Stat({ label, value }: { label: React.ReactNode; value: string }) {
 function TxRow({ tx }: { tx: WalletTransaction }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
-  const outflow = tx.type === 'withdrawal';
+  // Clawbacks/reversals are stored as negative-amount adjustments, not withdrawals.
+  const outflow = tx.type === 'withdrawal' || tx.amount < 0;
   const Arrow = outflow ? ArrowUpRight : ArrowDownLeft;
 
   return (
@@ -215,7 +216,7 @@ function TxRow({ tx }: { tx: WalletTransaction }) {
             outflow ? 'text-destructive' : 'text-success',
           )}
         >
-          {outflow ? '−' : '+'} {formatCurrency(tx.amount, locale)}
+          {outflow ? '−' : '+'} {formatCurrency(Math.abs(tx.amount), locale)}
         </p>
         {tx.balanceAfter !== undefined && (
           <p className="text-[10px] text-muted-foreground">

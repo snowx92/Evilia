@@ -69,7 +69,7 @@ export function OverviewKpis({
         value={data ? formatCurrency(data.withdrawals.amount, locale) : '—'}
         sublabel={
           data
-            ? t('dashboard.commissionsCount', {
+            ? t('dashboard.withdrawalsCount', {
                 count: formatNumber(data.withdrawals.count, locale),
               })
             : undefined

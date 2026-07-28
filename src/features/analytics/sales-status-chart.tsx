@@ -9,9 +9,11 @@ import { formatCurrency, formatNumber } from '@/lib/utils';
 import type { DashboardSalesByStatus } from '@/types/admin/analytics';
 
 const COLORS: Record<string, string> = {
-  processed: '#4f46e5',
   pending: '#f59e0b',
-  cancelled: '#94a3b8',
+  processing: '#0ea5e9',
+  delivered: '#10b981',
+  failed: '#f43f5e',
+  deleted: '#64748b',
 };
 
 export function SalesStatusChart({

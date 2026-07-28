@@ -30,7 +30,7 @@ import { useUsersQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import { parseSaleMetadata, saleCommissionTotal } from '@/lib/sale-metadata';
+import { parseSaleMetadata, saleDisplayCommission } from '@/lib/sale-metadata';
 import { DEFAULT_PAGE_SIZE, SALE_STATUSES } from '@/constants/admin';
 import { stagger } from '@/lib/motion';
 import type { SaleStatus } from '@/types/admin/sales';
@@ -46,6 +46,13 @@ export default function SalesPage() {
 
   const sellers = useUsersQuery({ limit: 100 });
   const sellerList = sellers.data?.items ?? [];
+  const sellerById = useMemo(() => {
+    const map = new Map(sellerList.map((u) => [u.id, u]));
+    for (const u of sellerList) {
+      if (u.sellerCode) map.set(u.sellerCode, u);
+    }
+    return map;
+  }, [sellerList]);
 
   const params = {
     page,
@@ -70,17 +77,27 @@ export default function SalesPage() {
     const gross = items.reduce((acc, s) => acc + (s.amount ?? 0), 0);
     const commissions = items.reduce((acc, s) => {
       const meta = parseSaleMetadata(s.metadata);
-      return acc + saleCommissionTotal(s.commissions ?? [], meta.payment?.affiliateCommission);
+      const seller =
+        (s.sellerId ? sellerById.get(s.sellerId) : undefined) ??
+        (s.sellerCode ? sellerById.get(s.sellerCode) : undefined);
+      return (
+        acc +
+        saleDisplayCommission(s, {
+          affiliateCommission: meta.payment?.affiliateCommission,
+          directCommissionPercentage:
+            seller?.directCommissionPercentage ?? seller?.commissionPercentage,
+        })
+      );
     }, 0);
-    const sellers = new Set(items.map((s) => s.sellerCode).filter(Boolean)).size;
+    const uniqueSellers = new Set(items.map((s) => s.sellerCode).filter(Boolean)).size;
     return {
       gross,
       commissions,
       avgOrder: gross / items.length,
-      sellers,
+      sellers: uniqueSellers,
       currency: items[0]?.currency ?? 'EGP',
     };
-  }, [items]);
+  }, [items, sellerById]);
 
   const pageSublabel =
     data && items.length > 0

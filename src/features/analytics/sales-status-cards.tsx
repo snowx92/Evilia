@@ -29,7 +29,7 @@ import { useSalesAnalyticsQuery } from '@/hooks/queries/use-analytics';
 import { useUsersQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
-import { cn, formatNumber } from '@/lib/utils';
+import { cn, formatCurrency, formatNumber } from '@/lib/utils';
 import type {
   SalesAnalyticsBucket,
   SalesAnalyticsResponse,
@@ -290,25 +290,20 @@ function TotalsBanner({
     <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4 sm:grid-cols-2 lg:grid-cols-5">
       <TotalsStat
         label={<ExplainLabel labelKey="sales.orders" explainKey="sales.explain.orders" />}
-        value={asInt(totals.ordersCount)}
-        locale={locale}
+        value={formatNumber(asInt(totals.ordersCount), locale)}
       />
       <TotalsStat
         label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
-        value={asInt(totals.totalSales)}
-        locale={locale}
-        currency
+        value={formatCurrency(totals.totalSales, locale, CURRENCY)}
       />
       <TotalsStat
         label={
           <ExplainLabel
-            labelKey="commissions.title"
+            labelKey="analytics.commissionOnOrders"
             explainKey="analytics.explain.commissionOnSales"
           />
         }
-        value={asInt(totals.commissionOnSales)}
-        locale={locale}
-        currency
+        value={formatCurrency(totals.commissionOnSales, locale, CURRENCY)}
       />
       <TotalsStat
         label={
@@ -317,9 +312,7 @@ function TotalsBanner({
             explainKey="analytics.explain.commissionCredited"
           />
         }
-        value={asInt(totals.commissionCredited)}
-        locale={locale}
-        currency
+        value={formatCurrency(totals.commissionCredited, locale, CURRENCY)}
       />
       <TotalsStat
         label={
@@ -328,9 +321,7 @@ function TotalsBanner({
             explainKey="analytics.explain.heldCommissions"
           />
         }
-        value={asInt(totals.totalHoldedCommission)}
-        locale={locale}
-        currency
+        value={formatCurrency(totals.totalHoldedCommission, locale, CURRENCY)}
       />
     </div>
   );
@@ -339,23 +330,16 @@ function TotalsBanner({
 function TotalsStat({
   label,
   value,
-  locale,
-  currency,
 }: {
   label: ReactNode;
-  value: number;
-  locale: 'en' | 'ar';
-  currency?: boolean;
+  value: string;
 }) {
   return (
     <div className="leading-tight">
       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 text-lg font-bold tabular-nums">
-        {formatNumber(value, locale)}
-        {currency ? <span className="ms-1 text-xs font-medium text-muted-foreground">{CURRENCY}</span> : null}
-      </p>
+      <p className="mt-1 text-lg font-bold tabular-nums">{value}</p>
     </div>
   );
 }
@@ -376,9 +360,6 @@ function StatusCard({
   const tone = TONE_CLASSES[meta.tone];
   const Icon = meta.icon;
   const orders = asInt(bucket.ordersCount);
-  const sales = asInt(bucket.totalSales);
-  const commission = asInt(bucket.commissionOnSales);
-  const held = asInt(bucket.totalHoldedCommission);
   const pct = Math.min(100, (orders / maxOrders) * 100);
 
   return (
@@ -397,28 +378,22 @@ function StatusCard({
         />
         <StatRow
           label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
-          value={
-            <>
-              {formatNumber(sales, locale)}{' '}
-              <span className="text-xs text-muted-foreground">{CURRENCY}</span>
-            </>
-          }
+          value={formatCurrency(bucket.totalSales, locale, CURRENCY)}
         />
         <StatRow
           label={
             <ExplainLabel
-              labelKey="commissions.title"
+              labelKey="analytics.commissionOnOrders"
               explainKey="analytics.explain.commissionOnSales"
             />
           }
           value={
             <span className="text-primary">
-              {formatNumber(commission, locale)}{' '}
-              <span className="text-xs text-muted-foreground">{CURRENCY}</span>
+              {formatCurrency(bucket.commissionOnSales, locale, CURRENCY)}
             </span>
           }
         />
-        {held > 0 && (
+        {bucket.totalHoldedCommission > 0 && (
           <StatRow
             label={
               <ExplainLabel
@@ -428,8 +403,7 @@ function StatusCard({
             }
             value={
               <span className="text-amber-600">
-                {formatNumber(held, locale)}{' '}
-                <span className="text-xs text-muted-foreground">{CURRENCY}</span>
+                {formatCurrency(bucket.totalHoldedCommission, locale, CURRENCY)}
               </span>
             }
           />

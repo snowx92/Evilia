@@ -193,10 +193,8 @@ export default function CommissionsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ALL}>{t('common.all')}</SelectItem>
-                <SelectItem value="pending">{t('status.pending')}</SelectItem>
                 <SelectItem value="credited">{t('status.credited')}</SelectItem>
-                <SelectItem value="paid">{t('status.paid')}</SelectItem>
-                <SelectItem value="cancelled">{t('status.cancelled')}</SelectItem>
+                <SelectItem value="reversed">{t('status.reversed')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

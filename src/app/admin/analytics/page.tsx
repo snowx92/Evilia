@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Calendar, CalendarRange, TrendingUp } from 'lucide-react';
+import { Calendar, CalendarRange, Package, TrendingUp } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { ErrorState } from '@/components/shared/error-state';
 import {
@@ -57,6 +57,12 @@ export default function AnalyticsPage() {
         description={t('analytics.subtitle')}
       />
 
+      {/* ───── Section 0: Order pipeline (filterable) ───────────────── */}
+      <SectionHeader
+        icon={Package}
+        title={t('analytics.section.pipeline')}
+        description={t('analytics.section.pipelineDesc')}
+      />
       <SalesStatusCards />
 
       {/* ───── Section 1: Today's pulse ──────────────────────────────── */}

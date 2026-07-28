@@ -1,12 +1,7 @@
 import type { PaginationParams } from '@/types/api';
 import type { TimestampLike } from '@/lib/utils';
 
-export type CommissionStatus =
-  | 'pending'
-  | 'credited'
-  | 'paid'
-  | 'cancelled'
-  | (string & {});
+export type CommissionStatus = 'credited' | 'reversed' | (string & {});
 
 export type Commission = {
   id: string;
