@@ -390,19 +390,21 @@ function StatusCard({
           label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
           value={formatCurrency(bucket.totalSales, locale, CURRENCY)}
         />
-        <StatRow
-          label={
-            <ExplainLabel
-              labelKey="analytics.commissionOnOrders"
-              explainKey="analytics.explain.commissionOnSales"
-            />
-          }
-          value={
-            <span className="text-primary">
-              {formatCurrency(bucket.commissionOnSales, locale, CURRENCY)}
-            </span>
-          }
-        />
+        {bucket.commissionOnSales > 0 && (
+          <StatRow
+            label={
+              <ExplainLabel
+                labelKey="analytics.commissionOnOrders"
+                explainKey="analytics.explain.commissionOnSales"
+              />
+            }
+            value={
+              <span className="text-primary">
+                {formatCurrency(bucket.commissionOnSales, locale, CURRENCY)}
+              </span>
+            }
+          />
+        )}
         {bucket.totalHoldedCommission > 0 && (
           <StatRow
             label={
