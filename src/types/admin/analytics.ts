@@ -292,3 +292,116 @@ export type UserMonthlyHistoryEntry = {
   salesAmount: number;
   commissionsEarned: number;
 };
+
+// ─── /v1/admin/analytics/owner-overview (live home cockpit) ───────────────────
+
+export type OwnerPipelineBucket = {
+  orders: number;
+  salesAmount: number;
+  heldCommission?: number;
+  commissionOnSales?: number;
+};
+
+export type OwnerOverviewResponse = {
+  wallets: {
+    totalBalance: number;
+    /** balance − pendingWithdrawal across all seller wallets */
+    totalAvailable: number;
+    /** Sum of onGoingOrdersBalance — commissions not yet released */
+    totalHeld: number;
+    totalPendingWithdrawal: number;
+    totalEarned: number;
+    totalWithdrawn: number;
+    walletCount: number;
+  };
+  withdrawals: {
+    pendingCount: number;
+    pendingAmount: number;
+  };
+  pipeline: {
+    pending: OwnerPipelineBucket;
+    processing: OwnerPipelineBucket;
+    delivered: OwnerPipelineBucket;
+    failed: OwnerPipelineBucket;
+  };
+  today: {
+    date: string;
+    salesAmount: number;
+    salesCount: number;
+    commissionsCredited: number;
+    commissionsCount: number;
+    activeSellers: number;
+  };
+  month: {
+    month: string;
+    salesAmount: number;
+    salesCount: number;
+    commissionsCredited: number;
+    commissionsCount: number;
+  };
+  ops: {
+    activeSellersToday: number;
+    walletCount: number;
+  };
+};
+
+// ─── /v1/admin/analytics/owner-report (range P&L) ─────────────────────────────
+
+export type OwnerReportParams = {
+  from: string;
+  to: string;
+};
+
+export type OwnerReportAmount = {
+  amount: number;
+  count?: number;
+  changePercentage: number;
+};
+
+export type OwnerReportTopSeller = {
+  rank: number;
+  userId: string;
+  displayName: string | null;
+  sellerCode: string | null;
+  salesAmount: number;
+  salesCount: number;
+  user: User | null;
+};
+
+export type OwnerReportResponse = {
+  range: { from: string; to: string; timezone: string };
+  formula: {
+    /** Always `gmv - commissionsCredited - expenses` */
+    contribution: string;
+    description: string;
+  };
+  pnl: {
+    gmv: OwnerReportAmount;
+    commissionsCredited: OwnerReportAmount;
+    expenses: OwnerReportAmount;
+    withdrawalsPaid: OwnerReportAmount;
+    contribution: { amount: number; changePercentage: number };
+    /** Live held commissions across wallets (not range-scoped) */
+    heldCommission: number;
+  };
+  team: {
+    activeSellers: { count: number; changePercentage: number };
+    newSellers: { count: number; changePercentage: number };
+    topSellers: OwnerReportTopSeller[];
+  };
+  ops: {
+    deliveryRate: number | null;
+    failedRate: number | null;
+    salesByStatus: DashboardSalesByStatus;
+    withdrawalsByStatus: DashboardWithdrawalsByStatus;
+    pendingWithdrawals: { count: number; amount: number };
+  };
+  trends: {
+    gmv: Array<{ date: string; amount: number }>;
+    commissions: Array<{ date: string; amount: number }>;
+    expenses: Array<{ date: string; amount: number }>;
+    contribution: Array<{ date: string; amount: number }>;
+    withdrawals: Array<{ date: string; amount: number }>;
+    newSellers: Array<{ date: string; count: number }>;
+  };
+};

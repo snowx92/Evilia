@@ -7,6 +7,9 @@ import type {
   DashboardRangeParams,
   LeaderboardParams,
   LeaderboardResponse,
+  OwnerOverviewResponse,
+  OwnerReportParams,
+  OwnerReportResponse,
   SalesAnalyticsParams,
   SalesAnalyticsResponse,
   UserMonthlyAnalytics,
@@ -20,6 +23,18 @@ export const analyticsService = {
   dashboard: (params: DashboardRangeParams) =>
     unwrap(
       api.get<ApiResponse<AnalyticsDashboardResponse>>('/v1/admin/analytics/dashboard', {
+        params,
+      }),
+    ),
+
+  /** GET /v1/admin/analytics/owner-overview — live money + pipeline for home. */
+  ownerOverview: () =>
+    unwrap(api.get<ApiResponse<OwnerOverviewResponse>>('/v1/admin/analytics/owner-overview')),
+
+  /** GET /v1/admin/analytics/owner-report?from&to — range P&L + trends. */
+  ownerReport: (params: OwnerReportParams) =>
+    unwrap(
+      api.get<ApiResponse<OwnerReportResponse>>('/v1/admin/analytics/owner-report', {
         params,
       }),
     ),

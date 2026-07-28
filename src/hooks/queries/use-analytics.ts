@@ -8,6 +8,7 @@ import type {
   DailyAnalyticsSummary,
   DashboardRangeParams,
   LeaderboardParams,
+  OwnerReportParams,
   SalesAnalyticsParams,
   UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
@@ -18,6 +19,28 @@ export function useAnalyticsDashboardQuery(params: DashboardRangeParams) {
   return useQuery({
     queryKey: queryKeys.analytics.dashboard(params),
     queryFn: () => analyticsService.dashboard(params),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+/* ── /v1/admin/analytics/owner-overview ───────────────────────────────────── */
+
+export function useOwnerOverviewQuery() {
+  return useQuery({
+    queryKey: queryKeys.analytics.ownerOverview,
+    queryFn: () => analyticsService.ownerOverview(),
+    staleTime: 60_000,
+  });
+}
+
+/* ── /v1/admin/analytics/owner-report ─────────────────────────────────────── */
+
+export function useOwnerReportQuery(params: OwnerReportParams) {
+  return useQuery({
+    queryKey: queryKeys.analytics.ownerReport(params),
+    queryFn: () => analyticsService.ownerReport(params),
+    enabled: Boolean(params.from) && Boolean(params.to),
     staleTime: 60_000,
     placeholderData: (prev) => prev,
   });

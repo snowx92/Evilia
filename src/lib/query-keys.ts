@@ -20,6 +20,9 @@ export const queryKeys = {
   analytics: {
     dashboard: (params: Record<string, unknown>) =>
       ['analytics', 'dashboard', params] as const,
+    ownerOverview: ['analytics', 'owner-overview'] as const,
+    ownerReport: (params: Record<string, unknown>) =>
+      ['analytics', 'owner-report', params] as const,
     sales: (params: Record<string, unknown>) =>
       ['analytics', 'sales', params] as const,
     daily: (params: Record<string, unknown>) => ['analytics', 'daily', params] as const,

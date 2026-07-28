@@ -108,7 +108,7 @@
   },
   "dashboard": {
     "title": "Overview",
-    "homeSubtitle": "Platform pulse for today, plus the live order pipeline",
+    "homeSubtitle": "Money in the system, open pipeline, and what needs your attention",
     "totalSales": "Total sales",
     "totalCommissions": "Total commissions",
     "todaySales": "Today's sales",
@@ -128,11 +128,35 @@
     "pendingWithdrawals": "Pending withdrawals",
     "pendingWithdrawalsCount": "{count} pending",
     "reviewNow": "Review",
+    "monthDelivered": "This month delivered",
+    "monthCommissions": "This month commissions",
+    "money": {
+      "available": "Available to pay out",
+      "balance": "Wallet balances",
+      "held": "Held until delivery",
+      "heldHint": "Not withdrawable yet",
+      "pendingWithdrawals": "Pending withdrawals",
+      "earned": "Lifetime earned",
+      "withdrawn": "Lifetime withdrawn",
+      "wallets": "Seller wallets"
+    },
+    "pipeline": {
+      "pendingOrders": "Pending orders",
+      "processingOrders": "Processing orders",
+      "expectedGmv": "Expected GMV in flight",
+      "heldCommission": "Held commissions in flight"
+    },
     "section": {
       "today": "Today's pulse",
       "todayDesc": "Platform-wide numbers for the current calendar day",
       "pipeline": "Order pipeline",
-      "pipelineDesc": "All platform orders by status. Filter by seller or date range. Commission amounts are what sellers earn — not order profit."
+      "pipelineDesc": "All platform orders by status. Filter by seller or date range. Commission amounts are what sellers earn — not order profit.",
+      "money": "Money in the system",
+      "moneyDesc": "Withdrawable cash vs held earnings vs payouts waiting on you",
+      "inFlight": "Pipeline in flight",
+      "inFlightDesc": "Open orders still pending or processing — expected sales and held commissions",
+      "pulse": "Today & this month",
+      "pulseDesc": "Delivered sales and commissions credited"
     },
     "explain": {
       "totalSales": "Gross order value for the selected period (or today on the home dashboard).",
@@ -143,7 +167,19 @@
       "deliveredSales": "Value of orders marked delivered in the selected range.",
       "pendingPipeline": "Value of orders still pending or processing — not delivered yet.",
       "newSellers": "Sellers who joined during the selected range.",
-      "withdrawals": "Total withdrawal amount in the selected range."
+      "withdrawals": "Total withdrawal amount in the selected range.",
+      "available": "Sum of (balance − pending withdrawal) across every seller wallet — cash you can pay out now.",
+      "held": "Sum of onGoingOrdersBalance — commissions reserved on undelivered orders. Not in balance yet.",
+      "pendingWithdrawalAmount": "Cash already locked for pending payout requests (not free to reassign).",
+      "earned": "Lifetime commissions credited to seller wallets.",
+      "withdrawn": "Lifetime cash already paid out to sellers.",
+      "walletCount": "Number of seller wallets on the platform.",
+      "pendingOrders": "Orders still waiting to be processed.",
+      "processingOrders": "Orders currently being fulfilled.",
+      "expectedGmv": "Gross sales value of pending + processing orders still in flight.",
+      "pipelineHeld": "Commissions reserved on pending + processing orders until delivery.",
+      "monthDelivered": "Delivered order GMV imported this calendar month.",
+      "monthCommissions": "Commissions credited to wallets this calendar month."
     }
   },
   "users": {
@@ -455,7 +491,7 @@
   },
   "analytics": {
     "title": "Analytics",
-    "subtitle": "Sales, commissions, withdrawals and seller performance",
+    "subtitle": "Range P&L, contribution, trends, and team performance",
     "daily": "Daily summary",
     "monthly": "Monthly user analytics",
     "leaderboard": "Top performers",
@@ -466,9 +502,43 @@
       "todayDesc": "Live snapshot for the current day",
       "pipeline": "Order pipeline",
       "pipelineDesc": "Orders, sales value, and commissions by status. Filter by seller or date. “On orders” is embedded sale commission; “Credited” is wallet ledger credits in the date range.",
-      "range": "Range analysis",
+      "range": "Report range",
+      "pnl": "P&L for range",
+      "pnlDesc": "Gross sales, costs, and contribution after commissions & expenses",
+      "trends": "Trends",
+      "trendsDesc": "How GMV, costs, and contribution moved day by day",
+      "team": "Team performance",
+      "teamDesc": "Active sellers, new joiners, and top performers in this range",
+      "secondary": "Orders & withdrawals",
+      "secondaryDesc": "Status mix and payout breakdown for the selected range",
       "monthly": "Monthly performance",
       "monthlyDesc": "Leaderboards and per-seller monthly history"
+    },
+    "pnl": {
+      "gmv": "Gross sales (GMV)",
+      "commissions": "Commissions credited",
+      "expenses": "Expenses paid",
+      "withdrawalsPaid": "Withdrawals paid",
+      "contribution": "Contribution after commissions & expenses",
+      "contributionHint": "GMV − commissions − expenses",
+      "heldCommission": "Held commissions (live)",
+      "heldHint": "Still reserved on undelivered orders",
+      "formula": "Contribution = GMV − commissions credited − expenses. Withdrawals are cash outflow (liquidity), not subtracted here. Product COGS is not tracked.",
+      "expenseCount": "{count} expenses"
+    },
+    "charts": {
+      "revenueCosts": "Revenue & costs over time",
+      "revenueCostsDesc": "GMV, commissions, expenses, and contribution by day"
+    },
+    "team": {
+      "activeSellers": "Active sellers",
+      "newSellers": "New sellers",
+      "topSellers": "Top sellers by sales",
+      "topSellersDesc": "Highest GMV in the selected range"
+    },
+    "ops": {
+      "deliveryRate": "Delivery rate",
+      "failedRate": "Failed rate"
     },
     "preset": {
       "last7": "Last 7 days",
@@ -485,7 +555,17 @@
       "heldCommissions": "Commission reserved on pending/processing orders and not released yet. Not withdrawable until the order is delivered.",
       "commissionCredited": "Commission written to the wallet ledger in the selected date range (by credit date). Can differ from “on orders” when dates don’t match.",
       "commissionOnSales": "Your/sellers’ commission already attached to these orders after delivery (from sale.commissions).",
-      "networkSales": "Sales attributed to the seller's downline network for the selected month."
+      "networkSales": "Sales attributed to the seller's downline network for the selected month.",
+      "gmv": "Gross merchandise value of tracked orders imported in the range (pending, processing, delivered, failed).",
+      "commissions": "Affiliate commissions credited to seller wallets in the range (ledger by credit date).",
+      "expenses": "Operating expenses recorded in the expenses module for the range.",
+      "contribution": "GMV minus commissions credited minus expenses. Not net profit — product COGS is not in the system.",
+      "withdrawalsPaid": "Cash paid out to sellers in the range (liquidity). Already counted as cost when commissions were credited.",
+      "heldCommission": "Live sum of commissions still held on undelivered orders across all wallets.",
+      "activeSellers": "Sellers with activity (lastActive) inside the selected range.",
+      "newSellers": "Sellers whose accounts were created in the selected range.",
+      "deliveryRate": "Delivered orders ÷ (delivered + failed) in the range.",
+      "failedRate": "Failed orders ÷ (delivered + failed) in the range."
     }
   },
   "access": {
