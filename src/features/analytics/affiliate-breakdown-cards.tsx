@@ -35,6 +35,9 @@ export function AffiliateBreakdownCards({
     queryFn: ({ signal }) =>
       fetchAffiliateCounters({ sellerCode: code, from, to, locale, signal }),
     enabled: Boolean(code),
+    // Vondera affiliate API is aggressively rate-limited and errors like bad
+    // password won't recover on retry — don't burn the quota on retries.
+    retry: false,
     staleTime: 60_000,
   });
 
