@@ -26,10 +26,11 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { ExplainLabel } from '@/components/shared/explain-label';
 import { useSalesAnalyticsQuery } from '@/hooks/queries/use-analytics';
-import { useUsersQuery } from '@/hooks/queries/use-users';
+import { useUsersQuery, useUserQuery } from '@/hooks/queries/use-users';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
 import { cn, formatCurrency, formatNumber } from '@/lib/utils';
+import { AffiliateBreakdownCards } from './affiliate-breakdown-cards';
 import type {
   SalesAnalyticsBucket,
   SalesAnalyticsResponse,
@@ -172,6 +173,11 @@ export function SalesStatusCards({
   const query = useSalesAnalyticsQuery(params);
   const data = query.data;
 
+  // Resolve the seller's affiliate sellerCode when a seller is scoped
+  // (either locked on the profile page or picked via the SellerFilter).
+  const sellerDetail = useUserQuery(sellerId ?? '');
+  const sellerCode = sellerId ? sellerDetail.data?.sellerCode ?? undefined : undefined;
+
   const buckets = useMemo(() => bucketList(data), [data]);
   const totals = data?.totals;
   const maxOrders = useMemo(
@@ -243,6 +249,14 @@ export function SalesStatusCards({
                   />
                 ))}
               </div>
+            )}
+
+            {sellerCode && (
+              <AffiliateBreakdownCards
+                sellerCode={sellerCode}
+                from={safe.from}
+                to={safe.to}
+              />
             )}
           </>
         )}

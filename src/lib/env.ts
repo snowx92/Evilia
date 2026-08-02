@@ -14,6 +14,11 @@ export const env = {
     '',
   ),
   defaultLocale: (process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'ar') as 'ar' | 'en',
+  affiliate: {
+    password: process.env.NEXT_PUBLIC_AFFILIATE_PASSWORD ?? '',
+    linkBase:
+      process.env.NEXT_PUBLIC_AFFILIATE_LINK_BASE ?? 'https://lunacaree.com?aff=',
+  },
   firebase: {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '',
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',

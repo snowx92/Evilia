@@ -581,6 +581,11 @@
     "admins": "Admins",
     "editPermissions": "Edit admin permissions"
   },
+  "affiliate": {
+    "visits": "Visits",
+    "views": "Views",
+    "addedToCart": "Added to cart"
+  },
   "status": {
     "active": "Active",
     "inactive": "Inactive",

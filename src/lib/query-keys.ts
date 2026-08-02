@@ -72,4 +72,8 @@ export const queryKeys = {
     withdrawals: (params: Record<string, unknown>) =>
       ['seller', 'withdrawals', params] as const,
   },
+  affiliate: {
+    counters: (sellerCode: string, from?: string, to?: string) =>
+      ['affiliate', 'counters', sellerCode, from ?? '', to ?? ''] as const,
+  },
 } as const;

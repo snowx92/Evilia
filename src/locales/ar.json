@@ -581,6 +581,11 @@
     "admins": "المشرفون",
     "editPermissions": "تعديل صلاحيات المشرف"
   },
+  "affiliate": {
+    "visits": "الزيارات",
+    "views": "المشاهدات",
+    "addedToCart": "أُضيف للسلة"
+  },
   "status": {
     "active": "نشط",
     "inactive": "غير نشط",
