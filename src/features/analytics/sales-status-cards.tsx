@@ -360,9 +360,9 @@ function TotalsStat({
 }) {
   return (
     <div className="leading-tight">
-      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
-      </p>
+      </div>
       <p className="mt-1 text-lg font-bold tabular-nums">{value}</p>
     </div>
   );
