@@ -39,7 +39,7 @@ export const analyticsService = {
       }),
     ),
 
-  /** GET /v1/admin/analytics/sales?from&to&sellerId — per-status breakdown. */
+  /** GET /v1/admin/analytics/sales?from&to&sellerId&scope — per-status breakdown. */
   sales: (params: SalesAnalyticsParams) =>
     unwrap(
       api.get<ApiResponse<SalesAnalyticsResponse>>('/v1/admin/analytics/sales', {
@@ -47,6 +47,7 @@ export const analyticsService = {
           from: params.from,
           to: params.to,
           ...(params.sellerId ? { sellerId: params.sellerId } : {}),
+          ...(params.scope ? { scope: params.scope } : {}),
         },
       }),
     ),

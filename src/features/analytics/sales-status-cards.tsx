@@ -165,13 +165,19 @@ export function SalesStatusCards({
   const [sellerId, setSellerId] = useState<string | undefined>(lockedSellerId);
 
   const safe = from > to ? { from: to, to: from } : { from, to };
+  // Seller profile / seller filter: match seller dashboard (own sales only).
+  // Platform-wide (no sellerId) stays unscoped. Pass scope=network only if we
+  // intentionally want seller + team elsewhere.
   const params = {
     from: safe.from,
     to: safe.to,
-    ...(sellerId ? { sellerId } : {}),
+    ...(sellerId ? { sellerId, scope: 'direct' as const } : {}),
   };
   const query = useSalesAnalyticsQuery(params);
   const data = query.data;
+  const descKey = sellerId
+    ? 'analytics.salesByStatusDescSeller'
+    : 'analytics.salesByStatusDesc';
 
   // Resolve the seller's affiliate sellerCode when a seller is scoped
   // (either locked on the profile page or picked via the SellerFilter).
@@ -193,7 +199,7 @@ export function SalesStatusCards({
             <Package className="h-4 w-4 text-primary" />
             {t('analytics.salesByStatusTitle')}
           </CardTitle>
-          <CardDescription>{t('analytics.salesByStatusDesc')}</CardDescription>
+          <CardDescription>{t(descKey)}</CardDescription>
         </div>
         <div className="flex flex-wrap items-end gap-2">
           {!lockedSellerId && (

@@ -554,6 +554,7 @@
     },
     "salesByStatusTitle": "Breakdown by status",
     "salesByStatusDesc": "Pick a date range (and optionally a seller). Pending/failed/deleted by import date; processing by processedAt; delivered by deliveredAt; credited commissions by credit date.",
+    "salesByStatusDescSeller": "This seller's own (direct) orders only — not their team. Pending/failed/deleted by import date; processing by processedAt; delivered by deliveredAt; credited commissions by credit date.",
     "excludedFromGmv": "Excluded from GMV",
     "heldCommissions": "Held on these orders",
     "commissionCredited": "Credited to wallets",

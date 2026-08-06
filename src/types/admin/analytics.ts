@@ -170,6 +170,11 @@ export type SalesAnalyticsParams = {
   to: string;
   /** Optional — when omitted the API returns aggregates across every seller. */
   sellerId?: string;
+  /**
+   * When `sellerId` is set: `direct` = that seller's own sales only;
+   * `network` = seller + downline. Defaults to API `network` if omitted.
+   */
+  scope?: 'direct' | 'network';
 };
 
 export type SalesAnalyticsBucket = {
