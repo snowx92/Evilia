@@ -35,7 +35,6 @@ import type {
   SalesAnalyticsBucket,
   SalesAnalyticsResponse,
   SalesAnalyticsStatus,
-  SalesAnalyticsTotals,
 } from '@/types/admin/analytics';
 
 const ALL = '__all__';
@@ -185,7 +184,6 @@ export function SalesStatusCards({
   const sellerCode = sellerId ? sellerDetail.data?.sellerCode ?? undefined : undefined;
 
   const buckets = useMemo(() => bucketList(data), [data]);
-  const totals = data?.totals;
   const maxOrders = useMemo(
     () => Math.max(1, ...buckets.map((b) => b.bucket.ordersCount)),
     [buckets],
@@ -228,12 +226,18 @@ export function SalesStatusCards({
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
+        {sellerCode && (
+          <AffiliateBreakdownCards
+            sellerCode={sellerCode}
+            from={safe.from}
+            to={safe.to}
+          />
+        )}
+
         {query.isError ? (
           <ErrorState onRetry={() => query.refetch()} />
         ) : (
           <>
-            <TotalsBanner totals={totals} isLoading={query.isLoading} locale={locale} />
-
             {query.isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -255,14 +259,6 @@ export function SalesStatusCards({
                   />
                 ))}
               </div>
-            )}
-
-            {sellerCode && (
-              <AffiliateBreakdownCards
-                sellerCode={sellerCode}
-                from={safe.from}
-                to={safe.to}
-              />
             )}
           </>
         )}
@@ -301,75 +297,6 @@ function SellerFilter({
           ))}
         </SelectContent>
       </Select>
-    </div>
-  );
-}
-
-function TotalsBanner({
-  totals,
-  isLoading,
-  locale,
-}: {
-  totals: SalesAnalyticsTotals | undefined;
-  isLoading: boolean;
-  locale: 'en' | 'ar';
-}) {
-  if (isLoading) return <Skeleton className="h-16 w-full rounded-2xl" />;
-  if (!totals) return null;
-  return (
-    <div className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4 sm:grid-cols-2 lg:grid-cols-5">
-      <TotalsStat
-        label={<ExplainLabel labelKey="sales.orders" explainKey="sales.explain.orders" />}
-        value={formatNumber(asInt(totals.ordersCount), locale)}
-      />
-      <TotalsStat
-        label={<ExplainLabel labelKey="dashboard.totalSales" explainKey="dashboard.explain.totalSales" />}
-        value={formatCurrency(totals.totalSales, locale, CURRENCY)}
-      />
-      <TotalsStat
-        label={
-          <ExplainLabel
-            labelKey="analytics.commissionOnOrders"
-            explainKey="analytics.explain.commissionOnSales"
-          />
-        }
-        value={formatCurrency(totals.commissionOnSales, locale, CURRENCY)}
-      />
-      <TotalsStat
-        label={
-          <ExplainLabel
-            labelKey="analytics.commissionCredited"
-            explainKey="analytics.explain.commissionCredited"
-          />
-        }
-        value={formatCurrency(totals.commissionCredited, locale, CURRENCY)}
-      />
-      <TotalsStat
-        label={
-          <ExplainLabel
-            labelKey="analytics.heldCommissions"
-            explainKey="analytics.explain.heldCommissions"
-          />
-        }
-        value={formatCurrency(totals.totalHoldedCommission, locale, CURRENCY)}
-      />
-    </div>
-  );
-}
-
-function TotalsStat({
-  label,
-  value,
-}: {
-  label: ReactNode;
-  value: string;
-}) {
-  return (
-    <div className="leading-tight">
-      <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <p className="mt-1 text-lg font-bold tabular-nums">{value}</p>
     </div>
   );
 }
