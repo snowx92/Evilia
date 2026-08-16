@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  AlertTriangle,
   Crown,
   Eye,
   Loader2,
@@ -630,6 +631,8 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
       status: 'active',
       language: 'en',
       parentId: null,
+      parentName: null,
+      parentMissing: false,
       createdAt: '' as TreeNode['createdAt'],
       children: shifted,
       depth: 0,

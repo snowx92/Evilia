@@ -5,26 +5,48 @@ export type TreeNode = User & {
   depth: number;
   /** Total direct + indirect reports. */
   descendantCount: number;
+  /** Resolved displayName of `parentId`, when that user exists in this dataset. */
+  parentName: string | null;
+  /**
+   * `parentId` is set but no user with that id was found in the dataset —
+   * the node silently becomes a root, which is exactly the kind of
+   * "misplaced" seller admins can't otherwise spot in the tree view.
+   */
+  parentMissing: boolean;
 };
 
 /**
  * Build a forest of TreeNodes from a flat users list using `parentId`.
  * Users whose parent isn't in the list become roots (so the page shows
- * everything, never drops orphans).
+ * everything, never drops orphans) but are flagged via `parentMissing` so
+ * the UI can surface the broken link instead of rendering them as if they
+ * were intentionally top-level.
  */
 export function buildTree(users: User[]): TreeNode[] {
   const byId = new Map<string, TreeNode>();
   users.forEach((u) =>
-    byId.set(u.id, { ...u, children: [], depth: 0, descendantCount: 0 }),
+    byId.set(u.id, {
+      ...u,
+      children: [],
+      depth: 0,
+      descendantCount: 0,
+      parentName: null,
+      parentMissing: false,
+    }),
   );
 
   const roots: TreeNode[] = [];
   byId.forEach((node) => {
-    if (node.parentId && byId.has(node.parentId)) {
-      byId.get(node.parentId)!.children.push(node);
-    } else {
-      roots.push(node);
+    if (node.parentId) {
+      const parent = byId.get(node.parentId);
+      if (parent) {
+        node.parentName = parent.displayName;
+        parent.children.push(node);
+        return;
+      }
+      node.parentMissing = true;
     }
+    roots.push(node);
   });
 
   const computeDepth = (node: TreeNode, d: number): number => {
