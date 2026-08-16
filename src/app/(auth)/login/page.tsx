@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -34,11 +35,23 @@ const buildSchema = (t: (k: string) => string) =>
 
 type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 
-const QUOTES = [
+const QUOTE_POOL = [
   'auth.quoteTeam',
   'auth.quoteGrowth',
   'auth.quoteVision',
+  'auth.quoteCourage',
+  'auth.quotePersistence',
+  'auth.quoteConsistency',
+  'auth.quoteResilience',
+  'auth.quoteFocus',
+  'auth.quoteBelief',
 ] as const;
+const QUOTE_COUNT = 3;
+
+function pickRandomQuotes(): readonly (typeof QUOTE_POOL)[number][] {
+  const shuffled = [...QUOTE_POOL].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, QUOTE_COUNT);
+}
 
 // ── Tree diagram (SVG) ────────────────────────────────────────────────────
 // Pure SVG so it renders identically in RTL/LTR — content is symmetric.
@@ -109,6 +122,15 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const login = useLoginMutation();
   const schema = buildSchema(t);
+
+  // Randomized client-side only — SSR/client would otherwise pick different
+  // quotes and trip a hydration mismatch (same class of bug as date fields).
+  const [quotes, setQuotes] = useState<readonly (typeof QUOTE_POOL)[number][]>(
+    QUOTE_POOL.slice(0, QUOTE_COUNT),
+  );
+  useEffect(() => {
+    setQuotes(pickRandomQuotes());
+  }, []);
 
   const {
     register,
@@ -200,7 +222,7 @@ export default function LoginPage() {
           }}
           className="relative z-10 grid grid-cols-3 gap-3"
         >
-          {QUOTES.map((key) => (
+          {quotes.map((key) => (
             <motion.li
               key={key}
               variants={{

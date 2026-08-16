@@ -104,7 +104,13 @@
     "sellerLogin": "Seller sign in",
     "quoteTeam": "Great teams are built on trust, not titles.",
     "quoteGrowth": "Growth follows everyone who keeps showing up.",
-    "quoteVision": "Vision becomes momentum when shared."
+    "quoteVision": "Vision becomes momentum when shared.",
+    "quoteCourage": "Courage isn't the absence of fear — it's showing up anyway.",
+    "quotePersistence": "Every \"no\" gets you closer to a \"yes\".",
+    "quoteConsistency": "Small steps, repeated daily, outrun big leaps taken rarely.",
+    "quoteResilience": "Setbacks are setups for stronger comebacks.",
+    "quoteFocus": "Discipline today. Freedom tomorrow.",
+    "quoteBelief": "Believe you can, and you're halfway there."
   },
   "dashboard": {
     "title": "Overview",
