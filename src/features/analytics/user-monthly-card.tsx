@@ -55,7 +55,7 @@ export function UserMonthlyCard() {
         ) : monthly.isLoading ? (
           <Skeleton className="h-24 w-full" />
         ) : m ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <ExplainLabel
@@ -77,6 +77,9 @@ export function UserMonthlyCard() {
               <p className="mt-1 text-xl font-semibold tracking-tight">
                 {formatCurrency(m.directCommissionsEarned ?? m.commissionsEarned, locale)}
               </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {t('users.detail.creditedThisMonth')}
+              </p>
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -85,12 +88,48 @@ export function UserMonthlyCard() {
               <p className="mt-1 text-xl font-semibold tracking-tight">
                 {formatCurrency(m.networkCommissionsEarned ?? 0, locale)}
               </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {t('users.detail.creditedThisMonth')}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                {t('users.detail.networkCommissionsExpected')}
+              </p>
+              <p className="mt-1 text-xl font-semibold tracking-tight">
+                {formatCurrency(m.networkCommissionsExpected ?? 0, locale)}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {t('users.detail.expectedFromDelivered')}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                {t('users.detail.networkCommissionsHeld')}
+              </p>
+              <p className="mt-1 text-xl font-semibold tracking-tight">
+                {formatCurrency(m.networkCommissionsHeld ?? 0, locale)}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {t('users.detail.heldLive')}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <ExplainLabel
+                  labelKey="users.detail.networkSalesDelivered"
+                  explainKey="users.detail.networkSalesDeliveredHint"
+                />
+              </p>
+              <p className="mt-1 text-xl font-semibold tracking-tight">
+                {formatCurrency(m.networkSalesDeliveredAmount ?? 0, locale)}
+              </p>
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <ExplainLabel
                   labelKey="analytics.networkSales"
-                  explainKey="analytics.explain.networkSales"
+                  explainKey="users.detail.networkSalesHint"
                 />
               </p>
               <p className="mt-1 text-xl font-semibold tracking-tight">

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { use, useState } from 'react';
 import Link from 'next/link';
 import { format, parseISO, subMonths } from 'date-fns';
@@ -39,6 +40,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { ErrorState } from '@/components/shared/error-state';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { RoleBadge } from '@/components/shared/role-badge';
+import { ExplainLabel } from '@/components/shared/explain-label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage, getInitials } from '@/components/ui/avatar';
@@ -569,7 +571,7 @@ function AnalyticsSection({ userId }: { userId: string }) {
               <BarChart3 className="h-4 w-4 text-primary" />
               {t('users.detail.analytics')}
             </CardTitle>
-            <CardDescription>{t('users.detail.tabs.performanceDesc')}</CardDescription>
+            <CardDescription>{t('users.detail.performanceRangeHint')}</CardDescription>
           </div>
           <div className="space-y-1.5">
             <Label className="text-[11px]">{t('analytics.month')}</Label>
@@ -590,41 +592,100 @@ function AnalyticsSection({ userId }: { userId: string }) {
               ))}
             </div>
           ) : m ? (
-            <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <Stat
-                label={t('users.detail.directSales')}
-                primary={formatCurrency(m.salesAmount, locale)}
-                secondary={`${m.salesCount} ${t('sales.title')}`}
-              />
-              <Stat
-                label={t('users.detail.directCommissions')}
-                primary={formatCurrency(
-                  m.directCommissionsEarned ?? m.commissionsEarned,
-                  locale,
-                )}
-                secondary={t('users.detail.directCommissionsHint')}
-              />
-              <Stat
-                label={t('users.detail.networkCommissions')}
-                primary={formatCurrency(m.networkCommissionsEarned ?? 0, locale)}
-                secondary={t('users.detail.networkCommissionsHint')}
-              />
-              <Stat
-                label={t('users.detail.networkSales')}
-                primary={formatCurrency(m.networkSalesAmount, locale)}
-                secondary={`${m.networkSalesCount} ${t('sales.title')}`}
-              />
-              <Stat
-                label={t('users.detail.teamSize')}
-                primary={String(m.teamSize ?? '—')}
-                secondary={t('users.detail.teamSizeHint')}
-              />
-              <Stat
-                label={t('users.detail.ordersThisMonth')}
-                primary={String(m.salesCount)}
-                secondary={`${t('users.detail.networkCount')}: ${m.networkSalesCount}`}
-              />
-            </dl>
+            <div className="space-y-8">
+              <div>
+                <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t('users.detail.commissionGroup')}
+                </p>
+                <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.directCommissions"
+                        explainKey="users.detail.directCommissionsHint"
+                      />
+                    }
+                    primary={formatCurrency(
+                      m.directCommissionsEarned ?? m.commissionsEarned,
+                      locale,
+                    )}
+                    secondary={t('users.detail.creditedThisMonth')}
+                  />
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.networkCommissions"
+                        explainKey="users.detail.networkCommissionsHint"
+                      />
+                    }
+                    primary={formatCurrency(m.networkCommissionsEarned ?? 0, locale)}
+                    secondary={t('users.detail.creditedThisMonth')}
+                  />
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.networkCommissionsExpected"
+                        explainKey="users.detail.networkCommissionsExpectedHint"
+                      />
+                    }
+                    primary={formatCurrency(m.networkCommissionsExpected ?? 0, locale)}
+                    secondary={t('users.detail.expectedFromDelivered')}
+                  />
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.networkCommissionsHeld"
+                        explainKey="users.detail.networkCommissionsHeldHint"
+                      />
+                    }
+                    primary={formatCurrency(m.networkCommissionsHeld ?? 0, locale)}
+                    secondary={t('users.detail.heldLive')}
+                  />
+                </dl>
+              </div>
+              <div>
+                <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t('users.detail.volumeGroup')}
+                </p>
+                <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  <Stat
+                    label={t('users.detail.directSales')}
+                    primary={formatCurrency(m.salesAmount, locale)}
+                    secondary={`${m.salesCount} ${t('sales.title')}`}
+                  />
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.networkSalesDelivered"
+                        explainKey="users.detail.networkSalesDeliveredHint"
+                      />
+                    }
+                    primary={formatCurrency(m.networkSalesDeliveredAmount ?? 0, locale)}
+                    secondary={`${m.networkSalesDeliveredCount ?? 0} ${t('sales.title')}`}
+                  />
+                  <Stat
+                    label={
+                      <ExplainLabel
+                        labelKey="users.detail.networkSales"
+                        explainKey="users.detail.networkSalesHint"
+                      />
+                    }
+                    primary={formatCurrency(m.networkSalesAmount, locale)}
+                    secondary={`${m.networkSalesCount} ${t('sales.title')}`}
+                  />
+                  <Stat
+                    label={t('users.detail.teamSize')}
+                    primary={String(m.teamSize ?? '—')}
+                    secondary={t('users.detail.teamSizeHint')}
+                  />
+                  <Stat
+                    label={t('users.detail.ordersThisMonth')}
+                    primary={String(m.salesCount)}
+                    secondary={`${t('users.detail.networkCount')}: ${m.networkSalesCount}`}
+                  />
+                </dl>
+              </div>
+            </div>
           ) : (
             <EmptyState title={t('common.noResults')} className="py-6" />
           )}
@@ -853,7 +914,7 @@ function Stat({
   primary,
   secondary,
 }: {
-  label: string;
+  label: ReactNode;
   primary: string;
   secondary?: string;
 }) {

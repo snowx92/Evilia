@@ -279,8 +279,14 @@ export type UserMonthlyAnalytics = {
   commissionsEarned: number;
   directCommissionsEarned?: number;
   networkCommissionsEarned?: number;
+  /** Live held network commission — not scoped to `month`. */
+  networkCommissionsHeld?: number;
+  /** Delivered downline GMV × current network rate. */
+  networkCommissionsExpected?: number;
   networkSalesCount: number;
   networkSalesAmount: number;
+  networkSalesDeliveredCount?: number;
+  networkSalesDeliveredAmount?: number;
   teamSize?: number;
 };
 
