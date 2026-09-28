@@ -865,6 +865,7 @@ function SalesSection({ userId }: { userId: string }) {
                   <TableHead className="w-10" />
                   <TableHead>{t('sales.order')}</TableHead>
                   <TableHead>{t('sales.seller')}</TableHead>
+                  <TableHead>{t('sales.customer')}</TableHead>
                   <TableHead>{t('sales.trafficSource')}</TableHead>
                   <TableHead>{t('common.amount')}</TableHead>
                   <TableHead>{t('commissions.title')}</TableHead>

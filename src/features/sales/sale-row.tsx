@@ -137,6 +137,30 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
           />
         </TableCell>
 
+        {/* Customer — name + phone straight from the order payload */}
+        <TableCell className="max-w-[200px]">
+          {meta.customer?.name || meta.customer?.phone ? (
+            <div
+              className="flex min-w-0 flex-col gap-0.5 leading-tight"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {meta.customer.name ? (
+                <span className="truncate text-sm font-medium" title={meta.customer.name}>
+                  {meta.customer.name}
+                </span>
+              ) : null}
+              {meta.customer.phone ? (
+                <span className="flex items-center gap-1 font-mono text-xs text-muted-foreground" dir="ltr">
+                  {meta.customer.phone}
+                  <CopyButton value={meta.customer.phone} />
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <span className="text-sm text-muted-foreground">—</span>
+          )}
+        </TableCell>
+
         {/* Traffic source (secondary) */}
         <TableCell>
           {trafficSource ? (
@@ -228,7 +252,7 @@ export function SaleRow({ sale, knownSellerId }: { sale: Sale; knownSellerId?: s
             transition={{ duration: 0.15 }}
             className="bg-muted/30"
           >
-            <TableCell colSpan={8} className="p-0">
+            <TableCell colSpan={9} className="p-0">
               <motion.div
                 initial={{ height: 0 }}
                 animate={{ height: 'auto' }}
