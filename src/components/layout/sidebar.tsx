@@ -26,6 +26,7 @@ const COMMERCE_HREFS = new Set([
   '/admin/withdrawals',
   '/admin/targets',
   '/admin/expenses',
+  '/admin/catalog',
 ]);
 const ORG_HREFS = new Set(['/admin/users', '/admin/hierarchy', '/admin/access']);
 

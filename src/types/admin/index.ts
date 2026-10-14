@@ -8,3 +8,4 @@ export * from './commissions';
 export * from './sales';
 export * from './hierarchy';
 export * from './access';
+export * from './catalog';

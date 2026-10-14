@@ -13,6 +13,10 @@ export const queryKeys = {
   targets: {
     list: (params: Record<string, unknown>) => ['targets', 'list', params] as const,
   },
+  catalog: {
+    list: (params: Record<string, unknown>) => ['catalog', 'list', params] as const,
+    detail: (id: string) => ['catalog', 'detail', id] as const,
+  },
   expenses: {
     categories: ['expenses', 'categories'] as const,
     list: (params: Record<string, unknown>) => ['expenses', 'list', params] as const,

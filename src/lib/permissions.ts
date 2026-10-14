@@ -25,6 +25,8 @@ export const PERMISSIONS = {
   HIERARCHY_WRITE: 'hierarchy.write',
   ACCESS_READ: 'access.read',
   ACCESS_WRITE: 'access.write',
+  CATALOG_READ: 'catalog.read',
+  CATALOG_WRITE: 'catalog.write',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

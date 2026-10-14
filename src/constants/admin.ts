@@ -16,3 +16,9 @@ export const SALE_STATUSES: SaleStatus[] = [
 export const TARGET_TYPES: TargetType[] = ['personal', 'network'];
 
 export const DEFAULT_PAGE_SIZE = 20;
+
+/**
+ * Admin catalog is a small CMS list filtered client-side (search/status), so it
+ * loads one page at the backend max page size (100).
+ */
+export const ADMIN_CATALOG_LIST_LIMIT = 100;

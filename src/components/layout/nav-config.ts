@@ -10,6 +10,7 @@ import {
   BarChart3,
   GitBranch,
   ShieldCheck,
+  BookOpen,
 } from 'lucide-react';
 import { PERMISSIONS } from '@/lib/permissions';
 import type { LucideIcon } from 'lucide-react';
@@ -54,6 +55,12 @@ export const NAV_ITEMS: NavItem[] = [
     labelKey: 'nav.expenses',
     icon: Receipt,
     permission: PERMISSIONS.EXPENSES_READ,
+  },
+  {
+    href: '/admin/catalog',
+    labelKey: 'nav.catalog',
+    icon: BookOpen,
+    permission: PERMISSIONS.CATALOG_READ,
   },
   {
     href: '/admin/analytics',
