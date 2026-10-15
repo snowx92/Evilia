@@ -3,7 +3,7 @@ import localFont from 'next/font/local';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/providers/app-providers';
-
+//
 const thmanyahSans = localFont({
   src: [
     { path: '../../public/fonts/thmanyahsans-Light.woff2', weight: '300', style: 'normal' },
