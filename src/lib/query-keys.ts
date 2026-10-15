@@ -61,6 +61,9 @@ export const queryKeys = {
     permissionCatalog: ['access', 'permission-catalog'] as const,
     admins: (params: Record<string, unknown>) => ['access', 'admins', params] as const,
   },
+  systemConfig: {
+    detail: ['system-config'] as const,
+  },
   seller: {
     network: ['seller', 'network'] as const,
     networkTree: ['seller', 'network', 'tree'] as const,

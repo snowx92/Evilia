@@ -11,6 +11,7 @@ import {
   GitBranch,
   ShieldCheck,
   BookOpen,
+  Settings,
 } from 'lucide-react';
 import { PERMISSIONS } from '@/lib/permissions';
 import type { LucideIcon } from 'lucide-react';
@@ -20,6 +21,8 @@ export type NavItem = {
   labelKey: string;
   icon: LucideIcon;
   permission?: string;
+  /** Only visible to super admins (not grantable via permissions). */
+  superAdminOnly?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -79,5 +82,11 @@ export const NAV_ITEMS: NavItem[] = [
     labelKey: 'nav.access',
     icon: ShieldCheck,
     permission: PERMISSIONS.ACCESS_READ,
+  },
+  {
+    href: '/admin/system-config',
+    labelKey: 'nav.systemConfig',
+    icon: Settings,
+    superAdminOnly: true,
   },
 ];

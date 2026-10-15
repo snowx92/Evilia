@@ -28,7 +28,12 @@ const COMMERCE_HREFS = new Set([
   '/admin/expenses',
   '/admin/catalog',
 ]);
-const ORG_HREFS = new Set(['/admin/users', '/admin/hierarchy', '/admin/access']);
+const ORG_HREFS = new Set([
+  '/admin/users',
+  '/admin/hierarchy',
+  '/admin/access',
+  '/admin/system-config',
+]);
 
 export function Sidebar({ variant = 'desktop', onNavigate }: SidebarProps) {
   const pathname = usePathname();
@@ -37,6 +42,7 @@ export function Sidebar({ variant = 'desktop', onNavigate }: SidebarProps) {
   const user = useAuthStore((s) => s.user);
 
   const allowed = NAV_ITEMS.filter((item) => {
+    if (item.superAdminOnly) return Boolean(user?.isSuperAdmin);
     if (!item.permission) return true;
     return hasPermission(auth, item.permission);
   });

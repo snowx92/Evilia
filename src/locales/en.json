@@ -83,7 +83,8 @@
     "catalog": "Catalog",
     "sectionOverview": "Overview",
     "sectionMoney": "Money",
-    "sectionPeople": "People"
+    "sectionPeople": "People",
+    "systemConfig": "System config"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -824,5 +825,18 @@
   },
   "backend": {
     "pending": "Pending backend"
+  },
+  "systemConfig": {
+    "title": "System config",
+    "pageDesc": "Platform-wide settings. Only super admins can view and change these.",
+    "saved": "System config saved",
+    "superAdminOnly": "Only super admins can access system config.",
+    "withdrawals": {
+      "title": "Withdrawals",
+      "description": "Control whether sellers can submit new withdrawal requests. Existing requests can still be approved, rejected, and paid.",
+      "enabledLabel": "Allow sellers to request withdrawals",
+      "enabledHint": "Sellers can submit new withdrawal requests.",
+      "disabledHint": "New withdrawal requests are blocked for all sellers."
+    }
   }
 }

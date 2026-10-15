@@ -9,3 +9,4 @@ export * from './sales';
 export * from './hierarchy';
 export * from './access';
 export * from './catalog';
+export * from './system-config';
