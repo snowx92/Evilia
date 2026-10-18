@@ -6,6 +6,8 @@ export type SaleStatus =
   | 'processing'
   | 'delivered'
   | 'failed'
+  /** Hidden — accepted by API parsers; not shown in list filters/chips. */
+  | 'cancelled'
   | 'deleted'
   | (string & {});
 export type SaleCommissionRole = 'seller' | 'admin' | (string & {});

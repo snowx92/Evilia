@@ -6,6 +6,7 @@ import type { TargetType } from '@/types/admin/targets';
 export const USER_ROLES: UserRole[] = ['admin', 'seller'];
 export const USER_STATUSES: UserStatus[] = ['active', 'inactive', 'suspended'];
 export const WITHDRAWAL_STATUSES: WithdrawalStatus[] = ['pending', 'approved', 'paid', 'rejected'];
+/** Visible sale-list filters/chips (excludes hidden `cancelled`). */
 export const SALE_STATUSES: SaleStatus[] = [
   'pending',
   'processing',
