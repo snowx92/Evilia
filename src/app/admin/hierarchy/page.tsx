@@ -27,37 +27,10 @@ export default function HierarchyPage() {
 
   const allUsers = usersQuery.data?.items ?? [];
 
-  // Filter by search term across name / email / sellerCode, but keep ancestors
-  // so the tree still renders sensibly.
-  const filtered = useMemo(() => {
-    if (!search.trim()) return allUsers;
-    const term = search.trim().toLowerCase();
-    const match = (uid: string) => {
-      const u = allUsers.find((x) => x.id === uid);
-      if (!u) return false;
-      return (
-        u.displayName.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term) ||
-        (u.sellerCode ?? '').toLowerCase().includes(term) ||
-        u.id.toLowerCase().includes(term)
-      );
-    };
-    const keep = new Set<string>();
-    allUsers.forEach((u) => {
-      if (match(u.id)) {
-        // walk ancestors
-        let cur: string | null = u.id;
-        while (cur) {
-          keep.add(cur);
-          const node = allUsers.find((x) => x.id === cur);
-          cur = node?.parentId ?? null;
-        }
-      }
-    });
-    return allUsers.filter((u) => keep.has(u.id));
-  }, [allUsers, search]);
-
-  const tree = useMemo(() => buildTree(filtered), [filtered]);
+  // Always build from the full user set. Search locates (expand / highlight /
+  // scroll) inside HierarchyTree instead of pruning nodes — that keeps the
+  // org chart stable and matches the Seller portal behaviour.
+  const tree = useMemo(() => buildTree(allUsers), [allUsers]);
   const { total, levels } = useMemo(() => countAll(tree), [tree]);
   const adminCount = allUsers.filter((u) => u.role === 'admin').length;
   const sellerCount = allUsers.filter((u) => u.role === 'seller').length;
@@ -112,7 +85,7 @@ export default function HierarchyPage() {
         />
       </motion.div>
 
-      {/* Search */}
+      {/* Search — locate in the full tree by name, seller code, or phone */}
       <Card>
         <CardContent className="py-4">
           <div className="relative">
@@ -120,8 +93,9 @@ export default function HierarchyPage() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('common.search')}
+              placeholder={t('hierarchy_ext.searchPlaceholder')}
               className="ps-10"
+              aria-label={t('hierarchy_ext.searchPlaceholder')}
             />
           </div>
         </CardContent>
@@ -147,7 +121,7 @@ export default function HierarchyPage() {
                 <span className="font-medium text-foreground">{total}</span> · {t('hierarchy_ext.levels')}:{' '}
                 <span className="font-medium text-foreground">{levels}</span>
               </p>
-              <HierarchyTree roots={tree} />
+              <HierarchyTree roots={tree} searchQuery={search} />
             </>
           )}
         </CardContent>

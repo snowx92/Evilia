@@ -1,13 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertTriangle,
   Crown,
   Eye,
   Loader2,
@@ -35,15 +34,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import { LinksListEditor } from '@/components/shared/links-list-editor';
 import { ReassignParentDialog } from './reassign-parent-dialog';
 import { useCreateSellerMutation, useDeleteUserMutation } from '@/hooks/queries/use-users';
@@ -54,6 +44,9 @@ import { cn, formatPercent } from '@/lib/utils';
 import { ApiError } from '@/types/api';
 import { useAuthStore } from '@/store/auth';
 import { type TreeNode } from './build-tree';
+import { locateInTree } from './tree-search';
+
+const TREE_NODE_ATTR = 'data-tree-node-id';
 
 // ─── Role colours ─────────────────────────────────────────────────────────────
 
@@ -346,10 +339,12 @@ function NodeCard({
   node,
   isRoot,
   branchColor,
+  highlighted,
 }: {
   node: TreeNode;
   isRoot: boolean;
   branchColor: string | null;
+  highlighted?: boolean;
 }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
@@ -360,7 +355,10 @@ function NodeCard({
   // user record so its card should be a slim, non-interactive marker.
   if (node.id === VIRTUAL_ROOT_ID) {
     return (
-      <div className="group/node relative flex w-[220px] items-center gap-3 rounded-2xl border-2 border-primary/50 bg-gradient-to-br from-primary-soft/80 to-card p-3 shadow-card">
+      <div
+        {...{ [TREE_NODE_ATTR]: node.id }}
+        className="group/node relative flex w-[220px] items-center gap-3 rounded-2xl border-2 border-primary/50 bg-gradient-to-br from-primary-soft/80 to-card p-3 shadow-card"
+      >
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
           <Network className="h-4 w-4" />
         </div>
@@ -380,7 +378,7 @@ function NodeCard({
   // sub-tree visually clusters together (matches the reference org-chart).
   // `branchColor` is a hex string from BRANCH_PALETTE — we append alpha hex
   // values to derive a soft background tint and a saturated border in one step.
-  const branchStyle: React.CSSProperties | undefined =
+  const branchStyle: CSSProperties | undefined =
     branchColor && !isRoot
       ? {
           backgroundColor: `${branchColor}1a`, // ~10% alpha tint
@@ -390,11 +388,13 @@ function NodeCard({
 
   return (
     <div
+      {...{ [TREE_NODE_ATTR]: node.id }}
       className={cn(
         'group/node relative flex w-[200px] flex-col gap-2 overflow-hidden rounded-2xl border-2 bg-card p-3 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover',
         isRoot
           ? 'border-primary/40 bg-gradient-to-br from-primary-soft/40 to-card'
           : !branchColor && 'border-border/70',
+        highlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
       )}
       style={branchStyle}
     >
@@ -501,12 +501,14 @@ function Branch({
   open,
   onToggle,
   branchColor,
+  highlightedIds,
 }: {
   node: TreeNode;
   open: Set<string>;
   onToggle: (id: string) => void;
   /** Colour for this whole sub-tree. Null for the root. */
   branchColor: string | null;
+  highlightedIds: Set<string>;
 }) {
   const expanded = open.has(node.id);
   const hasChildren = node.children.length > 0;
@@ -515,14 +517,19 @@ function Branch({
   // Expose the branch colour to CSS so the .org-tree connector pseudo-elements
   // tint themselves to match this sub-tree.
   const liStyle = branchColor
-    ? ({ '--branch-color': branchColor } as React.CSSProperties)
+    ? ({ '--branch-color': branchColor } as CSSProperties)
     : undefined;
 
   return (
     <li style={liStyle}>
       {/* Node card + collapse toggle */}
       <div className="relative inline-block">
-        <NodeCard node={node} isRoot={isRoot} branchColor={branchColor} />
+        <NodeCard
+          node={node}
+          isRoot={isRoot}
+          branchColor={branchColor}
+          highlighted={highlightedIds.has(node.id)}
+        />
         {hasChildren && (
           <button
             type="button"
@@ -581,6 +588,7 @@ function Branch({
                   open={open}
                   onToggle={onToggle}
                   branchColor={childColor ?? null}
+                  highlightedIds={highlightedIds}
                 />
               );
             })}
@@ -614,8 +622,16 @@ function shiftDepth(node: TreeNode, delta: number): TreeNode {
   };
 }
 
-export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
+export function HierarchyTree({
+  roots,
+  searchQuery = '',
+}: {
+  roots: TreeNode[];
+  /** Locate by name / seller code / phone — expands path, highlights, scrolls. */
+  searchQuery?: string;
+}) {
   const { t } = useTranslation();
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   // When the backend returns several disconnected top-level users, wrap them
   // under a single synthetic node so the tree has a clear "start" and each
@@ -661,6 +677,42 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
 
   const [open, setOpen] = useState<Set<string>>(defaultOpen);
   const [zoom, setZoom] = useState(1);
+  const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
+  const [matchCount, setMatchCount] = useState(0);
+
+  // Locate: expand ancestors, highlight matches, scroll first hit into view.
+  useEffect(() => {
+    const term = searchQuery.trim();
+    if (!term) {
+      setHighlightedIds(new Set());
+      setMatchCount(0);
+      return;
+    }
+
+    const { matchIds, expandIds } = locateInTree(displayRoots, term);
+    // Never treat the synthetic root as a searchable "user" match.
+    const realMatches = matchIds.filter((id) => id !== VIRTUAL_ROOT_ID);
+    setMatchCount(realMatches.length);
+    setHighlightedIds(new Set(realMatches));
+
+    if (realMatches.length === 0) return;
+
+    setOpen((prev) => {
+      const next = new Set(prev);
+      expandIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+    const firstId = realMatches[0];
+    const timer = window.setTimeout(() => {
+      const el = viewportRef.current?.querySelector(
+        `[${TREE_NODE_ATTR}="${CSS.escape(firstId)}"]`,
+      );
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }, 80);
+
+    return () => window.clearTimeout(timer);
+  }, [searchQuery, displayRoots]);
 
   const toggle = (id: string) => {
     setOpen((prev) => {
@@ -682,12 +734,13 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
   };
 
   const zoomPct = Math.round(zoom * 100);
+  const term = searchQuery.trim();
 
   return (
     <div className="space-y-4">
       {/* Controls — expand/collapse on the left, zoom on the right */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Button variant="ghost" size="sm" onClick={() => setOpen(allIds())}>
             {t('hierarchy_ext.expandAll')}
           </Button>
@@ -702,11 +755,18 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
               size="sm"
               className="h-7 px-2.5 text-[11px]"
               onClick={() => expandToLevel(lvl)}
-              title={`Show ${lvl} level${lvl > 1 ? 's' : ''}`}
+              title={t('hierarchy_ext.showLevel', { level: lvl })}
             >
               L{lvl}
             </Button>
           ))}
+          {term ? (
+            <span className="ms-1 text-[11px] text-muted-foreground">
+              {matchCount > 0
+                ? t('hierarchy_ext.matchCount', { count: matchCount })
+                : t('hierarchy_ext.noMatches')}
+            </span>
+          ) : null}
         </div>
         <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card p-1 shadow-sm">
           <Button
@@ -761,7 +821,10 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
 
       {/* Scrollable viewport — both axes. Zoom is applied via CSS transform
           on the inner wrapper; origin top-left so scrolling stays predictable. */}
-      <div className="overflow-auto rounded-xl border border-border/40 bg-muted/20 max-h-[75vh]">
+      <div
+        ref={viewportRef}
+        className="overflow-auto rounded-xl border border-border/40 bg-muted/20 max-h-[75vh]"
+      >
         <div
           className="inline-block min-w-full p-6"
           style={{
@@ -777,6 +840,7 @@ export function HierarchyTree({ roots }: { roots: TreeNode[] }) {
                 open={open}
                 onToggle={toggle}
                 branchColor={null}
+                highlightedIds={highlightedIds}
               />
             ))}
           </ul>

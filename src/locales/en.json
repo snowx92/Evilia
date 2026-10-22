@@ -662,6 +662,16 @@
         "unknown": "Unknown"
       }
     },
+    "topCatalog": {
+      "title": "Top selling catalog items",
+      "desc": "Top 10 catalog products by units sold in the range (matched via Vondera product id).",
+      "descSeller": "This seller's own orders only — top catalog products by units sold.",
+      "trackedOrders": "Tracked orders",
+      "matchedUnits": "Matched units",
+      "unmatchedUnits": "Unmatched units",
+      "units": "units",
+      "orders": "orders"
+    },
     "excludedFromGmv": "Excluded from GMV",
     "heldCommissions": "Held on these orders",
     "commissionCredited": "Credited to wallets",
@@ -680,6 +690,9 @@
       "activeSellers": "Sellers with activity (lastActive) inside the selected range.",
       "newSellers": "Sellers whose accounts were created in the selected range.",
       "trafficTotal": "Pending, processing, delivered, and failed orders imported in the range. Deleted/cancelled are excluded. Counts use Firestore aggregations on metadata.utmData.",
+      "topCatalogOrders": "Pending, processing, delivered, and failed orders imported in the range that were scanned server-side for product lines.",
+      "topCatalogMatched": "Sum of line quantities whose Vondera product id (or slug) matched a catalog product.",
+      "topCatalogUnmatched": "Line quantities that did not match any catalog product — excluded from the ranked list.",
       "deliveryRate": "Delivered orders ÷ (delivered + failed) in the range (by deliveredAt / failed import date).",
       "failedRate": "Failed orders ÷ (delivered + failed) in the range."
     }
@@ -840,6 +853,10 @@
     "zoomReset": "Reset zoom",
     "zoomFit": "Fit to view",
     "allSellers": "All sellers",
+    "searchPlaceholder": "Search by name, seller code, or phone",
+    "matchCount": "{count} matches",
+    "noMatches": "No matches",
+    "showLevel": "Show {level} level(s)",
     "explain": {
       "totalMembers": "Everyone currently loaded in the hierarchy tree.",
       "levels": "Deepest depth of the hierarchy from root to farthest seller.",

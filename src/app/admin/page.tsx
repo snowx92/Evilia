@@ -19,6 +19,7 @@ import { ExplainLabel } from '@/components/shared/explain-label';
 import { ErrorState } from '@/components/shared/error-state';
 import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
 import { OrderTrafficCards } from '@/features/analytics/order-traffic-cards';
+import { TopCatalogItemsCards } from '@/features/analytics/top-catalog-items-cards';
 import { useOwnerOverviewQuery } from '@/hooks/queries/use-analytics';
 import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
@@ -424,6 +425,7 @@ export default function DashboardPage() {
         />
         <SalesStatusCards defaultRange="month" />
         <OrderTrafficCards defaultRange="month" />
+        <TopCatalogItemsCards defaultRange="month" />
       </section>
     </div>
   );

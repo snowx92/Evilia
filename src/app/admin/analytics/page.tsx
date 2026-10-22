@@ -29,6 +29,7 @@ import { WithdrawalsChart } from '@/features/analytics/withdrawals-chart';
 import { NewSellersTrend, WithdrawalsTrend } from '@/features/analytics/secondary-trends';
 import { UserMonthlyCard } from '@/features/analytics/user-monthly-card';
 import { OrderTrafficCards } from '@/features/analytics/order-traffic-cards';
+import { TopCatalogItemsCards } from '@/features/analytics/top-catalog-items-cards';
 import { useOwnerReportQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -193,6 +194,7 @@ export default function AnalyticsPage() {
               />
             </div>
             <OrderTrafficCards defaultRange="month" />
+            <TopCatalogItemsCards defaultRange="month" />
           </section>
         </div>
       )}

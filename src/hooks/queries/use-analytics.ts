@@ -11,6 +11,7 @@ import type {
   OwnerReportParams,
   SalesAnalyticsParams,
   SalesTrafficParams,
+  SalesTopCatalogItemsParams,
   UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
 
@@ -65,6 +66,21 @@ export function useSalesTrafficQuery(params: SalesTrafficParams, enabled = true)
   return useQuery({
     queryKey: queryKeys.analytics.salesTraffic(params),
     queryFn: () => analyticsService.salesTraffic(params),
+    enabled: enabled && Boolean(params.from) && Boolean(params.to),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+/* ── /v1/admin/analytics/sales/top-catalog-items ───────────────────────────── */
+
+export function useSalesTopCatalogItemsQuery(
+  params: SalesTopCatalogItemsParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.analytics.salesTopCatalogItems(params),
+    queryFn: () => analyticsService.salesTopCatalogItems(params),
     enabled: enabled && Boolean(params.from) && Boolean(params.to),
     staleTime: 60_000,
     placeholderData: (prev) => prev,

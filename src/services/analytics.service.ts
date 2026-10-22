@@ -14,6 +14,8 @@ import type {
   SalesAnalyticsResponse,
   SalesTrafficParams,
   SalesTrafficResponse,
+  SalesTopCatalogItemsParams,
+  SalesTopCatalogItemsResponse,
   UserMonthlyAnalytics,
   UserMonthlyAnalyticsParams,
   UserMonthlyHistoryEntry,
@@ -65,6 +67,23 @@ export const analyticsService = {
           ...(params.scope ? { scope: params.scope } : {}),
         },
       }),
+    ),
+
+  /** GET /v1/admin/analytics/sales/top-catalog-items — top catalog by units sold. */
+  salesTopCatalogItems: (params: SalesTopCatalogItemsParams) =>
+    unwrap(
+      api.get<ApiResponse<SalesTopCatalogItemsResponse>>(
+        '/v1/admin/analytics/sales/top-catalog-items',
+        {
+          params: {
+            from: params.from,
+            to: params.to,
+            limit: params.limit ?? 10,
+            ...(params.sellerId ? { sellerId: params.sellerId } : {}),
+            ...(params.scope ? { scope: params.scope } : {}),
+          },
+        },
+      ),
     ),
 
   /**

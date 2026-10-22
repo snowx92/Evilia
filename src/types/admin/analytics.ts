@@ -240,6 +240,35 @@ export type SalesTrafficResponse = {
   unclassifiedPaidTypeCount: number;
 };
 
+// ─── /v1/admin/analytics/sales/top-catalog-items ──────────────────────────────
+
+export type SalesTopCatalogItemsParams = SalesAnalyticsParams & {
+  limit?: number;
+};
+
+export type SalesTopCatalogItem = {
+  rank: number;
+  catalogProductId: string | null;
+  vonderaProductId: string | null;
+  slug: string | null;
+  name: { en?: string; ar?: string } | string;
+  imageUrl: string | null;
+  quantitySold: number;
+  orderCount: number;
+  revenue: number;
+};
+
+export type SalesTopCatalogItemsResponse = {
+  sellerId: string | null;
+  scope: 'platform' | 'seller_direct' | 'seller_network' | null;
+  range: { from: string; to: string } | null;
+  limit: number;
+  totalOrders: number;
+  matchedQuantity: number;
+  unmatchedQuantity: number;
+  items: SalesTopCatalogItem[];
+};
+
 // ─── /v1/admin/analytics/daily ───────────────────────────────────────────────
 
 export type DailyAnalyticsParams = {
