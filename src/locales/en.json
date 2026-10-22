@@ -639,6 +639,29 @@
     "salesByStatusTitle": "Breakdown by status",
     "salesByStatusDesc": "Pick a date range (and optionally a seller). Pending/failed/deleted by import date; processing by processedAt; delivered by deliveredAt; credited commissions by credit date.",
     "salesByStatusDescSeller": "This seller's own (direct) orders only — not their team. Pending/failed/deleted by import date; processing by processedAt; delivered by deliveredAt; credited commissions by credit date.",
+    "traffic": {
+      "title": "Order source & paid vs organic",
+      "desc": "Where tracked orders came from in the selected range (from Vondera utmData). Unknown means missing or unclassified attribution.",
+      "descSeller": "This seller's own orders only — channel and paid/organic mix from utmData.",
+      "totalOrders": "Tracked orders",
+      "bySource": "By channel",
+      "byPaidType": "Paid vs organic",
+      "unknownHint": "Unknown buckets are orders with missing or unrecognized utm source/medium — not guessed.",
+      "source": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "direct": "Direct",
+        "google": "Google",
+        "other": "Other",
+        "unknown": "Unknown"
+      },
+      "paidType": {
+        "paid": "Paid",
+        "organic": "Organic",
+        "unknown": "Unknown"
+      }
+    },
     "excludedFromGmv": "Excluded from GMV",
     "heldCommissions": "Held on these orders",
     "commissionCredited": "Credited to wallets",
@@ -656,6 +679,7 @@
       "heldCommission": "Live sum of wallet onGoingOrdersBalance across all sellers — source of truth for payout liability on undelivered commissions.",
       "activeSellers": "Sellers with activity (lastActive) inside the selected range.",
       "newSellers": "Sellers whose accounts were created in the selected range.",
+      "trafficTotal": "Pending, processing, delivered, and failed orders imported in the range. Deleted/cancelled are excluded. Counts use Firestore aggregations on metadata.utmData.",
       "deliveryRate": "Delivered orders ÷ (delivered + failed) in the range (by deliveredAt / failed import date).",
       "failedRate": "Failed orders ÷ (delivered + failed) in the range."
     }

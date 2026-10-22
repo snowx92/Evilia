@@ -12,6 +12,8 @@ import type {
   OwnerReportResponse,
   SalesAnalyticsParams,
   SalesAnalyticsResponse,
+  SalesTrafficParams,
+  SalesTrafficResponse,
   UserMonthlyAnalytics,
   UserMonthlyAnalyticsParams,
   UserMonthlyHistoryEntry,
@@ -43,6 +45,19 @@ export const analyticsService = {
   sales: (params: SalesAnalyticsParams) =>
     unwrap(
       api.get<ApiResponse<SalesAnalyticsResponse>>('/v1/admin/analytics/sales', {
+        params: {
+          from: params.from,
+          to: params.to,
+          ...(params.sellerId ? { sellerId: params.sellerId } : {}),
+          ...(params.scope ? { scope: params.scope } : {}),
+        },
+      }),
+    ),
+
+  /** GET /v1/admin/analytics/sales/traffic — source + paid/organic counts. */
+  salesTraffic: (params: SalesTrafficParams) =>
+    unwrap(
+      api.get<ApiResponse<SalesTrafficResponse>>('/v1/admin/analytics/sales/traffic', {
         params: {
           from: params.from,
           to: params.to,

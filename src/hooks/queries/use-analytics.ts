@@ -10,6 +10,7 @@ import type {
   LeaderboardParams,
   OwnerReportParams,
   SalesAnalyticsParams,
+  SalesTrafficParams,
   UserMonthlyHistoryParams,
 } from '@/types/admin/analytics';
 
@@ -52,6 +53,18 @@ export function useSalesAnalyticsQuery(params: SalesAnalyticsParams, enabled = t
   return useQuery({
     queryKey: queryKeys.analytics.sales(params),
     queryFn: () => analyticsService.sales(params),
+    enabled: enabled && Boolean(params.from) && Boolean(params.to),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+/* ── /v1/admin/analytics/sales/traffic ────────────────────────────────────── */
+
+export function useSalesTrafficQuery(params: SalesTrafficParams, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.analytics.salesTraffic(params),
+    queryFn: () => analyticsService.salesTraffic(params),
     enabled: enabled && Boolean(params.from) && Boolean(params.to),
     staleTime: 60_000,
     placeholderData: (prev) => prev,

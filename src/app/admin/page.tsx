@@ -18,6 +18,7 @@ import { MetricCard } from '@/components/shared/metric-card';
 import { ExplainLabel } from '@/components/shared/explain-label';
 import { ErrorState } from '@/components/shared/error-state';
 import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
+import { OrderTrafficCards } from '@/features/analytics/order-traffic-cards';
 import { useOwnerOverviewQuery } from '@/hooks/queries/use-analytics';
 import { useDocumentTitle } from '@/hooks/use-document-title';
 import { useTranslation } from '@/hooks/use-translation';
@@ -422,6 +423,7 @@ export default function DashboardPage() {
           description={t('dashboard.section.pipelineDesc')}
         />
         <SalesStatusCards defaultRange="month" />
+        <OrderTrafficCards defaultRange="month" />
       </section>
     </div>
   );

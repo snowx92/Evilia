@@ -28,6 +28,7 @@ import { SalesStatusChart } from '@/features/analytics/sales-status-chart';
 import { WithdrawalsChart } from '@/features/analytics/withdrawals-chart';
 import { NewSellersTrend, WithdrawalsTrend } from '@/features/analytics/secondary-trends';
 import { UserMonthlyCard } from '@/features/analytics/user-monthly-card';
+import { OrderTrafficCards } from '@/features/analytics/order-traffic-cards';
 import { useOwnerReportQuery } from '@/hooks/queries/use-analytics';
 import { useTranslation } from '@/hooks/use-translation';
 import { useLocaleStore } from '@/store/locale';
@@ -191,6 +192,7 @@ export default function AnalyticsPage() {
                 isLoading={report.isLoading}
               />
             </div>
+            <OrderTrafficCards defaultRange="month" />
           </section>
         </div>
       )}

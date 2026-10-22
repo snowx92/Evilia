@@ -204,6 +204,42 @@ export type SalesAnalyticsResponse = {
   totals: SalesAnalyticsTotals;
 } & Partial<Record<SalesAnalyticsStatus, SalesAnalyticsBucket>>;
 
+// ─── /v1/admin/analytics/sales/traffic ───────────────────────────────────────
+
+export type SalesTrafficParams = SalesAnalyticsParams;
+
+export type TrafficSourceBucket =
+  | 'facebook'
+  | 'instagram'
+  | 'tiktok'
+  | 'direct'
+  | 'google'
+  | 'other'
+  | 'unknown';
+
+export type TrafficPaidType = 'paid' | 'organic' | 'unknown';
+
+export type SalesTrafficSourceItem = {
+  source: TrafficSourceBucket;
+  count: number;
+};
+
+export type SalesTrafficPaidTypeItem = {
+  type: TrafficPaidType;
+  count: number;
+};
+
+export type SalesTrafficResponse = {
+  sellerId: string | null;
+  scope: 'platform' | 'seller_direct' | 'seller_network' | null;
+  range: { from: string; to: string } | null;
+  totalOrders: number;
+  bySource: SalesTrafficSourceItem[];
+  byPaidType: SalesTrafficPaidTypeItem[];
+  unclassifiedSourceCount: number;
+  unclassifiedPaidTypeCount: number;
+};
+
 // ─── /v1/admin/analytics/daily ───────────────────────────────────────────────
 
 export type DailyAnalyticsParams = {

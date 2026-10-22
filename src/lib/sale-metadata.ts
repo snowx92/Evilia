@@ -138,9 +138,9 @@ function parseUtmData(raw: unknown): SaleUtmData | undefined {
     campaign: asString(r.campaign) ?? null,
     content: asString(r.content) ?? null,
     ipAddress: asString(r.ipAddress) ?? null,
-    medium: asString(r.medium) ?? null,
+    medium: asString(r.medium) ?? asString(r.utm_medium) ?? null,
     referrer: asString(r.referrer) ?? null,
-    source: asString(r.source) ?? null,
+    source: asString(r.source) ?? asString(r.utm_source) ?? null,
     term: asString(r.term) ?? null,
     aff: asString(r.aff) ?? null,
   };

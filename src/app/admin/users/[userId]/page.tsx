@@ -59,6 +59,7 @@ import { EditUserDialog } from '@/features/users/edit-user-dialog';
 import { ResetPasswordDialog } from '@/features/users/reset-password-dialog';
 import { SaleRow } from '@/features/sales/sale-row';
 import { SalesStatusCards } from '@/features/analytics/sales-status-cards';
+import { OrderTrafficCards } from '@/features/analytics/order-traffic-cards';
 import {
   Table,
   TableBody,
@@ -989,6 +990,7 @@ export default function AdminUserDetailPage({
         <TabsContent value="sales" className="mt-0 space-y-4">
           <p className="text-sm text-muted-foreground">{t('users.detail.tabs.salesDesc')}</p>
           <SalesStatusCards lockedSellerId={userId} />
+          <OrderTrafficCards lockedSellerId={userId} defaultRange="month" />
           <SalesSection userId={userId} />
         </TabsContent>
       </Tabs>
